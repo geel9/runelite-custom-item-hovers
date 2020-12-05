@@ -1,0 +1,352 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+    {
+      "items_regex": ["ENSOULED_GOBLIN_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 3",
+          "XP:",
+          "  \u2022Prayer: 130",
+          "  \u2022Magic: 6",
+          "Runes:",
+          "  \u2022Nature (1x)",
+          "  \u2022Body (2x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_MONKEY_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 7",
+          "XP:",
+          "  \u2022Prayer: 182",
+          "  \u2022Magic: 14",
+          "Runes:",
+          "  \u2022Nature (1x)",
+          "  \u2022Body (3x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_IMP_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>--Reanimation--</col>",
+          "Magic Level: 12",
+          "XP:",
+          "  \u2022Prayer: 286",
+          "  \u2022Magic: 24",
+          "Runes:",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (3x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_MINOTAUR_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 16",
+          "XP:",
+          "  \u2022Prayer: 364",
+          "  \u2022Magic: 32",
+          "Runes:",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_SCORPION_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 19",
+          "XP:",
+          "  \u2022Prayer: 454",
+          "  \u2022Magic: 38",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (1x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_BEAR_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 21",
+          "XP:",
+          "  \u2022Prayer: 480",
+          "  \u2022Magic: 42",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (1x)",
+          "  \u2022Body (1x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_UNICORN_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 22",
+          "XP:",
+          "  \u2022Prayer: 494",
+          "  \u2022Magic: 44",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (1x)",
+          "  \u2022Body (2x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_DOG_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 26",
+          "XP:",
+          "  \u2022Prayer: 520",
+          "  \u2022Magic: 52",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (2x)",
+          "  \u20222 Body"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_CHAOS_DRUID_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 30",
+          "XP:",
+          "  \u2022Prayer: 584",
+          "  \u2022Magic: 60",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (3x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_GIANT_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 37",
+          "XP:",
+          "  \u2022Prayer: 650",
+          "  \u2022Magic: 74",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_OGRE_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 40",
+          "XP:",
+          "  \u2022Prayer: 716",
+          "  \u2022Magic: 80",
+          "Runes:",
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_ELF_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 43",
+          "XP:",
+          "  \u2022Prayer: 754",
+          "  \u2022Magic: 86",
+          "Runes:",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (2x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_TROLL_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 46",
+          "XP:",
+          "  \u2022Prayer: 780",
+          "  \u2022Magic: 902",
+          "Runes:",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (3x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_HORROR_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 52",
+          "XP:",
+          "  \u2022Prayer: 832",
+          "  \u2022Magic: 104",
+          "Runes:",
+          "  \u2022Soul (4x)",
+          "  \u2022Nature (2x)",
+          "  \u2022Body (2x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_KALPHITE_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 57",
+          "XP:",
+          "  \u2022Prayer: 884",
+          "  \u2022Magic: 114",
+          "Runes:",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_DAGANNOTH_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 62",
+          "XP:",
+          "  \u2022Prayer: 936",
+          "  \u2022Magic: 124",
+          "Runes:",
+          "  \u2022Soul (3x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_BLOODVELD_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 65",
+          "XP:",
+          "  \u2022Prayer: 1,040",
+          "  \u2022Magic: 130",
+          "Runes:",
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (2x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_TZHAAR_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 69",
+          "XP:",
+          "  \u2022Prayer: 1,104",
+          "  \u2022Magic: 138",
+          "Runes:",
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (3x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_DEMON_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 72",
+          "XP:",
+          "  \u2022Prayer: 1,170",
+          "  \u2022Magic: 144",
+          "Runes:",
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (2x)",
+          "  \u2022Nature (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_AVIANSIE_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 78",
+          "XP:",
+          "  \u2022Prayer: 1,234",
+          "  \u2022Magic: 156",
+          "Runes:",
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (3x)",
+          "  \u2022Nature (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_ABYSSAL_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 85",
+          "XP:",
+          "  \u2022Prayer: 1,300",
+          "  \u2022Magic: 170",
+          "Runes:",
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (4x)",
+          "  \u2022Nature (4x)"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["ENSOULED_DRAGON_HEAD.*"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Magic Level: 93",
+          "XP:",
+          "  \u2022Prayer: 1,560",
+          "  \u2022Magic: 186",
+          "Runes:",
+          "  \u2022Blood (2x)",
+          "  \u2022Soul (4x)",
+          "  \u2022Nature (4x)"
+        ]
+      ]
+    }
+  ]
+}

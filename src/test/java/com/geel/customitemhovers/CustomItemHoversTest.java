@@ -1,13 +1,13 @@
-package com.example;
+package com.geel.customitemhovers;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class ExamplePluginTest
+public class CustomItemHoversTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(ExamplePlugin.class);
+		ExternalPluginManager.loadBuiltin(CustomItemHoversPlugin.class);
 		RuneLite.main(args);
 	}
 }
