@@ -13,15 +13,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class HoverFileParser {
-    public static ArrayList<HoverFile> readHoverFiles(String dirPathStr) {
+    public static ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
 
-        if(dirPathStr == null || dirPathStr.trim().isEmpty()){
-            return ret;
-        }
-
-        Path dirPath = Paths.get(dirPathStr);
-        if(!Files.isDirectory(dirPath)){
+        if(!Files.isDirectory(dirPath) || !Files.isReadable(dirPath)){
             return ret;
         }
 

@@ -28,15 +28,4 @@ public interface CustomItemHoversConfig extends Config
 	default Color defaultHoverColor() {
 		return new Color(238, 238, 238);
 	}
-
-	@ConfigItem(
-			keyName = "hoversDir",
-			name = "Hovers Directory",
-			description = "The full path to the directory containing your desired hover definition files",
-			position = 3
-	)
-	default String hoversDir()
-	{
-		return null;
-	}
 }

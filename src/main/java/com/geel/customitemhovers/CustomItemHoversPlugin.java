@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ItemID;
+import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -16,6 +17,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
         enabledByDefault = true
 )
 public class CustomItemHoversPlugin extends Plugin {
+    private static final String PLUGIN_FOLDER_NAME = "customitemhovers";
+
     @Inject
     private ClientThread clientThread;
 
@@ -60,6 +64,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Override
     protected void startUp() throws Exception {
+        prepareHoverFolder();
         prepareHoverMap();
         prepareHoverWatcher();
         overlayManager.add(overlay);
@@ -75,7 +80,7 @@ public class CustomItemHoversPlugin extends Plugin {
     @Subscribe
     public void onConfigChanged(ConfigChanged ev) {
         if (ev.getGroup().equals("customitemhovers") && ev.getKey().equals("hoverEnableHotReload")) {
-            if(config.hoverEnableHotReload()) {
+            if (config.hoverEnableHotReload()) {
                 clientThread.invoke(this::prepareHoverWatcher);
             } else {
                 clientThread.invoke(this::stopHoverWatcher);
@@ -109,12 +114,28 @@ public class CustomItemHoversPlugin extends Plugin {
      * @return Path|null The path if it's a valid, readable directory Path, null otherwise.
      */
     public Path getHoverPath() {
-        Path dirPath = Paths.get(config.hoversDir());
-        if (dirPath == null || !Files.isDirectory(dirPath) || !Files.isReadable(dirPath)) {
-            return null;
+        return Paths.get(RuneLite.RUNELITE_DIR.getAbsolutePath() + "/" + PLUGIN_FOLDER_NAME);
+    }
+
+    protected void prepareHoverFolder() throws IOException {
+        Path rlPath = RuneLite.RUNELITE_DIR.toPath();
+
+        if (!Files.isDirectory(rlPath) || !Files.isReadable(rlPath) || !Files.isWritable(rlPath)) {
+            log.error("[CUSTOMITEMHOVERS] Bad .runelite path");
+            return;
         }
 
-        return dirPath;
+        Path hoverPath = getHoverPath();
+
+        //Create plugin folder in `.runelite` if it doesn't exist
+        if (Files.notExists(hoverPath)) {
+            Files.createDirectory(hoverPath);
+        }
+
+        if(!Files.isDirectory(rlPath) || !Files.isReadable(rlPath)) {
+            log.error("[CUSTOMITEMHOVERS] Bad hover path");
+            return;
+        }
     }
 
     protected void prepareHoverMap() {
@@ -123,7 +144,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
         hovers.clear();
 
-        ArrayList<HoverFile> hoverFiles = HoverFileParser.readHoverFiles(config.hoversDir());
+        ArrayList<HoverFile> hoverFiles = HoverFileParser.readHoverFiles(getHoverPath());
 
         for (HoverFile f : hoverFiles) {
             for (HoverDef d : f.Hovers) {

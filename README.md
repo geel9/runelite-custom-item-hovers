@@ -2,11 +2,11 @@
 This plugin displays arbitrary custom hover text over items.
 
 # Setting up the plugin
-For now, you must create a folder somewhere on your device, which will hold your hover files.
+Upon first launch, the plugin will create a `customitemhovers` folder in your `.runelite` directory, which is usually located in your `HOME` directory.
 
-Once you've created the folder, copy its full path into the "Hover File Directory" config setting on RuneLite.
+For example, on Windows, this might be `C:/Users/{username}/.runelite/customitemhovers`
 
-The plugin will read all of the hover files in the specified directory.
+Place your hover files in this folder. To start, you can use the files in the `examples` folder of this repo.
 
 # Hover File
 A Hover File is simply a JSON file.
