@@ -28,4 +28,15 @@ public interface CustomItemHoversConfig extends Config
 	default Color defaultHoverColor() {
 		return new Color(238, 238, 238);
 	}
+
+	@ConfigItem(
+			keyName = "openDirChatCommand",
+			name = "Hover Directory Chat Command",
+			description = "Chat command to open hoverfile directory in your file explorer",
+			position = 3
+	)
+	default String openDirChatCommand()
+	{
+		return "openhoverdir";
+	}
 }

@@ -88,6 +88,25 @@ public class CustomItemHoversPlugin extends Plugin {
         }
     }
 
+    @Subscribe
+    public void onCommandExecuted(CommandExecuted commandExecuted) {
+        if (!commandExecuted.getCommand().equals(config.openDirChatCommand())) {
+            return;
+        }
+
+        Path hoverPath = getHoverPath();
+
+        if(hoverPath == null) {
+            return;
+        }
+
+        try {
+            Desktop.getDesktop().open(hoverPath.toFile());
+        } catch (Exception e) {
+            log.error("Got exception opening hover folder", e);
+        }
+    }
+
     public String[] getItemHovers(int itemID) {
         //Do a hot-reload if we should
         if (config.hoverEnableHotReload() && hoverWatcherTriggered()) {
