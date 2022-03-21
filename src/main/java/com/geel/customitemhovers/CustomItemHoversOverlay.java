@@ -109,7 +109,7 @@ class CustomItemHoversOverlay extends Overlay
 			return null;
 
 		final MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
-		final MenuAction action = MenuAction.of(lastEntry.getType());
+		final MenuAction action = lastEntry.getType();
 		final int widgetId = lastEntry.getParam1();
 		final int groupId = WidgetInfo.TO_GROUP(widgetId);
 
