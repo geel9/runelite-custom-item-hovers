@@ -131,10 +131,8 @@ class CustomItemHoversOverlay extends Overlay
 		if (item == null)
 			return null;
 
-		int id = itemManager.canonicalize(item.getId());
-
 		//Get the hovers for this item ID
-		String[] hoverTexts = plugin.getItemHovers(id);
+		String[] hoverTexts = plugin.getItemHovers(item, itemManager.getItemComposition(item.getId()));
 		if(hoverTexts.length == 0)
 			return null;
 

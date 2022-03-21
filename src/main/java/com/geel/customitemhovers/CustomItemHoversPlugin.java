@@ -4,7 +4,9 @@ import javax.inject.Inject;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ItemID;
+import net.runelite.api.Item;
+import net.runelite.api.ItemComposition;
+import net.runelite.api.events.CommandExecuted;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -14,16 +16,14 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.*;
-import java.nio.file.attribute.FileAttribute;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -55,9 +55,8 @@ public class CustomItemHoversPlugin extends Plugin {
         return configManager.getConfig(CustomItemHoversConfig.class);
     }
 
+    //Map between an Item ID and all of its associated HoverDefs.
     public Map<Integer, ArrayList<HoverDef>> hovers = new HashMap<>();
-
-    private Map<String, Integer> reverseItemLookup = new HashMap<>();
 
     WatchService hoverWatcher;
     WatchKey hoverWatchKey;
@@ -107,20 +106,30 @@ public class CustomItemHoversPlugin extends Plugin {
         }
     }
 
-    public String[] getItemHovers(int itemID) {
+    /**
+     * Returns an array of hover texts that should be rendered for a given item
+     *
+     * @param item
+     * @param composition
+     * @return
+     */
+    public String[] getItemHovers(Item item, ItemComposition composition) {
         //Do a hot-reload if we should
         if (config.hoverEnableHotReload() && hoverWatcherTriggered()) {
             prepareHoverMap();
         }
 
-        if (!hovers.containsKey(itemID))
+        //If item's ID is not in `hovers`, it has no hovers.
+        if (!hovers.containsKey(item.getId()))
             return new String[0];
 
+        //For each hover associated with this item, add its transformed text to the resultant array
         ArrayList<String> ret = new ArrayList<>();
-        for (HoverDef d : hovers.get(itemID)) {
-            ret.addAll(Arrays.asList(d.ParsedHoverTexts));
+        for (HoverDef d : hovers.get(item.getId())) {
+            ret.addAll(Arrays.asList(d.GetTransformedTexts(item, composition)));
         }
 
+        //Turn `ret` into an array from an ArrayList
         String[] retArr = new String[ret.size()];
         retArr = ret.toArray(retArr);
 
@@ -136,6 +145,11 @@ public class CustomItemHoversPlugin extends Plugin {
         return Paths.get(RuneLite.RUNELITE_DIR.getAbsolutePath() + "/" + PLUGIN_FOLDER_NAME);
     }
 
+    /**
+     * Creates, if necessary, the `customitemhovers` folder in the user's `.runelite` directory
+     *
+     * @throws IOException
+     */
     protected void prepareHoverFolder() throws IOException {
         Path rlPath = RuneLite.RUNELITE_DIR.toPath();
 
@@ -151,24 +165,28 @@ public class CustomItemHoversPlugin extends Plugin {
             Files.createDirectory(hoverPath);
         }
 
-        if(!Files.isDirectory(rlPath) || !Files.isReadable(rlPath)) {
+        //Make sure we actually created the path and it's readable
+        if (!Files.isDirectory(rlPath) || !Files.isReadable(rlPath)) {
             log.error("[CUSTOMITEMHOVERS] Bad hover path");
-            return;
         }
     }
 
+    /**
+     * Reads all files from the `customitemhovers` directory, parses them, and
+     * prepares a map of (itemID, hovers) for each item that has a hover.
+     */
     protected void prepareHoverMap() {
-        if (reverseItemLookup.size() == 0)
-            makeItemNameReverseLookup();
-
         hovers.clear();
 
+        //Read all hover files
         ArrayList<HoverFile> hoverFiles = HoverFileParser.readHoverFiles(getHoverPath());
 
         for (HoverFile f : hoverFiles) {
             for (HoverDef d : f.Hovers) {
+                //Compute which item IDs this HoverDef is attached to. This fills in `d.ItemIDs`.
                 parseHoverDefNames(d);
 
+                //Add this HoverDef to the map for every Item ID it represents
                 for (int itemID : d.ItemIDs) {
                     if (!hovers.containsKey(itemID))
                         hovers.put(itemID, new ArrayList<>());
@@ -180,6 +198,9 @@ public class CustomItemHoversPlugin extends Plugin {
         }
     }
 
+    /**
+     * @return True if the `customitemhovers` directory has changed since the last time this function was called
+     */
     private boolean hoverWatcherTriggered() {
         if (hoverWatchKey == null || !hoverWatchKey.isValid())
             return false;
@@ -193,8 +214,12 @@ public class CustomItemHoversPlugin extends Plugin {
         return triggered;
     }
 
+    /**
+     * Set up a filesystem watcher on the `customitemhovers` directory.
+     * <p>
+     * This enables hot-reloading.
+     */
     private void prepareHoverWatcher() {
-        //todo: watch for config changes (hot-reload config :~))
         if (!config.hoverEnableHotReload())
             return;
 
@@ -216,6 +241,9 @@ public class CustomItemHoversPlugin extends Plugin {
         }
     }
 
+    /**
+     * Closes `hoverWatcher` and `hoverWatchKey`, if possible.
+     */
     private void stopHoverWatcher() {
         if (hoverWatcher != null) {
             try {
@@ -233,12 +261,19 @@ public class CustomItemHoversPlugin extends Plugin {
         }
     }
 
+    /**
+     * Computes all item IDs that a HoverDef is targeting, and stores the results in
+     * its `ItemIDs` member variable.
+     *
+     * @param d HoverDef to parse names for
+     */
     private void parseHoverDefNames(HoverDef d) {
         ArrayList<Integer> itemIDs = new ArrayList<Integer>();
 
+        //If ItemNames is non-empty, insert all item IDs with the exact name(s) specified
         if (d.ItemNames != null) {
             for (String name : d.ItemNames) {
-                int itemID = itemNameToID(name);
+                int itemID = ItemNameMap.GetItemID(name);
                 if (itemID == -1) {
                     continue;
                 }
@@ -247,83 +282,19 @@ public class CustomItemHoversPlugin extends Plugin {
             }
         }
 
+        //If ItemNamesRegex is non-empty, insert all item IDs whose name matches any of the given regexes
         if (d.ItemNamesRegex != null) {
             for (String name : d.ItemNamesRegex) {
-                itemIDs.addAll(itemNameToIDs(name));
+                itemIDs.addAll(ItemNameMap.GetItemIDsRegex(name));
             }
         }
 
+        //Convert `itemIDs` into an array and store it in `d.ItemIDs`
         d.ItemIDs = new int[itemIDs.size()];
         for (int i = 0; i < itemIDs.size(); i++) {
             d.ItemIDs[i] = itemIDs.get(i);
         }
     }
 
-    private void makeItemNameReverseLookup() {
-        reverseItemLookup.clear();
 
-        Field[] declaredFields = ItemID.class.getDeclaredFields();
-        for (Field field : declaredFields) {
-            if (!field.getType().getTypeName().equals("int"))
-                continue;
-
-            if (!java.lang.reflect.Modifier.isStatic(field.getModifiers()))
-                continue;
-
-            String itemName = field.getName();
-            if (!isValidItemName(itemName)) {
-                log.error("[CUSTOM_ITEM_HOVERS]: " + itemName + " is an invalid item name");
-                continue;
-            }
-
-            int itemID = -1;
-            try {
-                itemID = field.getInt(null);
-            } catch (IllegalAccessException e) {
-                continue;
-            }
-
-            if (itemID <= 0) {
-                log.error("[CUSTOM_ITEM_HOVERS]: " + itemName + " has invalid item ID " + itemID);
-                continue;
-            }
-
-            if (reverseItemLookup.containsKey(itemName)) {
-                log.error("[CUSTOM_ITEM_HOVERS]: " + itemName + " is a duplicate item ID " + itemID);
-            }
-
-            reverseItemLookup.put(itemName, itemID);
-        }
-    }
-
-    private int itemNameToID(String itemNameRegex) {
-        return reverseItemLookup.getOrDefault(itemNameRegex, -1);
-    }
-
-    private ArrayList<Integer> itemNameToIDs(String itemNameRegex) {
-        ArrayList<Integer> ret = new ArrayList<>(1);
-        Pattern finder = Pattern.compile(itemNameRegex);
-
-        if (finder == null) {
-            return ret;
-        }
-
-        for (String entry : reverseItemLookup.keySet()) {
-            if (!finder.matcher(entry).matches())
-                continue;
-
-            ret.add(reverseItemLookup.get(entry));
-        }
-
-        return ret;
-    }
-
-    private boolean isValidItemName(String itemName) {
-        for (int i = 0; i < itemName.length(); i++) {
-            if (Character.isLowerCase(itemName.charAt(i)))
-                return false;
-        }
-
-        return true;
-    }
 }
