@@ -6,13 +6,13 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 3",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 130",
-          "  \u2022Magic: 6",
+          "  \u2022Prayer: 130 (<%qtymult(130)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (1x)",
-          "  \u2022Body (2x)"
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -21,13 +21,13 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 7",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 182",
-          "  \u2022Magic: 14",
+          "  \u2022Prayer: 182 (<%qtymult(182)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (1x)",
-          "  \u2022Body (3x)"
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -35,14 +35,14 @@
       "items_regex": ["ENSOULED_IMP_HEAD.*"],
       "hovers": [
         [
-          "<col=3498db>--Reanimation--</col>",
-          "Magic Level: 12",
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 286",
-          "  \u2022Magic: 24",
+          "  \u2022Prayer: 286 (<%qtymult(286)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
           "  \u2022Nature (2x)",
-          "  \u2022Body (3x)"
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -51,10 +51,10 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 16",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 364",
-          "  \u2022Magic: 32",
+          "  \u2022Prayer: 364 (<%qtymult(364)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
           "  \u2022Nature (2x)",
           "  \u2022Body (4x)"
@@ -66,13 +66,13 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 19",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 454",
-          "  \u2022Magic: 38",
+          "  \u2022Prayer: 454 (<%qtymult(454)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (1x)"
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -81,14 +81,13 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 21",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 480",
-          "  \u2022Magic: 42",
+          "  \u2022Prayer: 480 (<%qtymult(480)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (1x)",
-          "  \u2022Body (1x)"
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -97,30 +96,31 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 22",
+          "Basic (Level 16)",
           "XP:",
-          "  \u2022Prayer: 494",
-          "  \u2022Magic: 44",
+          "  \u2022Prayer: 494 (<%qtymult(494)%>)",
+          "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (1x)",
-          "  \u2022Body (2x)"
+          "  \u2022Nature (2x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
+
+
     {
       "items_regex": ["ENSOULED_DOG_HEAD.*"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 26",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 520",
-          "  \u2022Magic: 52",
+          "  \u2022Prayer: 520 (<%qtymult(520)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
           "  \u2022Soul (1x)",
-          "  \u2022Nature (2x)",
-          "  \u20222 Body"
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -129,14 +129,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 30",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 584",
-          "  \u2022Magic: 60",
+          "  \u2022Prayer: 584 (<%qtymult(584)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
           "  \u2022Soul (1x)",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (3x)"
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -145,13 +145,13 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 37",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 650",
-          "  \u2022Magic: 74",
+          "  \u2022Prayer: 650 (<%qtymult(650)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
           "  \u2022Soul (1x)",
-          "  \u2022Nature (2x)",
+          "  \u2022Nature (3x)",
           "  \u2022Body (4x)"
         ]
       ]
@@ -161,10 +161,10 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 40",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 716",
-          "  \u2022Magic: 80",
+          "  \u2022Prayer: 716 (<%qtymult(716)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
           "  \u2022Soul (1x)",
           "  \u2022Nature (3x)",
@@ -177,14 +177,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 43",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 754",
-          "  \u2022Magic: 86",
+          "  \u2022Prayer: 754 (<%qtymult(754)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (2x)",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (2x)"
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -193,14 +193,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 46",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 780",
-          "  \u2022Magic: 902",
+          "  \u2022Prayer: 780 (<%qtymult(780)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (2x)",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (3x)"
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
@@ -209,30 +209,32 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 52",
+          "Adept (Level 41)",
           "XP:",
-          "  \u2022Prayer: 832",
-          "  \u2022Magic: 104",
+          "  \u2022Prayer: 832 (<%qtymult(832)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (4x)",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (2x)"
+          "  \u2022Soul (1x)",
+          "  \u2022Nature (3x)",
+          "  \u2022Body (4x)"
         ]
       ]
     },
+
+
     {
       "items_regex": ["ENSOULED_KALPHITE_HEAD.*"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 57",
+          "Expert (Level 72)",
           "XP:",
-          "  \u2022Prayer: 884",
-          "  \u2022Magic: 114",
+          "  \u2022Prayer: 884 (<%qtymult(884)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (2x)",
           "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (2x)"
         ]
       ]
     },
@@ -241,14 +243,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 62",
+          "Expert (Level 72)",
           "XP:",
-          "  \u2022Prayer: 936",
-          "  \u2022Magic: 124",
+          "  \u2022Prayer: 936 (<%qtymult(936)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (3x)",
           "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Blood (1x)",
+          "  \u2022Soul (2x)"
         ]
       ]
     },
@@ -257,14 +259,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 65",
+          "Expert (Level 72)",
           "XP:",
-          "  \u2022Prayer: 1,040",
-          "  \u2022Magic: 130",
+          "  \u2022Prayer: 1,040 (<%qtymult(1040)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
+          "  \u2022Nature (3x)",
           "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)",
-          "  \u2022Nature (2x)"
+          "  \u2022Soul (2x)"
         ]
       ]
     },
@@ -273,14 +275,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 69",
+          "Expert (Level 72)",
           "XP:",
-          "  \u2022Prayer: 1,104",
-          "  \u2022Magic: 138",
+          "  \u2022Prayer: 1,104 (<%qtymult(1104)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
+          "  \u2022Nature (3x)",
           "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)",
-          "  \u2022Nature (3x)"
+          "  \u2022Soul (2x)"
         ]
       ]
     },
@@ -289,30 +291,32 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 72",
+          "Expert (Level 72)",
           "XP:",
-          "  \u2022Prayer: 1,170",
-          "  \u2022Magic: 144",
+          "  \u2022Prayer: 1,170 (<%qtymult(1170)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
+          "  \u2022Nature (3x)",
           "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)",
-          "  \u2022Nature (4x)"
+          "  \u2022Soul (2x)"
         ]
       ]
     },
+
+
     {
       "items_regex": ["ENSOULED_AVIANSIE_HEAD.*"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 78",
+          "Master (Level 90)",
           "XP:",
-          "  \u2022Prayer: 1,234",
-          "  \u2022Magic: 156",
+          "  \u2022Prayer: 1,234 (<%qtymult(1234)%>)",
+          "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (3x)",
-          "  \u2022Nature (4x)"
+          "  \u2022Nature (4x)",
+          "  \u2022Blood (2x)",
+          "  \u2022Soul (4x)"
         ]
       ]
     },
@@ -321,14 +325,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 85",
+          "Master (Level 90)",
           "XP:",
-          "  \u2022Prayer: 1,300",
-          "  \u2022Magic: 170",
+          "  \u2022Prayer: 1,300 (<%qtymult(1300)%>)",
+          "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (4x)",
-          "  \u2022Nature (4x)"
+          "  \u2022Nature (4x)",
+          "  \u2022Blood (2x)",
+          "  \u2022Soul (4x)"
         ]
       ]
     },
@@ -337,14 +341,14 @@
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Magic Level: 93",
+          "Master (Level 90)",
           "XP:",
-          "  \u2022Prayer: 1,560",
-          "  \u2022Magic: 186",
+          "  \u2022Prayer: 1,560 (<%qtymult(1560)%>)",
+          "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
+          "  \u2022Nature (4x)",
           "  \u2022Blood (2x)",
-          "  \u2022Soul (4x)",
-          "  \u2022Nature (4x)"
+          "  \u2022Soul (4x)"
         ]
       ]
     }

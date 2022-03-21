@@ -6,9 +6,17 @@ Upon first launch, the plugin will create a `customitemhovers` folder in your `.
 
 For example, on Windows, this might be `C:/Users/{username}/.runelite/customitemhovers`
 
-Place your hover files in this folder. To start, you can use the files in the `examples` folder of this repo.
+Place your hover files in this folder. To start, you can copy over the files in the `examples` folder of this repo.
 
-# Hover File
-A Hover File is simply a JSON file.
+## Easily Navigating to your Hover File Directory
 
-See the `examples` folder for the format.
+To quickly open the directory containing your hover files, simply execute the configurable chat command to do so.
+
+By default, this is `::openhoverdir`, but this can be changed via plugin config.
+
+# Creating Custom Hovers
+
+See [docs/HoverFiles.md](docs/HoverFiles.md) to learn how to create your own hovers.
+
+# Known Issues
+- Noted items are not presently supported; hovers will not show for them.

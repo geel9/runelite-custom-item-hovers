@@ -6,6 +6,7 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.ItemID;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;

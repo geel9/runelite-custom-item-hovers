@@ -1,0 +1,214 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+    {
+      "items_regex": ["(UNCUT_)?OPAL"],
+      "hovers": [
+        [
+        	"<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Pursuit</col>",
+          "-Level: 1",
+          "-Alch: 630",
+          "<col=2ecc71>Dodgy Necklace</col>",
+          "-Level: 16",
+          "-Alch: 630",
+          "<col=2ecc71>Expeditious Bracelet</col>",
+          "-Level: 22",
+          "-Alch: 690",
+          "<col=2ecc71>Amulet of Bounty</col>",
+          "-Level: 27",
+          "-Alch: 540"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?JADE"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Returning</col>",
+          "-Level: 13",
+          "-Alch: 765",
+          "<col=2ecc71>Necklace of Passage</col>",
+          "-Level: 25",
+          "-Alch: 765",
+          "<col=2ecc71>Flamtaer Bracelet</col>",
+          "-Level: 29",
+          "-Alch: 780",
+          "<col=2ecc71>Amulet of Chemistry</col>",
+          "-Level: 34",
+          "-Alch: 630"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?RED_TOPAZ"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Efaritay's Aid</col>",
+          "-Level: 16",
+          "-Alch: 855",
+          "<col=2ecc71>Necklace of Faith</col>",
+          "-Level: 32",
+          "-Alch: 855",
+          "<col=2ecc71>Bracelet of Slaughter</col>",
+          "-Level: 38",
+          "-Alch: 900",
+          "<col=2ecc71>Burning Amulet</col>",
+          "-Level: 45",
+          "-Alch: 750"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?SAPPHIRE"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Recoil</col>",
+          "-Level: 20",
+          "-Alch: 540",
+          "<col=2ecc71>Games Necklace</col>",
+          "-Level: 22",
+          "-Alch: 630",
+          "<col=2ecc71>Bracelet of Clay</col>",
+          "-Level: 23",
+          "-Alch: 690",
+          "<col=2ecc71>Amulet of Magic</col>",
+          "-Level: 24",
+          "-Alch: 540"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?EMERALD"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Dueling</col>",
+          "-Level: 27",
+          "-Alch: 765",
+          "<col=2ecc71>Binding Necklace</col>",
+          "-Level: 29",
+          "-Alch: 855",
+          "<col=2ecc71>Castle Wars Bracelet</col>",
+          "-Level: 30",
+          "-Alch: 915",
+          "<col=2ecc71>Amulet of Nature</col>",
+          "-Level: 31",
+          "-Alch: 765"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?RUBY"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Forging</col>",
+          "-Level: 34",
+          "-Alch: 1,215",
+          "<col=2ecc71>Digsite Pendant</col>",
+          "-Level: 40",
+          "-Alch: 1,305",
+          "<col=2ecc71>Inoculation Bracelet</col>",
+          "-Level: 42",
+          "-Alch: 1,395",
+          "<col=2ecc71>Amulet of Strength</col>",
+          "-Level: 50",
+          "-Alch: 1,215"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?DIAMOND"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Life</col>",
+          "-Level: 43",
+          "-Alch: 2,115",
+          "<col=2ecc71>Phoenix Necklace</col>",
+          "-Level: 56",
+          "-Alch: 2,205",
+          "<col=2ecc71>Abyssal Bracelet</col>",
+          "-Level: 58",
+          "-Alch: 2,295",
+          "<col=2ecc71>Amulet of Power</col>",
+          "-Level: 70",
+          "-Alch: 2,115"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?DRAGONSTONE"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Wealth</col>",
+          "-Level: 55",
+          "-Alch: 10,575",
+          "<col=2ecc71>Skills Necklace</col>",
+          "-Level: 72",
+          "-Alch: 11,025",
+          "<col=2ecc71>Combat Bracelet</col>",
+          "-Level: 74",
+          "-Alch: 11,475",
+          "<col=2ecc71>Amulet of Glory</col>",
+          "-Level: 80",
+          "-Alch: 10,575"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?ONYX"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Stone</col>",
+          "-Level: 67",
+          "-Alch: 120,600",
+          "<col=2ecc71>Berserker Necklace</col>",
+          "-Level: 82",
+          "-Alch: 120,600",
+          "<col=2ecc71>Regen Bracelet</col>",
+          "-Level: 84",
+          "-Alch: 120,600",
+          "<col=2ecc71>Amulet of Fury</col>",
+          "-Level: 90",
+          "-Alch: 120,600"
+        ]
+      ]
+    },
+    {
+      "template": true,
+      "items_regex": ["(UNCUT_)?ZENYTE"],
+      "hovers": [
+        [
+          "<col=47cfd4>Can Create</col>",
+          "<col=2ecc71>Ring of Suffering</col>",
+          "-Level: 89",
+          "-Alch: 120,600",
+          "<col=2ecc71>Necklace of Anguish</col>",
+          "-Level: 92",
+          "-Alch: 121,200",
+          "<col=2ecc71>Tormented Bracelet</col>",
+          "-Level: 95",
+          "-Alch: 120,600",
+          "<col=2ecc71>Amulet of Torture</col>",
+          "-Level: 98",
+          "-Alch: 121,200"
+        ]
+      ]
+    }
+  ]
+}

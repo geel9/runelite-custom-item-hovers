@@ -1,0 +1,153 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+    {
+      "items_regex": ["(GRIMY_)?GUAM_(LEAF|SEED|POTION_UNF)"],
+      "hovers": [
+        [
+        	"<col=47cfd4>Attack Potion</col>", "-Eye of Newt", "-Level 3", "-25 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?MARRENTILL(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=6dc516>Antipoison</col>", "-Unicorn Horn Dust", "-Level 5", "-37.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?TARROMIN(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=d0ce33>Strength Potion</col>", "-Limpwurt Root", "-Level 12", "-50 XP"
+        ],
+        [
+        	"<col=0e7286>Serum 207</col>", "-Ashes", "-Level 15", "-50 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?HARRALANDER(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=b59690>Compost Potion</col>", "-Volcanic Ash", "-Level 22", "-60 XP"
+        ],
+        [
+        	"<col=d24b40>Restore Potion</col>", "-Red Spiders' Eggs", "-Level 22", "-62.5 XP"
+        ],
+        [
+        	"<col=a45c69>Energy Potion</col>", "-Chocolate Dust", "-Level 26", "-67.5 XP"
+        ],
+        [
+        	"<col=86b970>Combat Potion</col>", "-Goat Horn Dust", "-Level 36", "-84 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?RANARR_(WEED|SEED|POTION_UNF)"],
+      "hovers": [
+        [
+        	"<col=4cd34f>Defence Potion</col>", "-White Berries", "-Level 30", "-75 XP"
+        ],
+        [
+        	"<col=46d2a2>Prayer Potion</col>", "-Snape Grass", "-Level 38", "-87.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?TOADFLAX(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=7c9312>Agility Potion</col>", "-Toad's Legs", "-Level 34", "-80 XP"
+        ],
+        [
+        	"<col=cbca58>Saradomin Brew</col>", "-Crushed Nest", "-Level 81", "-180 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?IRIT_(LEAF|SEED|POTION_UNF)"],
+      "hovers": [
+        [
+        	"<col=4b4ed2>Super Attack</col>", "-Eye of Newt", "-Level 45", "-100 XP"
+        ],
+        [
+        	"<col=db2277>Superantipoison</col>", "-Unicorn Horn Dust", "-Level 48", "-106.3 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?AVANTOE(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=4f4a4a>Fishing Potion</col>", "-Snape Grass", "-Level 50", "-112.5 XP"
+        ],
+        [
+        	"<col=bd599b>Super Energy</col>", "-Mort Myre Fungus", "-Level 52", "-117.5 XP"
+        ],
+        [
+        	"<col=0c6062>Hunter Potion</col>", "-Kebbit Teeth Dust", "-Level 53", "-120 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?KWUARM(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=d1cfcf>Super Strength</col>", "-Limpwurt Root", "-Level 55", "-125 XP"
+        ],
+        [
+        	"<col=3285db>Weapon Poison</col>", "-Dragon Scale Dust", "-Level 60", "-137.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?SNAPDRAGON(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=b0406e>Super Restore</col>", "-Red Spiders' Eggs", "-Level 63", "-142.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?CADANTINE(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=d3b248>Super Defence</col>", "-White Berries", "-Level 66", "-150 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?LANTADYME(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=751396>Antifire Potion</col>", "-Dragon Scale Dust", "-Level 69", "-157.5 XP"
+        ],
+        [
+        	"<col=c7a79c>Magic Potion</col>", "-Potato Cactus", "-Level 76", "-172.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?DWARF_WEED(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=4dafd3>Ranging Potion</col>", "-Wine of Zamorak", "-Level 72", "-162.5 XP"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(GRIMY_)?TORSTOL(_)?(SEED|POTION_UNF)?"],
+      "hovers": [
+        [
+        	"<col=cb991a>Zamorak Brew</col>", "-Jangerberries", "-Level 78", "-175 XP"
+        ],
+        [
+        	"<col=1c710c>Super Combat Potion</col>", "-Super Set", "-Level 90", "-150 XP"
+        ]
+      ]
+    }
+  ]
+}
