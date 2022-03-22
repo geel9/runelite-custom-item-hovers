@@ -2,7 +2,7 @@
 
 A Hover File is simply a JSON file with a specific structure.
 
-For the purposes of this document, we will be working off of the [examples/ensouled_heads.json] file. 
+For the purposes of this document, we will be working off of the [examples/ensouled_heads.json](/examples/ensouled_heads.json) file. 
 
 Let's look at a truncated version of this file:
 
