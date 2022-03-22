@@ -2,19 +2,6 @@
   "is_hover_map": "absolutely",
   "hovers": [
     {
-      "items_regex": [".*"],
-      "hovers": [
-        [
-          "ID: <%ID%>",
-          "Qty: <%QTY%>",
-          "Value: <%VALUE%>",
-          "High Alch: <%HIGH_ALCH%>",
-          "Stack value: <%qtymult(<%VALUE%>)%>",
-          "Stack HA: <%qtymult(<%HIGH_ALCH%>)%>"
-        ]
-      ]
-    },
-    {
       "items_regex": ["Acorn", "Oak (seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 15", "-Payment: Tomatoes (5)", "-Check XP: 467 (<%qtymult(467)%>)"]
