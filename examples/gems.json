@@ -2,7 +2,7 @@
   "is_hover_map": "absolutely",
   "hovers": [
     {
-      "items_regex": ["(UNCUT_)?OPAL"],
+      "items": ["Opal", "Uncut opal"],
       "hovers": [
         [
         	"<col=47cfd4>Can Create</col>",
@@ -22,8 +22,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?JADE"],
+      "items": ["Jade", "Uncut jade"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -43,8 +42,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?RED_TOPAZ"],
+      "items": ["Red topaz", "Uncut red topaz"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -64,8 +62,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?SAPPHIRE"],
+      "items": ["Sapphire", "Uncut sapphire"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -85,8 +82,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?EMERALD"],
+      "items": ["Emerald", "Uncut emerald"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -106,8 +102,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?RUBY"],
+      "items": ["Ruby", "Uncut ruby"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -127,8 +122,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?DIAMOND"],
+      "items": ["Diamond", "Uncut diamond"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -148,8 +142,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?DRAGONSTONE"],
+      "items": ["Dragonstone", "Uncut dragonstone"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -169,8 +162,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?ONYX"],
+      "items": ["Onyx", "Uncut onyx"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",
@@ -190,8 +182,7 @@
       ]
     },
     {
-      "template": true,
-      "items_regex": ["(UNCUT_)?ZENYTE"],
+      "items": ["Zenyte", "Uncut zenyte"],
       "hovers": [
         [
           "<col=47cfd4>Can Create</col>",

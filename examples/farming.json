@@ -2,104 +2,116 @@
   "is_hover_map": "absolutely",
   "hovers": [
     {
-      "items": ["ACORN"],
-      "items_regex": ["OAK_(SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": [".*"],
       "hovers": [
-        ["<col=3498db>Farming:</col>", "-Level: 15", "-Payment: Tomatoes (5)", "-Check XP: 467"]
+        [
+          "ID: <%ID%>",
+          "Qty: <%QTY%>",
+          "Value: <%VALUE%>",
+          "High Alch: <%HIGH_ALCH%>",
+          "Stack value: <%qtymult(<%VALUE%>)%>",
+          "Stack HA: <%qtymult(<%HIGH_ALCH%>)%>"
+        ]
       ]
     },
     {
-      "items_regex": ["WILLOW_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Acorn", "Oak (seedling|sapling)"],
+      "hovers": [
+        ["<col=3498db>Farming:</col>", "-Level: 15", "-Payment: Tomatoes (5)", "-Check XP: 467 (<%qtymult(467)%>)"]
+      ]
+    },
+    {
+      "items_regex": ["Willow (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 30", "-Payment: Apples (5)", "-Check XP: 1,456"]
       ]
     },
     {
-      "items_regex": ["MAPLE_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Maple (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 45", "-Payment: Oranges (5)", "-Check XP: 3,403"]
       ]
     },
     {
-      "items_regex": ["YEW_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Yew (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 60", "-Payment: 10x Cactus Spine", "-Check XP: 7,069"]
       ]
     },
     {
-      "items_regex": ["MAGIC_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Magic (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 75", "-Payment: 25x Coconut", "-Check XP: 13,768"]
       ]
     },
     {
-      "items_regex": ["APPLE_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Apple (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 27", "-Payment: 9x Raw Sweetcorn", "-Check XP: 1,199"]
       ]
     },
     {
-      "items_regex": ["BANANA_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Banana (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 33", "-Payment: 4x Apples (5)", "-Check XP: 1,750"]
       ]
     },
     {
-      "items_regex": ["ORANGE_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Orange (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 39", "-Payment: 3x Strawberries (5)", "-Check XP: 2,470"]
       ]
     },
     {
-      "items_regex": ["CURRY_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Curry (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 42", "-Payment: 5x Bananas (5)", "-Check XP: 2,907"]
       ]
     },
     {
-      "items_regex": ["PINEAPPLE_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Pineapple (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 51", "-Payment: 10x Watermelon", "-Check XP: 4,606"]
       ]
     },
     {
-      "items_regex": ["PAPAYA_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Papaya (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 57", "-Payment: 10x Pineapple", "-Check XP: 6,146"]
       ]
     },
     {
-      "items_regex": ["PALM_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Palm (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 68", "-Payment: 15x Papaya", "-Check XP: 10,150"]
       ]
     },
     {
-      "items_regex": ["DRAGONFRUIT_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Dragonfruit (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 81", "-Payment: 15x Coconut", "-Check XP: 17,335"]
       ]
     },
     {
-      "items_regex": ["TEAK_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Teak (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 35", "-Payment: 15x Limpwurt Root", "-Check XP: 7,290"]
       ]
     },
     {
-      "items_regex": ["MAHOGANY_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Mahogany (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 55", "-Payment: 25x Yanillian Hops", "-Check XP: 15,720"]
       ]
     },
     {
-      "items_regex": ["CALQUAT_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Calquat (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 72", "-Payment: 8x Poison Ivy Berries", "-Check XP: 12,096"]
       ]
     },
     {
-      "items_regex": ["SPIRIT_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Spirit (seed|seedling|sapling)"],
       "hovers": [
         [
           "<col=3498db>Farming:</col>",
@@ -110,85 +122,85 @@
       ]
     },
     {
-      "items_regex": ["CELASTRUS_(SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Celastrus (seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 85", "-Payment: 8x Potato Cactus", "-Check XP: 14,130"]
       ]
     },
     {
-      "items_regex": ["REDWOOD_(TREE_SEED|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Redwood (tree seed|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 90", "-Payment: 6x Dragonfruit", "-Check XP: 22,450"]
       ]
     },
     {
-      "items_regex": ["CRYSTAL_(ACORN|SEEDLING|SEEDLING_W|SAPLING)"],
+      "items_regex": ["Crystal (acorn|seedling|sapling)"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 74", "-Check XP: 13,240"]
       ]
     },
     {
-      "items": ["ATTAS_SEED"],
+      "items": ["Attas seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 76", "-Effect: Boosted Yield"]
       ]
     },
     {
-      "items": ["IASOR_SEED"],
+      "items": ["Iasor seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 76", "-Effect: Disease Protection"]
       ]
     },
     {
-      "items": ["KRONOS_SEED"],
+      "items": ["Kronos seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 76", "-Effect: Faster Growth"]
       ]
     },
     {
-      "items": ["POTATO_SEED"],
+      "items": ["Potato seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 1", "-Payment: 2x Compost", "-Harvest XP: 9"]
       ]
     },
     {
-      "items": ["ONION_SEED"],
+      "items": ["Onion seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 5", "-Payment: 1x Potatoes (10)", "-Harvest XP: 10.5"]
       ]
     },
     {
-      "items": ["CABBAGE_SEED"],
+      "items": ["Cabbage seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 7", "-Payment: 1x Onions (10)", "-Harvest XP: 11.5"]
       ]
     },
     {
-      "items": ["TOMATO_SEED"],
+      "items": ["Tomato seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 12", "-Payment: 2x Cabbages (10)", "-Harvest XP: 14"]
       ]
     },
     {
-      "items": ["SWEETCORN_SEED"],
+      "items": ["Sweetcorn seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 20", "-Payment: 10x Jute Fibre", "-Harvest XP: 19"]
       ]
     },
     {
-      "items": ["STRAWBERRY_SEED"],
+      "items": ["Strawberry seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 31", "-Payment: 1x Apples (5)", "-Harvest XP: 29"]
       ]
     },
     {
-      "items": ["WATERMELON_SEED"],
+      "items": ["Watermelon seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 47", "-Payment: 10x Curry Leaves", "-Harvest XP: 54.5"]
       ]
     },
     {
-      "items": ["SNAPE_GRASS_SEED"],
+      "items": ["Snape grass seed"],
       "hovers": [
         ["<col=3498db>Farming:</col>", "-Level: 61", "-Payment: 5x Jangerberries", "-Harvest XP: 82"]
       ]

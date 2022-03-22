@@ -2,7 +2,7 @@
   "is_hover_map": "absolutely",
   "hovers": [
     {
-      "items_regex": ["ORANGE_SPICE_([1-4])"],
+      "items_regex": ["Orange spice \\([1-4]\\)"],
       "hovers": [
         [
         	"<col=47cfd4>Orange Spicy Stew</col>",
@@ -17,7 +17,7 @@
       ]
     },
     {
-      "items_regex": ["BROWN_SPICE_([1-4])"],
+      "items_regex": ["Brown spice \\([1-4]\\)"],
       "hovers": [
         [
         	"<col=47cfd4>Brown Spicy Stew</col>",
@@ -30,7 +30,7 @@
       ]
     },
     {	
-      "items_regex": ["RED_SPICE_([1-4])"],
+      "items_regex": ["Red spice \\([1-4]\\)"],
       "hovers": [
         [
         	"<col=47cfd4>Red Spicy Stew</col>",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "items_regex": ["YELLOW_SPICE_([1-4])"],
+      "items_regex": ["Yellow spice \\([1-4]\\)"],
       "hovers": [
         [
         	"<col=47cfd4>Yellow Spicy Stew</col>",

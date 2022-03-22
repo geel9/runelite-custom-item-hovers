@@ -2,7 +2,7 @@
   "is_hover_map": "absolutely",
   "hovers": [
     {
-      "items_regex": ["ENSOULED_GOBLIN_HEAD.*"],
+      "items": ["Ensouled goblin head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -11,13 +11,13 @@
           "  \u2022Prayer: 130 (<%qtymult(130)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_MONKEY_HEAD.*"],
+      "items": ["Ensouled monkey head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -26,13 +26,13 @@
           "  \u2022Prayer: 182 (<%qtymult(182)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_IMP_HEAD.*"],
+      "items": ["Ensouled imp head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -41,13 +41,13 @@
           "  \u2022Prayer: 286 (<%qtymult(286)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_MINOTAUR_HEAD.*"],
+      "items": ["Ensouled minotaur head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -56,13 +56,13 @@
           "  \u2022Prayer: 364 (<%qtymult(364)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_SCORPION_HEAD.*"],
+      "items": ["Ensouled scorpion head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -71,13 +71,13 @@
           "  \u2022Prayer: 454 (<%qtymult(454)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_BEAR_HEAD.*"],
+      "items": ["Ensouled bear head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -86,13 +86,13 @@
           "  \u2022Prayer: 480 (<%qtymult(480)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_UNICORN_HEAD.*"],
+      "items": ["Ensouled unicorn head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -101,15 +101,15 @@
           "  \u2022Prayer: 494 (<%qtymult(494)%>)",
           "  \u2022Magic: 32 (<%qtymult(32)%>)",
           "Runes:",
-          "  \u2022Nature (2x)",
-          "  \u2022Body (4x)"
+          "  \u2022Nature (2x) (<%qtymult(2)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
 
 
     {
-      "items_regex": ["ENSOULED_DOG_HEAD.*"],
+      "items": ["Ensouled dog head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -118,14 +118,14 @@
           "  \u2022Prayer: 520 (<%qtymult(520)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_CHAOS_DRUID_HEAD.*"],
+      "items": ["Ensouled chaos druid head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -134,30 +134,34 @@
           "  \u2022Prayer: 584 (<%qtymult(584)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_GIANT_HEAD.*"],
+      "items": ["Ensouled giant head"], 
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
-          "Adept (Level 41)",
+          "Adept (Level 41)"
+        ],
+        [
           "XP:",
           "  \u2022Prayer: 650 (<%qtymult(650)%>)",
-          "  \u2022Magic: 80 (<%qtymult(80)%>)",
+          "  \u2022Magic: 80 (<%qtymult(80)%>)"
+        ],
+        [
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_OGRE_HEAD.*"],
+      "items": ["Ensouled ogre head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -166,14 +170,14 @@
           "  \u2022Prayer: 716 (<%qtymult(716)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_ELF_HEAD.*"],
+      "items": ["Ensouled elf head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -182,14 +186,14 @@
           "  \u2022Prayer: 754 (<%qtymult(754)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_TROLL_HEAD.*"],
+      "items": ["Ensouled troll head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -198,14 +202,14 @@
           "  \u2022Prayer: 780 (<%qtymult(780)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_HORROR_HEAD.*"],
+      "items": ["Ensouled horror head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -214,16 +218,16 @@
           "  \u2022Prayer: 832 (<%qtymult(832)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Soul (1x)",
-          "  \u2022Nature (3x)",
-          "  \u2022Body (4x)"
+          "  \u2022Soul (1x) (<%QTY%>)",
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Body (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
 
 
     {
-      "items_regex": ["ENSOULED_KALPHITE_HEAD.*"],
+      "items": ["Ensouled kalphite head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -232,14 +236,14 @@
           "  \u2022Prayer: 884 (<%qtymult(884)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Nature (3x)",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)"
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Blood (1x) (<%QTY%>)",
+          "  \u2022Soul (2x) (<%qtymult(2)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_DAGANNOTH_HEAD.*"],
+      "items": ["Ensouled dagannoth head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -248,14 +252,14 @@
           "  \u2022Prayer: 936 (<%qtymult(936)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Nature (3x)",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)"
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Blood (1x) (<%QTY%>)",
+          "  \u2022Soul (2x) (<%qtymult(2)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_BLOODVELD_HEAD.*"],
+      "items": ["Ensouled bloodveld head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -264,14 +268,14 @@
           "  \u2022Prayer: 1,040 (<%qtymult(1040)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Nature (3x)",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)"
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Blood (1x) (<%QTY%>)",
+          "  \u2022Soul (2x) (<%qtymult(2)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_TZHAAR_HEAD.*"],
+      "items": ["Ensouled tzhaar head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -280,14 +284,14 @@
           "  \u2022Prayer: 1,104 (<%qtymult(1104)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Nature (3x)",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)"
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Blood (1x) (<%QTY%>)",
+          "  \u2022Soul (2x) (<%qtymult(2)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_DEMON_HEAD.*"],
+      "items": ["Ensouled demon head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -296,16 +300,16 @@
           "  \u2022Prayer: 1,170 (<%qtymult(1170)%>)",
           "  \u2022Magic: 80 (<%qtymult(80)%>)",
           "Runes:",
-          "  \u2022Nature (3x)",
-          "  \u2022Blood (1x)",
-          "  \u2022Soul (2x)"
+          "  \u2022Nature (3x) (<%qtymult(3)%>)",
+          "  \u2022Blood (1x) (<%QTY%>)",
+          "  \u2022Soul (2x) (<%qtymult(2)%>)"
         ]
       ]
     },
 
 
     {
-      "items_regex": ["ENSOULED_AVIANSIE_HEAD.*"],
+      "items": ["Ensouled aviansie head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -314,14 +318,14 @@
           "  \u2022Prayer: 1,234 (<%qtymult(1234)%>)",
           "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
-          "  \u2022Nature (4x)",
-          "  \u2022Blood (2x)",
-          "  \u2022Soul (4x)"
+          "  \u2022Nature (4x) (<%qtymult(4)%>)",
+          "  \u2022Blood (2x) (<%qtymult(2)%>)",
+          "  \u2022Soul (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_ABYSSAL_HEAD.*"],
+      "items": ["Ensouled abyssal head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -330,14 +334,14 @@
           "  \u2022Prayer: 1,300 (<%qtymult(1300)%>)",
           "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
-          "  \u2022Nature (4x)",
-          "  \u2022Blood (2x)",
-          "  \u2022Soul (4x)"
+          "  \u2022Nature (4x) (<%qtymult(4)%>)",
+          "  \u2022Blood (2x) (<%qtymult(2)%>)",
+          "  \u2022Soul (4x) (<%qtymult(4)%>)"
         ]
       ]
     },
     {
-      "items_regex": ["ENSOULED_DRAGON_HEAD.*"],
+      "items": ["Ensouled dragon head"],
       "hovers": [
         [
           "<col=3498db>---Reanimation---</col>",
@@ -346,9 +350,9 @@
           "  \u2022Prayer: 1,560 (<%qtymult(1560)%>)",
           "  \u2022Magic: 170 (<%qtymult(170)%>)",
           "Runes:",
-          "  \u2022Nature (4x)",
-          "  \u2022Blood (2x)",
-          "  \u2022Soul (4x)"
+          "  \u2022Nature (4x) (<%qtymult(4)%>)",
+          "  \u2022Blood (2x) (<%qtymult(2)%>)",
+          "  \u2022Soul (4x) (<%qtymult(4)%>)"
         ]
       ]
     }
