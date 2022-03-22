@@ -17,7 +17,7 @@ public class HoverEvaluator {
     private static final String[] HOVER_FUNCTIONS = {"qtymult"};
 
     //All supported variables
-    private static final String[] HOVER_VARIABLES = {"ID", "NAME", "ENUM_NAME", "QTY", "VALUE", "HIGH_ALCH"};
+    private static final String[] HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
 
     //Regex for all currently supported functions.
     private static final Pattern funcFinder = Pattern.compile("<%(qtymult)(\\((\\d+)\\))?%>");
@@ -92,14 +92,6 @@ public class HoverEvaluator {
                 //<%ID%> is just the numeric ID of the item
                 case "ID":
                     replaceWith = String.valueOf(item.getId());
-                    break;
-                //<%NAME%> is the proper English name of the item, eg, "Pineapple sapling"
-                case "NAME":
-                    replaceWith = comp.getName();
-                    break;
-                //<%ENUM_NAME%> is the item's name in the `ItemID` enum, eg, "PINEAPPLE_SAPLING"
-                case "ENUM_NAME":
-                    replaceWith = ItemNameMap.GetItemName(item.getId());
                     break;
                 //<%QTY%> is the number of items in the stack
                 case "QTY":
