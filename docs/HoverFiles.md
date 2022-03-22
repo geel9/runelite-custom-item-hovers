@@ -45,10 +45,10 @@ We're looking at the following hover definition (taken from the above file) for 
   "hovers": [
     [
       "<col=3498db>---Reanimation---</col>",
-      "Adept (Level 41)"
+      "Adept (Level 41)",
       "XP:",
       "  \u2022Prayer: 650 (<%qtymult(650)%>)",
-      "  \u2022Magic: 80 (<%qtymult(80)%>)"
+      "  \u2022Magic: 80 (<%qtymult(80)%>)",
       "Runes:",
       "  \u2022Soul (1x) (<%QTY%>)",
       "  \u2022Nature (3x) (<%qtymult(3)%>)",
@@ -78,10 +78,10 @@ Next, we have our `hovers` entry:
 "hovers": [
   [
     "<col=3498db>---Reanimation---</col>",
-    "Adept (Level 41)"
+    "Adept (Level 41)",
     "XP:",
     "  \u2022Prayer: 650 (<%qtymult(650)%>)",
-    "  \u2022Magic: 80 (<%qtymult(80)%>)"
+    "  \u2022Magic: 80 (<%qtymult(80)%>)",
     "Runes:",
     "  \u2022Soul (1x) (<%QTY%>)",
     "  \u2022Nature (3x) (<%qtymult(3)%>)",
