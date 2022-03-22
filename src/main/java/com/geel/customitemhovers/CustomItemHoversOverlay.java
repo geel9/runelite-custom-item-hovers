@@ -26,7 +26,6 @@ package com.geel.customitemhovers;
 
 import net.runelite.api.*;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.tooltip.Tooltip;
@@ -84,9 +83,6 @@ class CustomItemHoversOverlay extends Overlay
 	private final TooltipManager tooltipManager;
 
 	@Inject
-	ItemManager itemManager;
-
-	@Inject
 	CustomItemHoversOverlay(Client client, CustomItemHoversPlugin plugin, CustomItemHoversConfig config, TooltipManager tooltipManager)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
@@ -132,7 +128,7 @@ class CustomItemHoversOverlay extends Overlay
 			return null;
 
 		//Get the hovers for this item ID
-		String[] hoverTexts = plugin.getItemHovers(item, itemManager.getItemComposition(item.getId()));
+		String[] hoverTexts = plugin.getItemHovers(item);
 		if(hoverTexts.length == 0)
 			return null;
 

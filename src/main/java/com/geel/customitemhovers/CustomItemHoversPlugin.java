@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
 import net.runelite.api.ItemID;
@@ -13,6 +14,7 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -21,10 +23,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -39,17 +38,22 @@ public class CustomItemHoversPlugin extends Plugin {
     private static final String PLUGIN_FOLDER_NAME = "customitemhovers";
 
     @Inject
+    private Client client;
+
+    @Inject
     private ClientThread clientThread;
 
     @Inject
     private OverlayManager overlayManager;
 
     @Inject
+    private ItemManager itemManager;
+
+    @Inject
     private CustomItemHoversOverlay overlay;
 
     @Inject
     private CustomItemHoversConfig config;
-
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
@@ -65,8 +69,14 @@ public class CustomItemHoversPlugin extends Plugin {
     @Override
     protected void startUp() throws Exception {
         prepareHoverFolder();
-        prepareHoverMap();
-        prepareHoverWatcher();
+
+        //Invoke this on the client thread because `itemManager.canonicalize()` must be run in the client thread
+        clientThread.invokeLater(() -> {
+            prepareItemNameMap();
+            prepareHoverMap();
+            prepareHoverWatcher();
+        });
+
         overlayManager.add(overlay);
     }
 
@@ -96,7 +106,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
         Path hoverPath = getHoverPath();
 
-        if(hoverPath == null) {
+        if (hoverPath == null) {
             return;
         }
 
@@ -111,23 +121,25 @@ public class CustomItemHoversPlugin extends Plugin {
      * Returns an array of hover texts that should be rendered for a given item
      *
      * @param item
-     * @param composition
      * @return
      */
-    public String[] getItemHovers(Item item, ItemComposition composition) {
+    public String[] getItemHovers(Item item) {
         //Do a hot-reload if we should
         if (config.hoverEnableHotReload() && hoverWatcherTriggered()) {
             prepareHoverMap();
         }
 
+        int itemID = itemManager.canonicalize(item.getId());
+        ItemComposition comp = itemManager.getItemComposition(itemID);
+
         //If item's ID is not in `hovers`, it has no hovers.
-        if (!hovers.containsKey(item.getId()))
+        if (!hovers.containsKey(itemID))
             return new String[0];
 
         //For each hover associated with this item, add its transformed text to the resultant array
         ArrayList<String> ret = new ArrayList<>();
-        for (HoverDef d : hovers.get(item.getId())) {
-            ret.addAll(Arrays.asList(d.GetTransformedTexts(item, composition)));
+        for (HoverDef d : hovers.get(itemID)) {
+            ret.addAll(Arrays.asList(d.GetTransformedTexts(item, comp)));
         }
 
         //Turn `ret` into an array from an ArrayList
@@ -144,6 +156,13 @@ public class CustomItemHoversPlugin extends Plugin {
      */
     public Path getHoverPath() {
         return Paths.get(RuneLite.RUNELITE_DIR.getAbsolutePath() + "/" + PLUGIN_FOLDER_NAME);
+    }
+
+    /**
+     * Prepare ItemNameMap
+     */
+    protected void prepareItemNameMap() {
+        ItemNameMap.PrepareMap(client, itemManager);
     }
 
     /**
@@ -269,19 +288,7 @@ public class CustomItemHoversPlugin extends Plugin {
      * @param d HoverDef to parse names for
      */
     private void parseHoverDefNames(HoverDef d) {
-        ArrayList<Integer> itemIDs = new ArrayList<Integer>();
-
-        //If ItemNames is non-empty, insert all item IDs with the exact name(s) specified
-        if (d.ItemNames != null) {
-            for (String name : d.ItemNames) {
-                int itemID = ItemNameMap.GetItemID(name);
-                if (itemID == -1) {
-                    continue;
-                }
-
-                itemIDs.add(itemID);
-            }
-        }
+        Set<Integer> itemIDs = new HashSet<>();
 
         //If ItemNamesRegex is non-empty, insert all item IDs whose name matches any of the given regexes
         if (d.ItemNamesRegex != null) {
@@ -290,12 +297,28 @@ public class CustomItemHoversPlugin extends Plugin {
             }
         }
 
+        //If ItemNames is non-empty, insert all item IDs with the exact name(s) specified
+        if (d.ItemNames != null) {
+            for (String name : d.ItemNames) {
+                for (int id : ItemNameMap.GetItemIDs(name)) {
+                    itemIDs.add(id);
+                }
+            }
+        }
+
+        //If ItemIDs has any IDs specified, copy them in
+        if(d.ItemIDs != null && d.ItemIDs.length > 0) {
+            for(int id : d.ItemIDs) {
+                itemIDs.add(id);
+            }
+        }
+
         //Convert `itemIDs` into an array and store it in `d.ItemIDs`
         d.ItemIDs = new int[itemIDs.size()];
-        for (int i = 0; i < itemIDs.size(); i++) {
-            d.ItemIDs[i] = itemIDs.get(i);
+        int i = 0;
+        for (Iterator<Integer> it = itemIDs.iterator(); it.hasNext(); ) {
+            int id = it.next();
+            d.ItemIDs[i++] = id;
         }
     }
-
-
 }
