@@ -29,7 +29,8 @@ import static net.runelite.api.widgets.WidgetID.BANK_INVENTORY_GROUP_ID;
 import static net.runelite.api.widgets.WidgetID.SEED_VAULT_GROUP_ID;
 import static net.runelite.api.widgets.WidgetID.SEED_VAULT_INVENTORY_GROUP_ID;
 
-class CustomItemHoversOverlay extends Overlay {
+class CustomItemHoversOverlay extends Overlay
+{
 	private static final int BANK_ITEM_WIDGETID = WidgetInfo.BANK_ITEM_CONTAINER.getPackedId();
 	private static final int SEED_VAULT_ITEM_WIDGETID = WidgetInfo.SEED_VAULT_ITEM_CONTAINER.getPackedId();
 
@@ -61,7 +62,8 @@ class CustomItemHoversOverlay extends Overlay {
 	private final TooltipManager tooltipManager;
 
 	@Inject
-	CustomItemHoversOverlay(Client client, CustomItemHoversPlugin plugin, CustomItemHoversConfig config, TooltipManager tooltipManager) {
+	CustomItemHoversOverlay(Client client, CustomItemHoversPlugin plugin, CustomItemHoversConfig config, TooltipManager tooltipManager)
+	{
 		setPosition(OverlayPosition.DYNAMIC);
 		this.client = client;
 		this.plugin = plugin;
@@ -70,7 +72,8 @@ class CustomItemHoversOverlay extends Overlay {
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics) {
+	public Dimension render(Graphics2D graphics)
+	{
 		//Don't display anything if a right-click menu is open.
 		if (client.isMenuOpen())
 			return null;
@@ -115,7 +118,8 @@ class CustomItemHoversOverlay extends Overlay {
 		return null;
 	}
 
-	private ItemContainer getContainer(int widgetId) {
+	private ItemContainer getContainer(int widgetId)
+	{
 		if (INVENTORY_WIDGET_IDs.contains(widgetId))
 			return client.getItemContainer(InventoryID.INVENTORY);
 		else if (widgetId == BANK_ITEM_WIDGETID)
