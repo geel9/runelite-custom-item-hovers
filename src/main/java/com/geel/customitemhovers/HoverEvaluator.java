@@ -20,7 +20,7 @@ public class HoverEvaluator {
     private static final String[] HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
 
     //Regex for all currently supported functions.
-    private static final Pattern funcFinder = Pattern.compile("<%(qtymult)(\\((\\d+)\\))?%>");
+    private static final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydividefloor|qtydivideceil)(\\((\\d+)\\))?%>");
 
     //Regex for all currently supported variables. Generated at runtime as a singleton.
     private static Pattern variableFinder = null;
@@ -135,21 +135,34 @@ public class HoverEvaluator {
             String args = result.group(3);
             boolean hasArgs = args != null;
 
+            int itemQty = item.getQuantity();
+            int argument = 1;
+            if(hasArgs) {
+                argument = Integer.parseInt(args);
+            }
+
             String replaceWith = matchText;
+
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+
+            // TODO: This all seems pretty inelegant. But this is also a hobby project, and it works.
             switch (funcName) {
-                //<%qtymult(x)%> returns (stack_size * x)
+                //qtymult(x) returns (stack_size * x)
                 case "qtymult":
-                    int qty = item.getQuantity();
-                    int mult = 1;
-
-                    if (hasArgs) {
-                        mult = Integer.parseInt(args);
-                    }
-
-                    qty *= mult;
-
-                    String qtyText = NumberFormat.getNumberInstance(Locale.getDefault()).format(qty);
-                    replaceWith = qtyText;
+                    replaceWith = formatter.format((long)itemQty * argument);
+                    break;
+                //qtydividefloor(x) returns floor(stack_size / x)
+                case "qtydividefloor":
+                    replaceWith = formatter.format(Math.floorDiv(itemQty, argument));
+                    break;
+                // qtydivideceil(x) returns ceil(stack_size / x)
+                case "qtydivideceil":
+                    replaceWith = formatter.format(Math.ceil((double)itemQty / (double)argument));
+                    break;
+                // qtydivideceil(x) returns (stack_size / x) as integer division.
+                // This differs from qtydividefloor() in that it rounds towards zero, not negative infinity.
+                case "qtydivide":
+                    replaceWith = formatter.format(itemQty / argument);
                     break;
                 default:
                     break;
