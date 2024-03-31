@@ -158,6 +158,10 @@ Here are all of the currently-supported functions:
 
 - `qtymult`
   - Takes one argument; returns the argument times the number of items in the stack.
+- `qtydivide`
+  - Takes one argument; returns the stack size divided by the argument, *rounding down* to the nearest integer.
+- `qtydivideceil`
+  - Same as `qtydivide`, but *rounds up* to the nearest integer.
 
 ##### Variables
 
