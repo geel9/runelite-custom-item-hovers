@@ -3,6 +3,7 @@ package com.geel.customitemhovers;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +14,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class HoverFileParser {
-    public static ArrayList<HoverFile> readHoverFiles(Path dirPath) {
+    @Inject
+    private Gson gson;
+
+    public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
 
         if(!Files.isDirectory(dirPath) || !Files.isReadable(dirPath)){
@@ -53,12 +57,11 @@ public class HoverFileParser {
         return ret;
     }
 
-    private static HoverFile parseHoverFile(Path hoverFile){
+    private HoverFile parseHoverFile(Path hoverFile){
         try {
             byte[] fileBytes = Files.readAllBytes(hoverFile);
             String fileString = new String(fileBytes);
 
-            Gson gson = new Gson();
             return gson.fromJson(fileString, HoverFile.class);
         } catch (Exception e) {
             log.error(e.toString());
@@ -66,14 +69,14 @@ public class HoverFileParser {
         }
     }
 
-    private static void postProcessHoverFile(HoverFile f) {
+    private void postProcessHoverFile(HoverFile f) {
         for(HoverDef d : f.Hovers) {
             parseHoverDefHovers(d);
         }
     }
 
-    private static StringBuilder _hoverBuilder = new StringBuilder();
-    private static void parseHoverDefHovers(HoverDef d) {
+    private StringBuilder _hoverBuilder = new StringBuilder();
+    private void parseHoverDefHovers(HoverDef d) {
         d.ParsedHoverTexts = new String[d.HoverTexts.length];
 
         int i = 0;

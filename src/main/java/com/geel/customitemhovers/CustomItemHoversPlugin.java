@@ -2,6 +2,7 @@ package com.geel.customitemhovers;
 
 import javax.inject.Inject;
 
+import com.google.gson.Gson;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -54,6 +55,12 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Inject
     private CustomItemHoversConfig config;
+
+    @Inject
+    private Gson gson;
+
+    @Inject
+    private HoverFileParser parser;
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
@@ -199,7 +206,7 @@ public class CustomItemHoversPlugin extends Plugin {
         hovers.clear();
 
         //Read all hover files
-        ArrayList<HoverFile> hoverFiles = HoverFileParser.readHoverFiles(getHoverPath());
+        ArrayList<HoverFile> hoverFiles = parser.readHoverFiles(getHoverPath());
 
         for (HoverFile f : hoverFiles) {
             for (HoverDef d : f.Hovers) {
