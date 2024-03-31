@@ -20,7 +20,7 @@ public class HoverEvaluator {
     private static final String[] HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
 
     //Regex for all currently supported functions.
-    private static final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydividefloor|qtydivideceil)(\\((\\d+)\\))?%>");
+    private static final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydivideceil)(\\((\\d+)\\))?%>");
 
     //Regex for all currently supported variables. Generated at runtime as a singleton.
     private static Pattern variableFinder = null;
@@ -151,16 +151,11 @@ public class HoverEvaluator {
                 case "qtymult":
                     replaceWith = formatter.format((long)itemQty * argument);
                     break;
-                //qtydividefloor(x) returns floor(stack_size / x)
-                case "qtydividefloor":
-                    replaceWith = formatter.format(Math.floorDiv(itemQty, argument));
-                    break;
                 // qtydivideceil(x) returns ceil(stack_size / x)
                 case "qtydivideceil":
                     replaceWith = formatter.format(Math.ceil((double)itemQty / (double)argument));
                     break;
-                // qtydivideceil(x) returns (stack_size / x) as integer division.
-                // This differs from qtydividefloor() in that it rounds towards zero, not negative infinity.
+                // qtydivideceil(x) returns (stack_size / x) as integer division, rounding towards zero.
                 case "qtydivide":
                     replaceWith = formatter.format(itemQty / argument);
                     break;
