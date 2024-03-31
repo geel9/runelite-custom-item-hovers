@@ -1,7 +1,8 @@
 package com.geel.customitemhovers;
 
 import net.runelite.api.*;
-import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.tooltip.Tooltip;
@@ -23,31 +24,22 @@ import static net.runelite.api.MenuAction.ITEM_THIRD_OPTION;
 import static net.runelite.api.MenuAction.ITEM_FOURTH_OPTION;
 import static net.runelite.api.MenuAction.ITEM_FIFTH_OPTION;
 
-import static net.runelite.api.widgets.WidgetID.INVENTORY_GROUP_ID;
-import static net.runelite.api.widgets.WidgetID.BANK_GROUP_ID;
-import static net.runelite.api.widgets.WidgetID.BANK_INVENTORY_GROUP_ID;
-import static net.runelite.api.widgets.WidgetID.SEED_VAULT_GROUP_ID;
-import static net.runelite.api.widgets.WidgetID.SEED_VAULT_INVENTORY_GROUP_ID;
-
 class CustomItemHoversOverlay extends Overlay
 {
-	private static final int BANK_ITEM_WIDGETID = WidgetInfo.BANK_ITEM_CONTAINER.getPackedId();
-	private static final int SEED_VAULT_ITEM_WIDGETID = WidgetInfo.SEED_VAULT_ITEM_CONTAINER.getPackedId();
-
-	//Widget IDs for the standard inventory container
-	private static final Set<Integer> INVENTORY_WIDGET_IDs = new HashSet<>(
+	//Interface IDs for the standard inventory container
+	private static final Set<Integer> INVENTORY_COMPONENT_IDS = new HashSet<>(
 			Arrays.asList(
-					WidgetInfo.INVENTORY.getPackedId(),
-					WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getPackedId(),
-					WidgetInfo.EXPLORERS_RING_ALCH_INVENTORY.getPackedId(),
-					WidgetInfo.SEED_VAULT_INVENTORY_ITEMS_CONTAINER.getPackedId()
+					InterfaceID.INVENTORY,
+					InterfaceID.BANK_INVENTORY,
+					InterfaceID.SEED_VAULT_INVENTORY,
+					InterfaceID.EXPLORERS_RING
 			)
 	);
 
-	//Widget group IDs which an item hover MenuAction will be related to
-	private static final Set<Integer> VALID_WIDGET_GROUP_IDS = new HashSet<>(
-			Arrays.asList(INVENTORY_GROUP_ID, BANK_GROUP_ID, BANK_INVENTORY_GROUP_ID,
-					SEED_VAULT_GROUP_ID, SEED_VAULT_INVENTORY_GROUP_ID)
+	//Interface IDs which an item hover MenuAction will be related to
+	private static final Set<Integer> VALID_INTERFACE_IDS = new HashSet<>(
+			Arrays.asList(InterfaceID.INVENTORY, InterfaceID.BANK, InterfaceID.BANK_INVENTORY,
+					InterfaceID.SEED_VAULT, InterfaceID.SEED_VAULT_INVENTORY, InterfaceID.EXPLORERS_RING)
 	);
 
 	//MenuActions which indicate an item is being hovered on
@@ -85,17 +77,18 @@ class CustomItemHoversOverlay extends Overlay
 
 		final MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
 		final MenuAction action = lastEntry.getType();
-		final int widgetId = lastEntry.getParam1();
-		final int groupId = WidgetInfo.TO_GROUP(widgetId);
+		final Widget widget = lastEntry.getWidget();
+		final int widgetId = widget.getId();
+		final int interfaceId = widgetId >>> 16;
 
 		if (!VALID_MENU_ACTIONS.contains(action))
 			return null;
 
-		if (!VALID_WIDGET_GROUP_IDS.contains(groupId))
+		if (!VALID_INTERFACE_IDS.contains(interfaceId))
 			return null;
 
 		//We should now display a hover.
-		ItemContainer container = getContainer(widgetId);
+		ItemContainer container = getContainer(interfaceId);
 
 		if (container == null)
 			return null;
@@ -118,13 +111,13 @@ class CustomItemHoversOverlay extends Overlay
 		return null;
 	}
 
-	private ItemContainer getContainer(int widgetId)
+	private ItemContainer getContainer(int interfaceId)
 	{
-		if (INVENTORY_WIDGET_IDs.contains(widgetId))
+		if (INVENTORY_COMPONENT_IDS.contains(interfaceId))
 			return client.getItemContainer(InventoryID.INVENTORY);
-		else if (widgetId == BANK_ITEM_WIDGETID)
+		else if (interfaceId == InterfaceID.BANK)
 			return client.getItemContainer(InventoryID.BANK);
-		else if (widgetId == SEED_VAULT_ITEM_WIDGETID) {
+		else if (interfaceId == InterfaceID.SEED_VAULT) {
 			return client.getItemContainer(InventoryID.SEED_VAULT);
 		}
 
