@@ -1,0 +1,68 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+    {
+      "items_regex": ["Ensouled (goblin|monkey|imp|minotaur|scorpion|bear|unicorn) head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: ${reanimation_prayer_xp} (${reanimation_prayer_xp * qty})",
+          "  \u2022Magic: ${reanimation_magic_xp} (${reanimation_magic_xp * qty})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["Ensouled (dog|chaos druid|giant|ogre|elf|troll|horror) head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: ${reanimation_prayer_xp} (${reanimation_prayer_xp * qty})",
+          "  \u2022Magic: ${reanimation_magic_xp} (${reanimation_magic_xp * qty})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["Ensouled (kalphite|dagannoth|bloodveld|tzhaar|demon) head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: ${reanimation_prayer_xp} (${reanimation_prayer_xp * qty})",
+          "  \u2022Magic: ${reanimation_magic_xp} (${reanimation_magic_xp * qty})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["Ensouled (aviansie|abyssal|dragon) head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Master (Level 90)",
+          "XP:",
+          "  \u2022Prayer: ${reanimation_prayer_xp} (${reanimation_prayer_xp * qty})",
+          "  \u2022Magic: ${reanimation_magic_xp} (${reanimation_magic_xp * qty})",
+          "Runes:",
+          "  \u2022Nature (4x) (${qty * 4})",
+          "  \u2022Blood (2x) (${qty * 2})",
+          "  \u2022Soul (4x) (${qty * 4})"
+        ]
+      ]
+    }
+  ]
+}

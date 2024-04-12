@@ -1,174 +1,66 @@
 package com.geel.customitemhovers;
 
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
-
+import com.geel.customitemhovers.expressions.*;
+import com.geel.customitemhovers.models.hovers.ParsedHover;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /***
  * Evaluates a hover text, replacing variable names with their values, and replacing function calls with their results.
  */
 public class HoverEvaluator {
-    //All supported functions. Unused presently (regex is manually typed)
-    private static final String[] HOVER_FUNCTIONS = {"qtymult"};
-
-    //All supported variables
-    private static final String[] HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
-
-    //Regex for all currently supported functions.
-    private static final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydivideceil)(\\((\\d+)\\))?%>");
-
-    //Regex for all currently supported variables. Generated at runtime as a singleton.
-    private static Pattern variableFinder = null;
-
-    /**
-     * Computes (if necessary) and returns variableFinder
-     */
-    private static Pattern getVariableRegex() {
-        if (variableFinder != null)
-            return variableFinder;
-
-        //Concatenate HOVER_VARIABLES into a "|"-delimited string
-        StringBuilder variableNames = new StringBuilder();
-        for (String s : HOVER_VARIABLES) {
-            variableNames.append(s);
-            variableNames.append("|");
-        }
-
-        //Delete final dangling | character
-        variableNames.deleteCharAt(variableNames.length() - 1);
-
-        //Wrap variable names with regex
-        //We should end up with a Regex like:
-        //  <%(VARIABLE_1|VARIABLE_2|...|VARIABLE_N)%>
-        variableNames.insert(0, "<%(");
-        variableNames.append(")%>");
-
-        variableFinder = Pattern.compile(variableNames.toString());
-        return variableFinder;
-    }
-
     /**
      * Evaluates a hover text for a given item.
      *
-     * Evaluates functions and variables, returning a string ready to render into a hover box.
+     * Evaluates expressions, returning a string ready to render into a hover box.
      *
      * @return A hover string, properly evaluated, ready to render into a hover box.
      */
-    public static String Evaluate(String text, Item item, ItemComposition comp) {
-        String ret = text;
-
-        //Handle variables
-        ret = EvaluateVariables(ret, item, comp);
-
-        //Handle functions
-        ret = EvaluateFunctions(ret, item, comp);
-
-        return ret;
-    }
-
-    /**
-     * Replaces all variables in a given text with their value.
-     *
-     * @return The text with all variables replaced with their value.
-     */
-    private static String EvaluateVariables(String text, Item item, ItemComposition comp) {
-        String ret = text;
-
-        Matcher varMatcher = getVariableRegex().matcher(text);
-
-        while (varMatcher.find()) {
-            MatchResult result = varMatcher.toMatchResult();
-            String matchText = result.group();
-            String varName = result.group(1);
-
-            String replaceWith = matchText;
-
-            switch (varName) {
-                //<%ID%> is just the numeric ID of the item
-                case "ID":
-                    replaceWith = String.valueOf(item.getId());
-                    break;
-                //<%QTY%> is the number of items in the stack
-                case "QTY":
-                    replaceWith = String.valueOf(item.getQuantity());
-                    break;
-                //<%VALUE%> is the clientside price of the item
-                case "VALUE":
-                    replaceWith = String.valueOf(comp.getPrice());
-                    break;
-                //<%HIGH_ALCH%> is the high-alch price of the item
-                case "HIGH_ALCH":
-                    replaceWith = String.valueOf(comp.getHaPrice());
-                    break;
-                default:
-                    break;
-            }
-
-            if (replaceWith == null || replaceWith.equals(matchText))
-                continue;
-
-            ret = ret.replace(matchText, replaceWith);
+    public static String Evaluate(ParsedHover hover, ItemHoverContext context) {
+        // No expressions? Nothing to evaluate
+        if(hover.getExpressions().length == 0) {
+            return hover.getHoverText();
         }
 
-        return ret;
+        return evaluateExpressions(hover, context);
     }
 
-    /**
-     * Evaluates all functions in a given text, replacing them with their value.
-     *
-     * @return The text with all function calls replaced with their resultant value.
-     */
-    private static String EvaluateFunctions(String text, Item item, ItemComposition comp) {
-        String ret = text;
+    private static String evaluateExpressions(ParsedHover hover, ItemHoverContext context) {
+        // Evaluate expressions (in the form ${expression} or <%expression%> (backwards-compat))
+        StringBuilder ret = new StringBuilder();
 
-        Matcher funcMatcher = funcFinder.matcher(text);
+        // For each expression in the hover text, copy the static text that precedes it,
+        // then evaluate the expression and copy the result
+        int pos = 0;
+        for(int i = 0; i < hover.getExpressionLocations().length; i++) {
+            int nextPos = hover.getExpressionLocations()[i];
+            Expression expression = hover.getExpressions()[i];
 
-        while (funcMatcher.find()) {
-            MatchResult result = funcMatcher.toMatchResult();
-            String matchText = result.group();
-            String funcName = result.group(1);
-            String args = result.group(3);
-            boolean hasArgs = args != null;
+            // Append all text preceding this expression
+            ret.append(hover.getHoverText(), pos, nextPos);
 
-            int itemQty = item.getQuantity();
-            int argument = 1;
-            if(hasArgs) {
-                argument = Integer.parseInt(args);
-            }
+            // Insert the expression
+            ret.append(evaluateExpression(expression, context));
 
-            String replaceWith = matchText;
-
-            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
-
-            // TODO: This all seems pretty inelegant. But this is also a hobby project, and it works.
-            switch (funcName) {
-                //qtymult(x) returns (stack_size * x)
-                case "qtymult":
-                    replaceWith = formatter.format((long)itemQty * argument);
-                    break;
-                // qtydivideceil(x) returns ceil(stack_size / x)
-                case "qtydivideceil":
-                    replaceWith = formatter.format(Math.ceil((double)itemQty / (double)argument));
-                    break;
-                // qtydivideceil(x) returns (stack_size / x) as integer division, rounding towards zero.
-                case "qtydivide":
-                    replaceWith = formatter.format(itemQty / argument);
-                    break;
-                default:
-                    break;
-            }
-
-            if (replaceWith == null || replaceWith.equals(matchText))
-                continue;
-
-            ret = ret.replace(matchText, replaceWith);
+            // Update pos to nextPos
+            pos = nextPos;
         }
 
-        return ret;
+        // After the last expression, there might be some static text left to copy
+        if(pos < hover.getHoverText().length()) {
+            ret.append(hover.getHoverText(), pos, hover.getHoverText().length());
+        }
+
+        return ret.toString();
+    }
+
+    private static String evaluateExpression(Expression expression, ItemHoverContext context) {
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+
+        try {
+            return formatter.format(ExpressionEvaluator.Evaluate(expression, context));
+        } catch (IllegalArgumentException e) {
+            return "${" + expression.getExpressionText() + "}";
+        }
     }
 }

@@ -1,0 +1,356 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+    {
+      "items": ["Ensouled goblin head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 130 (${qty * 130})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled monkey head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 182 (${qty * 182})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled imp head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 286 (${qty * 286})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled minotaur head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 364 (${qty * 364})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled scorpion head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 454 (${qty * 454})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled bear head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 480 (${qty * 480})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled unicorn head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Basic (Level 16)",
+          "XP:",
+          "  \u2022Prayer: 494 (${qty * 494})",
+          "  \u2022Magic: 32 (${qty * 32})",
+          "Runes:",
+          "  \u2022Nature (2x) (${qty * 2})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+
+
+    {
+      "items": ["Ensouled dog head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 520 (${qty * 520})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled chaos druid head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 584 (${qty * 584})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled giant head"], 
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 650 (${qty * 650})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled ogre head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 716 (${qty * 716})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled elf head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 754 (${qty * 754})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled troll head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 780 (${qty * 780})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled horror head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Adept (Level 41)",
+          "XP:",
+          "  \u2022Prayer: 832 (${qty * 832})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Soul (1x) (${qty})",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Body (4x) (${qty * 4})"
+        ]
+      ]
+    },
+
+
+    {
+      "items": ["Ensouled kalphite head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: 884 (${qty * 884})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled dagannoth head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: 936 (${qty * 936})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled bloodveld head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: 1,040 (${qty * 1040})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled tzhaar head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: 1,104 (${qty * 1104})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled demon head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Expert (Level 72)",
+          "XP:",
+          "  \u2022Prayer: 1,170 (${qty * 1170})",
+          "  \u2022Magic: 80 (${qty * 80})",
+          "Runes:",
+          "  \u2022Nature (3x) (${qty * 3})",
+          "  \u2022Blood (1x) (${qty})",
+          "  \u2022Soul (2x) (${qty * 2})"
+        ]
+      ]
+    },
+
+
+    {
+      "items": ["Ensouled aviansie head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Master (Level 90)",
+          "XP:",
+          "  \u2022Prayer: 1,234 (${qty * 1234})",
+          "  \u2022Magic: 170 (${qty * 170})",
+          "Runes:",
+          "  \u2022Nature (4x) (${qty * 4})",
+          "  \u2022Blood (2x) (${qty * 2})",
+          "  \u2022Soul (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled abyssal head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Master (Level 90)",
+          "XP:",
+          "  \u2022Prayer: 1,300 (${qty * 1300})",
+          "  \u2022Magic: 170 (${qty * 170})",
+          "Runes:",
+          "  \u2022Nature (4x) (${qty * 4})",
+          "  \u2022Blood (2x) (${qty * 2})",
+          "  \u2022Soul (4x) (${qty * 4})"
+        ]
+      ]
+    },
+    {
+      "items": ["Ensouled dragon head"],
+      "hovers": [
+        [
+          "<col=3498db>---Reanimation---</col>",
+          "Master (Level 90)",
+          "XP:",
+          "  \u2022Prayer: 1,560 (${qty * 1560})",
+          "  \u2022Magic: 170 (${qty * 170})",
+          "Runes:",
+          "  \u2022Nature (4x) (${qty * 4})",
+          "  \u2022Blood (2x) (${qty * 2})",
+          "  \u2022Soul (4x) (${qty * 4})"
+        ]
+      ]
+    }
+  ]
+}

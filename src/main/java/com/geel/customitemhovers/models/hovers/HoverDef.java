@@ -1,8 +1,8 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.models.hovers;
 
+import com.geel.customitemhovers.HoverEvaluator;
+import com.geel.customitemhovers.ItemHoverContext;
 import com.google.gson.annotations.SerializedName;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
 
 /**
  * A parsed entry in a hoverfile.
@@ -26,19 +26,19 @@ public class HoverDef {
      * This is produced from `HoverTexts`, which is a 2D array of strings.
      * Each sub-array of strings in `HoverTexts` is treated as an array of lines which are concatenated together.
      */
-    public String[] ParsedHoverTexts;
+    public ParsedHover[] ParsedHoverTexts;
 
     /**
      * Creates and returns an array of hover text strings, after transformation for a specific item.
      *
      * Transformation involves replacing function calls with their results, and variables with their values.
      */
-    public String[] GetTransformedTexts(Item item, ItemComposition composition) {
+    public String[] GetTransformedTexts(ItemHoverContext context) {
         String[] transformed = new String[ParsedHoverTexts.length];
 
         int i = 0;
-        for(String text : ParsedHoverTexts) {
-            transformed[i++] = HoverEvaluator.Evaluate(text, item, composition);
+        for(ParsedHover text : ParsedHoverTexts) {
+            transformed[i++] = HoverEvaluator.Evaluate(text, context);
         }
 
         return transformed;

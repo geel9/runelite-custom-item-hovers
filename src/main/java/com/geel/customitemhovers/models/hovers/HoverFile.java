@@ -1,4 +1,4 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.models.hovers;
 
 import com.google.gson.annotations.SerializedName;
 
