@@ -7,18 +7,16 @@ import java.util.Stack;
 
 /**
  * Expression evaluator.
- *
+ * <p>
  * Responsible for taking the output of the Shunting Yard Algorithm (implemented by `ShuntingYard`), and evaluating
  * it to produce a final numerical result.
  */
 public class ExpressionEvaluator {
-    @Inject
-    ShuntingYard shuntingYard;
-
     /**
      * Evaluates a Reverse Polish Notation queue (output from `ShuntingYard`), returning the result
      */
     public Number Evaluate(String expression, ItemHoverContext context) {
+        ShuntingYard shuntingYard = new ShuntingYard();
         Token[] rpn = shuntingYard.EvaluateExpression(expression);
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
@@ -52,7 +50,7 @@ public class ExpressionEvaluator {
 
                 Token rightHand = stack.pop();
                 Token leftHand = stack.pop();
-                stack.add(evaluateOperator(token, leftHand, rightHand, context));
+                stack.add(evaluateOperator(token, leftHand, rightHand));
             }
         }
 
@@ -73,22 +71,23 @@ public class ExpressionEvaluator {
 
     private static Token evaluateFunction(Token functionToken, Token argToken, ItemHoverContext context) {
         Number argValue = argToken.getConstantValue();
-        switch(functionToken.getValue()) {
+        switch (functionToken.getValue()) {
             case "floor":
-                return new Token(TokenType.INTEGER, String.valueOf((int)Math.floor(argValue.doubleValue())));
+                return new Token(TokenType.INTEGER, String.valueOf((int) Math.floor(argValue.doubleValue())));
             case "ceil":
-                return new Token(TokenType.INTEGER, String.valueOf((int)Math.ceil(argValue.doubleValue())));
+                return new Token(TokenType.INTEGER, String.valueOf((int) Math.ceil(argValue.doubleValue())));
             default:
                 return argToken;
         }
     }
 
-    private static Token evaluateOperator(Token operatorToken, Token leftValue, Token rightValue, ItemHoverContext context) {
+    private static Token evaluateOperator(Token operatorToken, Token leftValue, Token rightValue) {
         Number leftVal, rightVal, result;
-        boolean isDouble = isDoubleOperation(operatorToken, leftValue, rightValue);
+        boolean isDoubleInput = isDoubleOperation(operatorToken, leftValue, rightValue);
+        boolean isDoubleOutput = isDoubleInput && !operatorToken.getType().isBooleanOperator();
 
         // I hate this
-        if (isDouble) {
+        if (isDoubleInput) {
             leftVal = Double.parseDouble(leftValue.getValue());
             rightVal = Double.parseDouble(rightValue.getValue());
         } else {
@@ -97,18 +96,8 @@ public class ExpressionEvaluator {
         }
 
         switch (operatorToken.getType()) {
-            case OP_PLUS:
-                result = isDouble
-                        ? (leftVal.doubleValue() + rightVal.doubleValue())
-                        : (leftVal.intValue() + rightVal.intValue());
-                break;
-            case OP_MINUS:
-                result = isDouble
-                        ? (leftVal.doubleValue() - rightVal.doubleValue())
-                        : (leftVal.intValue() - rightVal.intValue());
-                break;
             case OP_TIMES:
-                result = isDouble
+                result = isDoubleInput
                         ? (leftVal.doubleValue() * rightVal.doubleValue())
                         : (leftVal.intValue() * rightVal.intValue());
                 break;
@@ -120,18 +109,60 @@ public class ExpressionEvaluator {
                     result = leftVal.doubleValue() / rightVal.doubleValue();
                 }
                 break;
+            case OP_MODULO:
+                // Avoid a divide-by-zero
+                if (rightVal.intValue() == 0) {
+                    result = 0;
+                } else {
+                    result = leftVal.intValue() % rightVal.intValue();
+                }
+                break;
+            case OP_PLUS:
+                result = isDoubleInput
+                        ? (leftVal.doubleValue() + rightVal.doubleValue())
+                        : (leftVal.intValue() + rightVal.intValue());
+                break;
+            case OP_MINUS:
+                result = isDoubleInput
+                        ? (leftVal.doubleValue() - rightVal.doubleValue())
+                        : (leftVal.intValue() - rightVal.intValue());
+                break;
+            case CMP_LT:
+                result = leftVal.doubleValue() < rightVal.doubleValue() ? 1 : 0; // EPSILON
+                break;
+            case CMP_LTE:
+                result = (leftVal.doubleValue() - rightVal.doubleValue() < 0.000001) ? 1 : 0; // EPSILON
+                break;
+            case CMP_GT:
+                result = leftVal.doubleValue() > rightVal.doubleValue() ? 1 : 0; // EPSILON
+                break;
+            case CMP_GTE:
+                result = (leftVal.doubleValue() - rightVal.doubleValue() > -0.000001) ? 1 : 0; // EPSILON
+                break;
+            case CMP_EQUALS:
+                result = Math.abs(leftVal.doubleValue() - rightVal.doubleValue()) < 0.000001 ? 1 : 0; // EPSILON
+                break;
+            case CMP_NEQUALS:
+                result = Math.abs(leftVal.doubleValue() - rightVal.doubleValue()) > 0.000001 ? 1 : 0; // EPSILON
+                break;
+            case LOG_AND:
+                result = (leftVal.intValue() != 0 && rightVal.intValue() != 0) ? 1 : 0;
+                break;
+            case LOG_OR:
+                result = (leftVal.intValue() != 0 || rightVal.intValue() != 0) ? 1 : 0;
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + operatorToken.getType());
         }
 
-        return isDouble
+        return isDoubleOutput
                 ? Token.fromDouble(result.doubleValue())
                 : Token.fromInt(result.intValue());
     }
 
     /**
      * Determines if an operation requires the use of decimal numbers.
-     *
+     * <p>
      * This is true if either operand is a decimal itself, or if the operation is a division.
      */
     private static boolean isDoubleOperation(Token operatorToken, Token leftValue, Token rightValue) {
@@ -146,9 +177,9 @@ public class ExpressionEvaluator {
 
     /**
      * Evaluates a Token to a constant numeric value.
-     *
+     * <p>
      * If the Token is already a constant number, this just returns the Token.
-     *
+     * <p>
      * Otherwise, the Token is a variable; the variable is evaluated and, if it's a number, its value is returned.
      */
     private static Token evaluateValue(Token value, ItemHoverContext context) {

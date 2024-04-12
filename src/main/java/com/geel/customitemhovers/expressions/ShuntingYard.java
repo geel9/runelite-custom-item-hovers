@@ -10,10 +10,8 @@ import java.util.Stack;
  * item hover text.
  */
 public class ShuntingYard {
-    @Inject
-    Tokenizer tokenizer;
-
     public Token[] EvaluateExpression(String expression) {
+        Tokenizer tokenizer = new Tokenizer();
         Token[] tokenized = tokenizer.Tokenize(expression);
         if (tokenized.length == 0) {
             return tokenized;
@@ -119,7 +117,7 @@ public class ShuntingYard {
         int topPrecedence = topOfStack.getType().getPrecedence();
         int newPrecedence = newToken.getType().getPrecedence();
 
-        if (topPrecedence > newPrecedence) {
+        if (topPrecedence < newPrecedence) {
             return true;
         }
 

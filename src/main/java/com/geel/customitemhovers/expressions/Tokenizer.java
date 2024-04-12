@@ -1,6 +1,7 @@
 package com.geel.customitemhovers.expressions;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -11,11 +12,14 @@ public class Tokenizer {
         ArrayList<Token> output = new ArrayList<>();
         StringBuilder tempBuff = new StringBuilder();
         boolean isReadingIdentifier = false;
+
+        ArrayList<TokenType> possibleOperators = new ArrayList<>();
+        boolean isReadingOperator = false;
+
         int parenDepth = 0;
 
         Consumer<TokenType> addToken = (TokenType t) -> {
-            Token token = new Token(t, tempBuff.toString());
-            output.add(token);
+            output.add(new Token(t, tempBuff.toString()));
             tempBuff.delete(0, tempBuff.length());
         };
 
@@ -27,6 +31,47 @@ public class Tokenizer {
                 throw new IllegalArgumentException("Invalid expression");
             }
 
+            // If we're currently reading an operator, then we should evaluate this new character
+            // to see if it belongs to the current operator or is the start of a new token
+            if (isReadingOperator) {
+                String curOperatorText = tempBuff.toString();
+                String withNewChar = curOperatorText + curChar; // Eep
+
+                // Determine which operators start with the new total string
+                ArrayList<TokenType> newPossibleOperators = ComputeOperatorsStartingWith(withNewChar);
+
+                // New string does not complete an operator.
+                // Take old string, find its equivalent operator, and push it.
+                // Then treat new character as start of new token.
+                if (newPossibleOperators.size() == 0) {
+                    Optional<TokenType> match = possibleOperators.stream().filter(t -> t.getConstantValue().equals(curOperatorText)).findFirst();
+                    if (match.isEmpty()) {
+                        throw new IllegalArgumentException("Invalid operator " + curOperatorText);
+                    }
+
+                    addToken.accept(match.get());
+                    isReadingOperator = false;
+                    possibleOperators.clear();
+                }
+                else if (newPossibleOperators.size() == 1 && newPossibleOperators.get(0).getConstantValue().equals(withNewChar)) {
+                    // Only one possible operator left, and it matches the new char.
+                    // Consume the operator and move on to the next char
+                    tempBuff.append(curChar);
+                    addToken.accept(newPossibleOperators.get(0));
+
+                    isReadingOperator = false;
+                    possibleOperators.clear();
+                    continue;
+                } else {
+                    // Either multiple possible operators left, OR one operator that's longer than the current buffer.
+                    // Just keep reading.
+                    tempBuff.append(curChar);
+                    continue;
+                }
+            }
+
+            // If we're currently reading an identifier, and the current token type is NOT an identifier,
+            // then we're done reading the identifier
             if (isReadingIdentifier) {
                 if (!curType.isIdentifier()) {
                     // Not an identifier character -- identifier has ended. Process character normally.
@@ -45,7 +90,7 @@ public class Tokenizer {
 
             // If this is an identifier char, start readin' it
             if (curType.isIdentifier()) {
-                if(!IsValidBeforeIdentifier(lastToken)) {
+                if (!IsValidBeforeIdentifier(lastToken)) {
                     throw new IllegalArgumentException("Unexpected identifier start");
                 }
                 isReadingIdentifier = true;
@@ -73,6 +118,24 @@ public class Tokenizer {
                 if (!IsValidBeforeOperator(lastToken)) {
                     throw new IllegalArgumentException("Invalid operator placement");
                 }
+
+                possibleOperators = ComputeOperatorsStartingWith(String.valueOf(curChar));
+
+                if (possibleOperators.size() == 0) {
+                    // No operators start with this character? Impossible
+                    throw new IllegalArgumentException("Somehow, no possible operators? Don't think this code will ever be hit actually");
+                } else if (possibleOperators.size() == 1 && possibleOperators.get(0).getConstantValue().length() == 1) {
+                    // Only one operator starts with this character, and it's a single-character operator.
+                    // Just consume it immediately.
+                    // We'll fall through to `addToken.accept(curType)` below.
+                    // Set curType to what the operator actually is (though they should match).
+                    curType = possibleOperators.get(0);
+                } else {
+                    // Either multiple operators start with this character, OR only one does, but it's a multi-char
+                    // operator, so we need to finish reading it.
+                    isReadingOperator = true;
+                    continue;
+                }
             }
 
             addToken.accept(curType);
@@ -80,21 +143,38 @@ public class Tokenizer {
 
         // Handle reading an identifier at the end
         if (isReadingIdentifier) {
-            isReadingIdentifier = false;
             addToken.accept(DiscriminateIdentifier(tempBuff, '\0'));
         }
 
+        // Handle reading an operator at the end
+        // We can just fail -- operators shouldn't be ending an expression
+        if (isReadingOperator) {
+            throw new IllegalArgumentException("Expression ended with an operator");
+        }
+
         // Handle dangling parenthesis
-        if(parenDepth != 0) {
+        if (parenDepth != 0) {
             throw new IllegalArgumentException("Unmatched opening parenthesis");
         }
 
         // Ensure we ended on a good note
-        if(output.size() > 0 && !IsValidFinalToken(output.get(output.size() - 1))) {
+        if (output.size() > 0 && !IsValidFinalToken(output.get(output.size() - 1))) {
             throw new IllegalArgumentException("Invalid ending token");
         }
 
         return output.toArray(new Token[0]);
+    }
+
+    private static ArrayList<TokenType> ComputeOperatorsStartingWith(String prefix) {
+        ArrayList<TokenType> ret = new ArrayList<>(2);
+
+        for (TokenType tokenType : TokenType.GetOperatorTokenTypes()) {
+            if (tokenType.getConstantValue().startsWith(prefix)) {
+                ret.add(tokenType);
+            }
+        }
+
+        return ret;
     }
 
     /**
@@ -190,7 +270,7 @@ public class Tokenizer {
 
     /**
      * Returns the Type of token corresponding to c, for most cases.
-     *
+     * <p>
      * Will return INTEGER for all numeric types and VARIABLE for identifiers (which may be functions).
      * Further investigation of the entire token value is necessary to discern the type of number or identifier.
      */
@@ -208,6 +288,20 @@ public class Tokenizer {
                 return TokenType.OP_TIMES;
             case '/':
                 return TokenType.OP_DIVIDE;
+            case '%':
+                return TokenType.OP_MODULO;
+            case '<':
+                return TokenType.CMP_LT;
+            case '>':
+                return TokenType.CMP_GT;
+            case '=':
+                return TokenType.CMP_EQUALS;
+            case '!':
+                return TokenType.CMP_NEQUALS;
+            case '&':
+                return TokenType.LOG_AND;
+            case '|':
+                return TokenType.LOG_OR;
             case ' ':
             case '\t':
                 return TokenType.WHITESPACE;
@@ -224,6 +318,10 @@ public class Tokenizer {
         }
 
         return null;
+    }
+
+    private static boolean IsOperatorChar(char c) {
+        return c == '>' || c == '<' || c == '=' || c == '+' || c == '-' || c == '|' || c == '&';
     }
 
     /**
