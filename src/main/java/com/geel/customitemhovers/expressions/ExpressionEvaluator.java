@@ -76,6 +76,14 @@ public class ExpressionEvaluator {
                 return new Token(TokenType.INTEGER, String.valueOf((int) Math.floor(argValue.doubleValue())));
             case "ceil":
                 return new Token(TokenType.INTEGER, String.valueOf((int) Math.ceil(argValue.doubleValue())));
+
+            // These three functions are here for backwards-compatibility with the old, garbage, function system
+            case "qtymult":
+                return new Token(TokenType.INTEGER, String.valueOf(context.getItem().getQuantity() * argValue.intValue()));
+            case "qtydivide":
+                return new Token(TokenType.INTEGER, String.valueOf(context.getItem().getQuantity() / argValue.intValue()));
+            case "qtydivideceil":
+                return new Token(TokenType.INTEGER, String.valueOf(Math.ceil((double) context.getItem().getQuantity() / (double) argValue.intValue())));
             default:
                 return argToken;
         }
