@@ -26,7 +26,7 @@ public class HoverDef {
      * This is produced from `HoverTexts`, which is a 2D array of strings.
      * Each sub-array of strings in `HoverTexts` is treated as an array of lines which are concatenated together.
      */
-    public String[] ParsedHoverTexts;
+    public ParsedHover[] ParsedHoverTexts;
 
     /**
      * Creates and returns an array of hover text strings, after transformation for a specific item.
@@ -37,7 +37,7 @@ public class HoverDef {
         String[] transformed = new String[ParsedHoverTexts.length];
 
         int i = 0;
-        for(String text : ParsedHoverTexts) {
+        for(ParsedHover text : ParsedHoverTexts) {
             transformed[i++] = evaluator.Evaluate(text, context);
         }
 

@@ -15,9 +15,7 @@ public class ExpressionEvaluator {
     /**
      * Evaluates a Reverse Polish Notation queue (output from `ShuntingYard`), returning the result
      */
-    public Number Evaluate(String expression, ItemHoverContext context) {
-        ShuntingYard shuntingYard = new ShuntingYard();
-        Token[] rpn = shuntingYard.EvaluateExpression(expression);
+    public Number Evaluate(Token[] rpn, ItemHoverContext context) {
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
             boolean isFirst = i == 0;
@@ -91,6 +89,10 @@ public class ExpressionEvaluator {
 
     private static Token evaluateOperator(Token operatorToken, Token leftValue, Token rightValue) {
         Number leftVal, rightVal, result;
+
+        // TODO: Figure out a better way to handle this. Fundamentally, we are trying to figure out:
+        // 1. How do we deserialize the input?
+        // 2. How do we serialize the output?
         boolean isDoubleInput = isDoubleOperation(operatorToken, leftValue, rightValue);
         boolean isDoubleOutput = isDoubleInput && !operatorToken.getType().isBooleanOperator();
 
@@ -103,6 +105,7 @@ public class ExpressionEvaluator {
             rightVal = Integer.parseInt(rightValue.getValue());
         }
 
+        // TODO: Surely this can be done more elegantly
         switch (operatorToken.getType()) {
             case OP_TIMES:
                 result = isDoubleInput
