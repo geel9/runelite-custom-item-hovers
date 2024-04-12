@@ -2,7 +2,6 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
-import javax.inject.Singleton;
 import java.text.NumberFormat;
 import java.util.Locale;
 

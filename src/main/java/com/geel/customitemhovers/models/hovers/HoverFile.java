@@ -1,6 +1,5 @@
 package com.geel.customitemhovers.models.hovers;
 
-import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.google.gson.annotations.SerializedName;
 
 public class HoverFile {

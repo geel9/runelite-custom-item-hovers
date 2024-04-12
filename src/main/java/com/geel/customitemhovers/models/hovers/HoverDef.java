@@ -2,7 +2,6 @@ package com.geel.customitemhovers.models.hovers;
 
 import com.geel.customitemhovers.HoverEvaluator;
 import com.geel.customitemhovers.ItemHoverContext;
-import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.google.gson.annotations.SerializedName;
 
 /**
