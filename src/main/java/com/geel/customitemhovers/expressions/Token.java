@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class Token {
+class Token {
     @Getter
     private TokenType type;
 

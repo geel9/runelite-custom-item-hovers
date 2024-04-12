@@ -1,8 +1,7 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.expressions.ShuntingYard;
-import com.geel.customitemhovers.expressions.Token;
-import com.geel.customitemhovers.expressions.Tokenizer;
+import com.geel.customitemhovers.expressions.Expression;
+import com.geel.customitemhovers.expressions.ExpressionParser;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +9,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -106,7 +104,7 @@ public class HoverFileParser {
             _hoverBuilder.setLength(0);
 
             // Now, find all expressions in the hoverText
-            ArrayList<Token[]> expressions = new ArrayList<>();
+            ArrayList<Expression> expressions = new ArrayList<>();
             ArrayList<Integer> expressionLocations = new ArrayList<>();
 
             int offset = 0;
@@ -117,8 +115,7 @@ public class HoverFileParser {
                 int end = varMatcher.end();
                 int len = end - start;
 
-                ShuntingYard shuntingYard = new ShuntingYard();
-                Token[] expression = new ShuntingYard().EvaluateExpression(varMatcher.group(2));
+                Expression expression = ExpressionParser.Parse(varMatcher.group(2));
 
                 expressions.add(expression);
                 expressionLocations.add(start - offset);
@@ -136,7 +133,7 @@ public class HoverFileParser {
 
             d.ParsedHoverTexts[i++] = new ParsedHover(_hoverBuilder.toString(),
                     expressionLocations.toArray(new Integer[0]),
-                    expressions.toArray(new Token[0][0]));
+                    expressions.toArray(new Expression[0]));
         }
     }
 }

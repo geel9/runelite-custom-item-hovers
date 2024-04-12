@@ -5,9 +5,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Tokenizes a mathematical expression (including variables and functions)
+ * Tokenizes a mathematical expression (including variables and functions).
+ *
+ * Not for external use; used by `ExpressionParser` as first step in parsing of an expression
  */
-public class Tokenizer {
+class Tokenizer {
     public Token[] Tokenize(String input) {
         ArrayList<Token> output = new ArrayList<>();
         StringBuilder tempBuff = new StringBuilder();

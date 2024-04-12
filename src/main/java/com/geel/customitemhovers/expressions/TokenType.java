@@ -2,7 +2,7 @@ package com.geel.customitemhovers.expressions;
 
 import lombok.Getter;
 
-public enum TokenType {
+enum TokenType {
     // Order of operations:
     // Parentheses/Functions (0), Multiplication/Division (1), Arithmetic (2), Constants/Variables (3),
     // Range Comparators (<, <=, >, >=) (4), Equality Comparators (==, !=) (5), Logical && (6), Logical || (7),

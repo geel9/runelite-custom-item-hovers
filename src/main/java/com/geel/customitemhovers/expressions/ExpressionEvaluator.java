@@ -15,7 +15,8 @@ public class ExpressionEvaluator {
     /**
      * Evaluates a Reverse Polish Notation queue (output from `ShuntingYard`), returning the result
      */
-    public Number Evaluate(Token[] rpn, ItemHoverContext context) {
+    public static Number Evaluate(Expression expression, ItemHoverContext context) {
+        Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
             boolean isFirst = i == 0;
@@ -201,7 +202,7 @@ public class ExpressionEvaluator {
         // Evaluate variable
         String variableVal = context.resolveVariable(value.getValue());
         if (variableVal == null) {
-            return new Token(TokenType.INTEGER, "1"); // TODO: terrible idea
+            throw new IllegalArgumentException("Unknown variable " + value.getValue());
         }
 
         // Determine if variable is integer or double

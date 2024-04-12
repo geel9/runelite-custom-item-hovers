@@ -1,7 +1,7 @@
 package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.ExpressionEvaluator;
-import com.geel.customitemhovers.expressions.ShuntingYard;
+import com.geel.customitemhovers.expressions.ExpressionParser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -111,10 +111,10 @@ public class TokenizerTest {
     }
 
     private void testIntExpr(String expression, int expected) {
-        assertEquals(expression, expected, new ExpressionEvaluator().Evaluate(new ShuntingYard().EvaluateExpression(expression), null).intValue());
+        assertEquals(expression, expected, ExpressionEvaluator.Evaluate(ExpressionParser.Parse(expression), null).intValue());
     }
 
     private void testDoubleExpr(String expression, double expected) {
-        assertEquals(expression, expected, new ExpressionEvaluator().Evaluate(new ShuntingYard().EvaluateExpression(expression), null).doubleValue(), EPSILON);
+        assertEquals(expression, expected, ExpressionEvaluator.Evaluate(ExpressionParser.Parse(expression), null).doubleValue(), EPSILON);
     }
 }

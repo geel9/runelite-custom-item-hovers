@@ -1,20 +1,22 @@
 package com.geel.customitemhovers.expressions;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Stack;
 
 /**
- * Performs the Shunting Yard Algorithm to convert a postfix mathematical expression to Reverse Polish Notation
+ * Performs the Shunting Yard Algorithm to convert an infix mathematical expression to Reverse Polish Notation (postfix).
  *
  * This is here so that we can enable rich mathematical expressions, including variables and functions, in
  * item hover text.
  */
-public class ShuntingYard {
-    public Token[] EvaluateExpression(String expression) {
+public class ExpressionParser {
+    /**
+     * Parses an infix notation (eg "(a + b) - sqrt(12)") expression, returning an Expression object.
+     */
+    public static Expression Parse(String expression) {
         Tokenizer tokenizer = new Tokenizer();
         Token[] tokenized = tokenizer.Tokenize(expression);
         if (tokenized.length == 0) {
-            return tokenized;
+            return new Expression(tokenized, expression);
         }
 
         ArrayList<Token> outputQueue = new ArrayList<>();
@@ -77,7 +79,7 @@ public class ShuntingYard {
 
         }
 
-        // Cleanup SY
+        // Cleanup Stack
         while (!operatorStack.isEmpty()) {
             Token popped = operatorStack.pop();
 
@@ -88,7 +90,7 @@ public class ShuntingYard {
             outputQueue.add(popped);
         }
 
-        return outputQueue.toArray(new Token[0]);
+        return new Expression(outputQueue.toArray(new Token[0]), expression);
     }
 
     /**

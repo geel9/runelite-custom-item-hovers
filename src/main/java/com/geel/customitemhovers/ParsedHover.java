@@ -1,12 +1,8 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.expressions.Token;
+import com.geel.customitemhovers.expressions.Expression;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-
-import java.util.Dictionary;
-import java.util.HashMap;
 
 /**
  * A parsed Hover from a HoverFile.
@@ -40,5 +36,5 @@ public class ParsedHover {
     private final Integer[] expressionLocations;
 
     @Getter
-    private final Token[][] expressions;
+    private final Expression[] expressions;
 }

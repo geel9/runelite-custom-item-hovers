@@ -32,8 +32,11 @@ public class HoverEvaluator {
             return hover.getHoverText();
         }
 
+        return evaluateExpressions(hover, context);
+    }
+
+    private String evaluateExpressions(ParsedHover hover, ItemHoverContext context) {
         // Evaluate expressions (in the form ${expression} or <%expression%> (backwards-compat))
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
         StringBuilder ret = new StringBuilder();
 
         // For each expression in the hover text, copy the static text that precedes it,
@@ -41,13 +44,13 @@ public class HoverEvaluator {
         int pos = 0;
         for(int i = 0; i < hover.getExpressionLocations().length; i++) {
             int nextPos = hover.getExpressionLocations()[i];
-            Token[] expression = hover.getExpressions()[i];
+            Expression expression = hover.getExpressions()[i];
 
             // Append all text preceding this expression
             ret.append(hover.getHoverText(), pos, nextPos);
 
             // Insert the expression
-            ret.append(formatter.format(expressionEvaluator.Evaluate(expression, context)));
+            ret.append(evaluateExpression(expression, context));
 
             // Update pos to nextPos
             pos = nextPos;
@@ -59,5 +62,15 @@ public class HoverEvaluator {
         }
 
         return ret.toString();
+    }
+
+    private String evaluateExpression(Expression expression, ItemHoverContext context) {
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+
+        try {
+            return formatter.format(expressionEvaluator.Evaluate(expression, context));
+        } catch (IllegalArgumentException e) {
+            return "${" + expression.getExpressionText() + "}";
+        }
     }
 }
