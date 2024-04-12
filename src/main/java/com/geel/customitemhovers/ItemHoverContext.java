@@ -1,5 +1,7 @@
 package com.geel.customitemhovers;
 
+import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import lombok.Getter;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;

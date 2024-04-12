@@ -1,5 +1,6 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.models.itemtables;
 
+import com.geel.customitemhovers.models.itemtables.ItemTable;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;

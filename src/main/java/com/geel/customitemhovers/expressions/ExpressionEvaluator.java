@@ -1,8 +1,6 @@
 package com.geel.customitemhovers.expressions;
 
 import com.geel.customitemhovers.ItemHoverContext;
-
-import javax.inject.Inject;
 import java.util.Stack;
 
 /**

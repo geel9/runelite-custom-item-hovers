@@ -1,5 +1,8 @@
 package com.geel.customitemhovers;
 
+import com.geel.customitemhovers.models.itemtables.ItemTableFile;
+import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;

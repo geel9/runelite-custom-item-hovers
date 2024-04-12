@@ -1,8 +1,9 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.models.hovers;
 
+import com.geel.customitemhovers.HoverEvaluator;
+import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.google.gson.annotations.SerializedName;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
 
 /**
  * A parsed entry in a hoverfile.
@@ -33,12 +34,12 @@ public class HoverDef {
      *
      * Transformation involves replacing function calls with their results, and variables with their values.
      */
-    public String[] GetTransformedTexts(HoverEvaluator evaluator, ItemHoverContext context) {
+    public String[] GetTransformedTexts(ItemHoverContext context) {
         String[] transformed = new String[ParsedHoverTexts.length];
 
         int i = 0;
         for(ParsedHover text : ParsedHoverTexts) {
-            transformed[i++] = evaluator.Evaluate(text, context);
+            transformed[i++] = HoverEvaluator.Evaluate(text, context);
         }
 
         return transformed;

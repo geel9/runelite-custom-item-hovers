@@ -1,24 +1,15 @@
 package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
-
-import javax.inject.Inject;
+import com.geel.customitemhovers.models.hovers.ParsedHover;
 import javax.inject.Singleton;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /***
  * Evaluates a hover text, replacing variable names with their values, and replacing function calls with their results.
  */
-@Singleton
 public class HoverEvaluator {
-
-    @Inject
-    private ExpressionEvaluator expressionEvaluator;
-
     /**
      * Evaluates a hover text for a given item.
      *
@@ -26,7 +17,7 @@ public class HoverEvaluator {
      *
      * @return A hover string, properly evaluated, ready to render into a hover box.
      */
-    public String Evaluate(ParsedHover hover, ItemHoverContext context) {
+    public static String Evaluate(ParsedHover hover, ItemHoverContext context) {
         // No expressions? Nothing to evaluate
         if(hover.getExpressions().length == 0) {
             return hover.getHoverText();
@@ -35,7 +26,7 @@ public class HoverEvaluator {
         return evaluateExpressions(hover, context);
     }
 
-    private String evaluateExpressions(ParsedHover hover, ItemHoverContext context) {
+    private static String evaluateExpressions(ParsedHover hover, ItemHoverContext context) {
         // Evaluate expressions (in the form ${expression} or <%expression%> (backwards-compat))
         StringBuilder ret = new StringBuilder();
 
@@ -64,11 +55,11 @@ public class HoverEvaluator {
         return ret.toString();
     }
 
-    private String evaluateExpression(Expression expression, ItemHoverContext context) {
+    private static String evaluateExpression(Expression expression, ItemHoverContext context) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {
-            return formatter.format(expressionEvaluator.Evaluate(expression, context));
+            return formatter.format(ExpressionEvaluator.Evaluate(expression, context));
         } catch (IllegalArgumentException e) {
             return "${" + expression.getExpressionText() + "}";
         }

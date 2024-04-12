@@ -2,6 +2,9 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.Expression;
 import com.geel.customitemhovers.expressions.ExpressionParser;
+import com.geel.customitemhovers.models.hovers.HoverFile;
+import com.geel.customitemhovers.models.hovers.HoverDef;
+import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 

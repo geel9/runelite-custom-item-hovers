@@ -1,4 +1,4 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.models.itemtables;
 
 import lombok.Getter;
 import lombok.Setter;

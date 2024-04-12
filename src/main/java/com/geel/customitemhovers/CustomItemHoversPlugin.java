@@ -2,6 +2,10 @@ package com.geel.customitemhovers;
 
 import javax.inject.Inject;
 
+import com.geel.customitemhovers.models.hovers.HoverFile;
+import com.geel.customitemhovers.models.hovers.HoverDef;
+import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +67,6 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Inject
     private HoverFileParser parser;
-
-    @Inject
-    private HoverEvaluator hoverEvaluator;
 
     @Inject
     private ItemTableManager itemTableManager;
@@ -168,7 +169,7 @@ public class CustomItemHoversPlugin extends Plugin {
         ItemHoverContext context = new ItemHoverContext(item, comp, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef d : hovers.get(itemID)) {
-            ret.addAll(Arrays.asList(d.GetTransformedTexts(hoverEvaluator, context)));
+            ret.addAll(Arrays.asList(d.GetTransformedTexts(context)));
         }
 
         //Turn `ret` into an array from an ArrayList
