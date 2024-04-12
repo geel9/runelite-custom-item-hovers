@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * A parsed entry in a TableFile.
+ * A parsed entry in an ItemTableFile.
  *
  * Contains variables that are "attached" to items
  */

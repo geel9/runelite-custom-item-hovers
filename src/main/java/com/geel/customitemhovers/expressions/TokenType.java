@@ -62,10 +62,6 @@ enum TokenType {
         return operatorTokens;
     }
 
-    public boolean hasFixedText() {
-        return this.constantValue != null;
-    }
-
     public boolean isArithmetic() {
         return this == OP_PLUS || this == OP_MINUS;
     }
