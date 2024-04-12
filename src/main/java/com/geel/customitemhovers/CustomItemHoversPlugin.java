@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
-import net.runelite.api.ItemID;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
@@ -18,10 +17,10 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -48,6 +47,9 @@ public class CustomItemHoversPlugin extends Plugin {
     private OverlayManager overlayManager;
 
     @Inject
+    private ClientToolbar clientToolbar;
+
+    @Inject
     private ItemManager itemManager;
 
     @Inject
@@ -62,6 +64,12 @@ public class CustomItemHoversPlugin extends Plugin {
     @Inject
     private HoverFileParser parser;
 
+    @Inject
+    private HoverEvaluator hoverEvaluator;
+
+    @Inject
+    private ItemTableManager itemTableManager;
+
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
         return configManager.getConfig(CustomItemHoversConfig.class);
@@ -72,6 +80,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
     WatchService hoverWatcher;
     WatchKey hoverWatchKey;
+    WatchKey tableWatchKey;
 
     @Override
     protected void startUp() throws Exception {
@@ -80,6 +89,7 @@ public class CustomItemHoversPlugin extends Plugin {
         //Invoke this on the client thread because `itemManager.canonicalize()` must be run in the client thread
         clientThread.invokeLater(() -> {
             prepareItemNameMap();
+            prepareItemTables();
             prepareHoverMap();
             prepareHoverWatcher();
         });
@@ -91,6 +101,7 @@ public class CustomItemHoversPlugin extends Plugin {
     protected void shutDown() throws Exception {
         if (hoverWatcher != null)
             hoverWatcher.close();
+
         overlayManager.remove(overlay);
     }
 
@@ -132,8 +143,14 @@ public class CustomItemHoversPlugin extends Plugin {
      */
     public String[] getItemHovers(Item item) {
         //Do a hot-reload if we should
-        if (config.hoverEnableHotReload() && hoverWatcherTriggered()) {
-            prepareHoverMap();
+        if (config.hoverEnableHotReload()) {
+            if (hoverWatcherTriggered()) {
+                prepareHoverMap();
+            }
+
+            if(tableWatcherTriggered()) {
+                prepareItemTables();
+            }
         }
 
         int itemID = itemManager.canonicalize(item.getId());
@@ -143,10 +160,15 @@ public class CustomItemHoversPlugin extends Plugin {
         if (!hovers.containsKey(itemID))
             return new String[0];
 
+        // Get item data tables
+        ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
+        ItemTable baseTable = itemTableManager.getBaseTableForItem(item);
+
         //For each hover associated with this item, add its transformed text to the resultant array
+        ItemHoverContext context = new ItemHoverContext(item, comp, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef d : hovers.get(itemID)) {
-            ret.addAll(Arrays.asList(d.GetTransformedTexts(item, comp)));
+            ret.addAll(Arrays.asList(d.GetTransformedTexts(hoverEvaluator, context)));
         }
 
         //Turn `ret` into an array from an ArrayList
@@ -163,6 +185,15 @@ public class CustomItemHoversPlugin extends Plugin {
      */
     public Path getHoverPath() {
         return Paths.get(RuneLite.RUNELITE_DIR.getAbsolutePath() + "/" + PLUGIN_FOLDER_NAME);
+    }
+
+    /**
+     * Parses the config's table path and returns it if it's a readable directory.
+     *
+     * @return Path|null The path if it's a valid, readable directory Path, null otherwise.
+     */
+    public Path getTablePath() {
+        return Paths.get(RuneLite.RUNELITE_DIR.getAbsolutePath() + "/" + PLUGIN_FOLDER_NAME + "/tables");
     }
 
     /**
@@ -185,16 +216,21 @@ public class CustomItemHoversPlugin extends Plugin {
             return;
         }
 
-        Path hoverPath = getHoverPath();
+        // Ensure that `/customitemhovers` and `/customitemhovers/tables` exist in RL directory
+        prepareSpecificHoverFolder(getHoverPath());
+        prepareSpecificHoverFolder(getTablePath());
+    }
 
-        //Create plugin folder in `.runelite` if it doesn't exist
-        if (Files.notExists(hoverPath)) {
-            Files.createDirectory(hoverPath);
+    private void prepareSpecificHoverFolder(Path path) throws IOException
+    {
+        // Create directory if it doesn't exist
+        if(Files.notExists(path)) {
+            Files.createDirectory(path);
         }
 
-        //Make sure we actually created the path and it's readable
-        if (!Files.isDirectory(rlPath) || !Files.isReadable(rlPath)) {
-            log.error("[CUSTOMITEMHOVERS] Bad hover path");
+        // Make sure we actually created the directory and it's readable
+        if(!Files.isDirectory(path) || !Files.isReadable(path)) {
+            log.error("[CUSTOMITEMHOVERS] Couldn't ensure path " + path);
         }
     }
 
@@ -226,6 +262,13 @@ public class CustomItemHoversPlugin extends Plugin {
     }
 
     /**
+     * TODO document
+     */
+    protected void prepareItemTables() {
+        itemTableManager.reparseItemDatabase(getTablePath());
+    }
+
+    /**
      * @return True if the `customitemhovers` directory has changed since the last time this function was called
      */
     private boolean hoverWatcherTriggered() {
@@ -242,6 +285,22 @@ public class CustomItemHoversPlugin extends Plugin {
     }
 
     /**
+     * @return True if the `customitemhovers` directory has changed since the last time this function was called
+     */
+    private boolean tableWatcherTriggered() {
+        if (tableWatchKey == null || !tableWatchKey.isValid())
+            return false;
+
+        //If we've received any filesystem events, then assume it changed
+        boolean triggered = tableWatchKey.pollEvents().size() > 0;
+
+        //Enable more events to be queued
+        tableWatchKey.reset();
+
+        return triggered;
+    }
+
+    /**
      * Set up a filesystem watcher on the `customitemhovers` directory.
      * <p>
      * This enables hot-reloading.
@@ -251,6 +310,7 @@ public class CustomItemHoversPlugin extends Plugin {
             return;
 
         Path hoverPath = getHoverPath();
+        Path tablePath = getTablePath();
 
         //Nothing to watch
         if (hoverPath == null)
@@ -263,6 +323,13 @@ public class CustomItemHoversPlugin extends Plugin {
                     ENTRY_CREATE,
                     ENTRY_DELETE,
                     ENTRY_MODIFY);
+
+            if (tablePath != null) {
+                tableWatchKey = tablePath.register(hoverWatcher,
+                        ENTRY_CREATE,
+                        ENTRY_DELETE,
+                        ENTRY_MODIFY);
+            }
         } catch (Exception e) {
 
         }
@@ -285,6 +352,11 @@ public class CustomItemHoversPlugin extends Plugin {
         if (hoverWatchKey != null) {
             hoverWatchKey.cancel();
             hoverWatchKey = null;
+        }
+
+        if (tableWatchKey != null) {
+            tableWatchKey.cancel();
+            tableWatchKey = null;
         }
     }
 
