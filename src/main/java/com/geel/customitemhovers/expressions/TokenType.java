@@ -21,6 +21,10 @@ enum TokenType {
     INTEGER(3, null),
     DOUBLE(3, null),
     VARIABLE(3, null),
+
+    // The following tokens (besides whitespace) are all for boolean logic.
+    // Right now, this isn't useful for much -- a true comparison resolves to "1" and a false comparison resolves to "0".
+    // Eventually, I plan to add support for logical predicates for a hover (ie "only show if player hunter level > 10")
     CMP_LT(4, "<"),
     CMP_LTE(4, "<="),
     CMP_GT(4, ">"),

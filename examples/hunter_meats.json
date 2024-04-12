@@ -1,0 +1,39 @@
+{
+  "is_hover_map": "absolutely",
+  "hovers": [
+     {
+      "items_regex": ["Raw ((wild|barb-tailed|dashing) kebbit|larupia|graahk|kyatt|pyre fox|(sunlight|moonlight) antelope)"],
+      "hovers": [
+        [
+            "<col=E447FF>Cooking:</col> ${cooking_xp * qty} xp (${cooking_xp} ea)",
+            "Quetzal Whistle Charges: ${quetzal_charges}"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["(Raw|Cooked) ((wild|barb-tailed|dashing) kebbit|larupia|graahk|kyatt|pyre fox|(sunlight|moonlight) antelope)"],
+      "hovers": [
+        [
+          "<col=36FF0D>Heals:</col> ${immediate_heal + delayed_heal} (${immediate_heal} + ${delayed_heal})"
+        ]
+      ]
+    },
+
+    {
+      "items_regex": ["Cooked dashing kebbit"],
+      "hovers": [
+        [
+          "Run Energy +10%"
+        ]
+      ]
+    },
+    {
+      "items_regex": ["Cooked moonlight antelope"],
+      "hovers": [
+        [
+          "<col=36FF0D>Cures Poison</col>"
+        ]
+      ]
+    }
+  ]
+}

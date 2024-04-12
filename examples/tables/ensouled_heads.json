@@ -1,0 +1,97 @@
+{
+  "name": "ensouled_heads",
+  "is_table_file": "absolutely",
+  "items": {
+    "Ensouled goblin head": {
+      "reanimation_prayer_xp": "130",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled monkey head": {
+      "reanimation_prayer_xp": "182",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled imp head": {
+      "reanimation_prayer_xp": "286",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled minotaur head": {
+      "reanimation_prayer_xp": "364",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled scorpion head": {
+      "reanimation_prayer_xp": "454",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled bear head": {
+      "reanimation_prayer_xp": "480",
+      "reanimation_magic_xp": "32"
+    },
+    "Ensouled unicorn head": {
+      "reanimation_prayer_xp": "494",
+      "reanimation_magic_xp": "32"
+    },
+
+    "Ensouled dog head": {
+      "reanimation_prayer_xp": "520",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled chaos druid head": {
+      "reanimation_prayer_xp": "584",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled giant head": {
+      "reanimation_prayer_xp": "650",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled ogre head": {
+      "reanimation_prayer_xp": "716",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled elf head": {
+      "reanimation_prayer_xp": "754",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled troll head": {
+      "reanimation_prayer_xp": "780",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled horror head": {
+      "reanimation_prayer_xp": "832",
+      "reanimation_magic_xp": "80"
+    },
+
+    "Ensouled kalphite head": {
+      "reanimation_prayer_xp": "884",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled dagannoth head": {
+      "reanimation_prayer_xp": "936",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled bloodveld head": {
+      "reanimation_prayer_xp": "1040",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled tzhaar head": {
+      "reanimation_prayer_xp": "1104",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled demon head": {
+      "reanimation_prayer_xp": "1170",
+      "reanimation_magic_xp": "80"
+    },
+
+    "Ensouled aviansie head": {
+      "reanimation_prayer_xp": "1234",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled abyssal head": {
+      "reanimation_prayer_xp": "1300",
+      "reanimation_magic_xp": "80"
+    },
+    "Ensouled dragon head": {
+      "reanimation_prayer_xp": "1560",
+      "reanimation_magic_xp": "80"
+    }
+  }
+}
