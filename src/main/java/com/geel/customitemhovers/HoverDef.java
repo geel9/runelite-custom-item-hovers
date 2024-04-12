@@ -33,12 +33,12 @@ public class HoverDef {
      *
      * Transformation involves replacing function calls with their results, and variables with their values.
      */
-    public String[] GetTransformedTexts(Item item, ItemComposition composition) {
+    public String[] GetTransformedTexts(HoverEvaluator evaluator, ItemHoverContext context) {
         String[] transformed = new String[ParsedHoverTexts.length];
 
         int i = 0;
         for(String text : ParsedHoverTexts) {
-            transformed[i++] = HoverEvaluator.Evaluate(text, item, composition);
+            transformed[i++] = evaluator.Evaluate(text, context);
         }
 
         return transformed;

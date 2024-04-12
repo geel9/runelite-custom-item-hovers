@@ -1,8 +1,9 @@
 package com.geel.customitemhovers;
 
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
+import com.geel.customitemhovers.expressions.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.regex.MatchResult;
@@ -12,29 +13,33 @@ import java.util.regex.Pattern;
 /***
  * Evaluates a hover text, replacing variable names with their values, and replacing function calls with their results.
  */
+@Singleton
 public class HoverEvaluator {
-    //All supported functions. Unused presently (regex is manually typed)
-    private static final String[] HOVER_FUNCTIONS = {"qtymult"};
-
-    //All supported variables
-    private static final String[] HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
+    // All legacy variables -- from before tables
+    private static final String[] LEGACY_HOVER_VARIABLES = {"ID", "QTY", "VALUE", "HIGH_ALCH"};
 
     //Regex for all currently supported functions.
-    private static final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydivideceil)(\\((\\d+)\\))?%>");
+    private final Pattern funcFinder = Pattern.compile("<%(qtymult|qtydivide|qtydivideceil)(\\((\\d+)\\))?%>");
 
-    //Regex for all currently supported variables. Generated at runtime as a singleton.
-    private static Pattern variableFinder = null;
+    //Regex for table references
+    private final Pattern expressionFinder = Pattern.compile("\\$\\{([a-zA-Z0-9_/*+ ().\\-]*)}");
+
+    //Regex for all supported legacy variables. Generated at runtime as a singleton.
+    private Pattern legacyVariableFinder = null;
+
+    @Inject
+    private ExpressionEvaluator expressionEvaluator;
 
     /**
      * Computes (if necessary) and returns variableFinder
      */
-    private static Pattern getVariableRegex() {
-        if (variableFinder != null)
-            return variableFinder;
+    private Pattern getLegacyVariableRegex() {
+        if (legacyVariableFinder != null)
+            return legacyVariableFinder;
 
-        //Concatenate HOVER_VARIABLES into a "|"-delimited string
+        //Concatenate LEGACY_HOVER_VARIABLES into a "|"-delimited string
         StringBuilder variableNames = new StringBuilder();
-        for (String s : HOVER_VARIABLES) {
+        for (String s : LEGACY_HOVER_VARIABLES) {
             variableNames.append(s);
             variableNames.append("|");
         }
@@ -48,25 +53,28 @@ public class HoverEvaluator {
         variableNames.insert(0, "<%(");
         variableNames.append(")%>");
 
-        variableFinder = Pattern.compile(variableNames.toString());
-        return variableFinder;
+        legacyVariableFinder = Pattern.compile(variableNames.toString());
+        return legacyVariableFinder;
     }
 
     /**
      * Evaluates a hover text for a given item.
-     *
+     * <p>
      * Evaluates functions and variables, returning a string ready to render into a hover box.
      *
      * @return A hover string, properly evaluated, ready to render into a hover box.
      */
-    public static String Evaluate(String text, Item item, ItemComposition comp) {
+    public String Evaluate(String text, ItemHoverContext context) {
         String ret = text;
 
-        //Handle variables
-        ret = EvaluateVariables(ret, item, comp);
+        //Handle legacy variables (in the form <%VARIABLE_NAME%>)
+        ret = EvaluateVariables(ret, context);
 
-        //Handle functions
-        ret = EvaluateFunctions(ret, item, comp);
+        // Evaluate table references (in the form ${variable_name}
+        ret = EvaluateExpressions(ret, context);
+
+        //Handle functions (in the form <%function_name(arg)%>
+        ret = EvaluateFunctions(ret, context);
 
         return ret;
     }
@@ -76,41 +84,54 @@ public class HoverEvaluator {
      *
      * @return The text with all variables replaced with their value.
      */
-    private static String EvaluateVariables(String text, Item item, ItemComposition comp) {
+    private String EvaluateVariables(String text, ItemHoverContext context) {
         String ret = text;
 
-        Matcher varMatcher = getVariableRegex().matcher(text);
+        Matcher varMatcher = getLegacyVariableRegex().matcher(text);
 
         while (varMatcher.find()) {
             MatchResult result = varMatcher.toMatchResult();
             String matchText = result.group();
-            String varName = result.group(1);
+            String varName = result.group(1).toLowerCase(Locale.ROOT);
 
-            String replaceWith = matchText;
+            // The Base Table is filled with variables that intentionally match the legacy variable names
+            // Therefore, we can just search the base table
+            String replaceWith = context.getBaseTable().getOrDefault(varName, null);
+            if (replaceWith == null)
+                continue;
 
-            switch (varName) {
-                //<%ID%> is just the numeric ID of the item
-                case "ID":
-                    replaceWith = String.valueOf(item.getId());
-                    break;
-                //<%QTY%> is the number of items in the stack
-                case "QTY":
-                    replaceWith = String.valueOf(item.getQuantity());
-                    break;
-                //<%VALUE%> is the clientside price of the item
-                case "VALUE":
-                    replaceWith = String.valueOf(comp.getPrice());
-                    break;
-                //<%HIGH_ALCH%> is the high-alch price of the item
-                case "HIGH_ALCH":
-                    replaceWith = String.valueOf(comp.getHaPrice());
-                    break;
-                default:
-                    break;
+            ret = ret.replace(matchText, replaceWith);
+        }
+
+        return ret;
+    }
+
+    /**
+     * Replaces all expressions in a given text with their value.
+     *
+     * @return The text with all variables replaced with their value.
+     */
+    private String EvaluateExpressions(String text, ItemHoverContext context) {
+        String ret = text;
+
+        Matcher tableMatcher = expressionFinder.matcher(text);
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+
+        while (tableMatcher.find()) {
+            MatchResult result = tableMatcher.toMatchResult();
+            String matchText = result.group();
+            String expression = result.group(1);
+
+            String replaceWith;
+            try {
+                replaceWith = formatter.format(expressionEvaluator.Evaluate(expression, context));
+            } catch (Exception e) {
+                replaceWith = e.getMessage(); // hehe
             }
 
-            if (replaceWith == null || replaceWith.equals(matchText))
+            if(replaceWith == null) {
                 continue;
+            }
 
             ret = ret.replace(matchText, replaceWith);
         }
@@ -123,7 +144,7 @@ public class HoverEvaluator {
      *
      * @return The text with all function calls replaced with their resultant value.
      */
-    private static String EvaluateFunctions(String text, Item item, ItemComposition comp) {
+    private String EvaluateFunctions(String text, ItemHoverContext context) {
         String ret = text;
 
         Matcher funcMatcher = funcFinder.matcher(text);
@@ -135,9 +156,9 @@ public class HoverEvaluator {
             String args = result.group(3);
             boolean hasArgs = args != null;
 
-            int itemQty = item.getQuantity();
+            int itemQty = context.getItem().getQuantity();
             int argument = 1;
-            if(hasArgs) {
+            if (hasArgs) {
                 argument = Integer.parseInt(args);
             }
 
@@ -149,11 +170,11 @@ public class HoverEvaluator {
             switch (funcName) {
                 //qtymult(x) returns (stack_size * x)
                 case "qtymult":
-                    replaceWith = formatter.format((long)itemQty * argument);
+                    replaceWith = formatter.format((long) itemQty * argument);
                     break;
                 // qtydivideceil(x) returns ceil(stack_size / x)
                 case "qtydivideceil":
-                    replaceWith = formatter.format(Math.ceil((double)itemQty / (double)argument));
+                    replaceWith = formatter.format(Math.ceil((double) itemQty / (double) argument));
                     break;
                 // qtydivideceil(x) returns (stack_size / x) as integer division, rounding towards zero.
                 case "qtydivide":
