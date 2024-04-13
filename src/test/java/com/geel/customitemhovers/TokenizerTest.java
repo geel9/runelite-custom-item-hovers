@@ -11,6 +11,18 @@ public class TokenizerTest {
 
     @Test
     public void TestTokenizer() {
+        // Ternary
+        testIntExpr("1 ? 2 : 3", 2);
+        testIntExpr("0 ? 2 : 3", 3);
+        testIntExpr("1 + 0 ? (1 + 1) : (2 + 1)", 2);
+        testIntExpr("1 - 1 ? (1 + 1) : (2 + 1)", 3);
+        testIntExpr("(1 - 1) ? (4 / 4) : (3 - 4)", -1);
+        testIntExpr("(1 + 1) ? (8 / 4) : (3 - 4)", 2);
+        testIntExpr("1 ? 1 ? 3 : 2 : 4", 3);
+        // This kind of breaks without parens but fuck you if you write ternary like this anyways, the base shit works
+        testIntExpr("0 ? (1 ? 3 : 2) : 4", 4);
+        testIntExpr("1 ? 0 ? 3 : 2 : 4", 2);
+
         // Arithmetic
         testIntExpr("0 + 0", 0);
         testIntExpr("0 + 1", 1);

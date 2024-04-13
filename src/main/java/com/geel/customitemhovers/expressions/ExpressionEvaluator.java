@@ -42,7 +42,7 @@ public class ExpressionEvaluator {
             // Handle operators
             if (token.getType().isOperator()) {
                 if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Operator called with fewer than 2 items in the stack");
+                    throw new IllegalArgumentException("Operator called with fewer than 2 items on the stack");
                 }
 
                 Token rightHand = stack.pop();
@@ -86,7 +86,59 @@ public class ExpressionEvaluator {
         }
     }
 
+    /**
+     * Evaluates a ternary ? operator.
+     *
+     * The expression `condition ? ifTrue : ifFalse` will result in a token stack of `condition ifTrue ? ifFalse :`.
+     *
+     * The ? operator receives `condition` and `ifTrue` as its arguments.
+     *
+     * If `condition` is truthy, then `ifTrue` is the result of this operator.
+     * Otherwise, the operator token itself is the result of the operator.
+     *
+     * After evaluating the above ternary, the resulting stack will look like:
+     * [if `condition` is true] `ifTrue ifFalse :`
+     * [if `condition` is false] `? ifFalse :`
+     *
+     * This sets up the `:` operator to do its job
+     */
+    private static Token evaluateTernaryThen(Token operator, Token condition, Token ifTrue) {
+        // Ensure that the number is false in integer or double representation
+        // (0.1 is not false)
+        if(Math.abs(condition.getConstantValue().doubleValue()) > 0.0000001) {
+            return ifTrue;
+        }
+
+        return operator;
+    }
+
+    /**
+     * Evaluates a ternary : operator.
+     *
+     * After evaluating the ? operator paired with this :, the resulting stack will look like:
+     * [if `condition` is true] `ifTrue ifFalse :`
+     * [if `condition` is false] `? ifFalse :`
+     *
+     * So, to evaluate `:`, we just see if the lefthand argument is a `?`.
+     * If it is, then we return `ifFalse`.
+     * Otherwise, we return the lefthand argument.
+     */
+    private static Token evaluateTernaryElse(Token ifFalse, Token discriminator) {
+        if(discriminator.getType() == TokenType.TERNARY_THEN) {
+            return ifFalse;
+        }
+
+        return discriminator;
+    }
+
     private static Token evaluateOperator(Token operatorToken, Token leftValue, Token rightValue) {
+        // Handle ternary operators specially from the other operators. Fuck the other operators.
+        if(operatorToken.getType() == TokenType.TERNARY_THEN) {
+            return evaluateTernaryThen(operatorToken, leftValue, rightValue);
+        } else if(operatorToken.getType() == TokenType.TERNARY_ELSE) {
+            return evaluateTernaryElse(rightValue, leftValue);
+        }
+
         Number leftVal, rightVal, result;
 
         // TODO: Figure out a better way to handle this. Fundamentally, we are trying to figure out:
