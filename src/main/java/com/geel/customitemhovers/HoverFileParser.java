@@ -24,7 +24,7 @@ public class HoverFileParser {
     private Gson gson;
 
     //Regex for expressions
-    private final Pattern expressionFinder = Pattern.compile("(\\$\\{|<%)([a-zA-Z0-9_/*+ ().\\-]*)(}|%>)");
+    private final Pattern expressionFinder = Pattern.compile("(\\$\\{|<%)([a-zA-Z0-9_/*+ ().><=!&|?:\\-]*)(}|%>)");
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();

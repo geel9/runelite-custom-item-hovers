@@ -19,6 +19,7 @@ class Tokenizer {
         boolean isReadingOperator = false;
 
         int parenDepth = 0;
+        int ternaryDepth = 0;
 
         Consumer<TokenType> addToken = (TokenType t) -> {
             output.add(new Token(t, tempBuff.toString()));
@@ -116,7 +117,28 @@ class Tokenizer {
                 }
 
                 parenDepth--;
-            } else if (curType.isOperator()) {
+            }
+            // Handle Ternary
+            else if(curType == TokenType.TERNARY_THEN) {
+                if (!IsValidBeforeOperator(lastToken)) {
+                    throw new IllegalArgumentException("Invalid operator placement");
+                }
+
+                ternaryDepth++;
+            } else if(curType == TokenType.TERNARY_ELSE) {
+                if(ternaryDepth == 0) {
+                    // TODO: Is this the right way to handle ternary?
+                    throw new IllegalArgumentException("Ternary : without a preceding ?");
+                }
+
+                if (!IsValidBeforeOperator(lastToken)) {
+                    throw new IllegalArgumentException("Invalid operator placement");
+                }
+
+                ternaryDepth--;
+            }
+            // Handle all other operators
+            else if (curType.isOperator()) {
                 if (!IsValidBeforeOperator(lastToken)) {
                     throw new IllegalArgumentException("Invalid operator placement");
                 }
@@ -275,6 +297,10 @@ class Tokenizer {
      * <p>
      * Will return INTEGER for all numeric types and VARIABLE for identifiers (which may be functions).
      * Further investigation of the entire token value is necessary to discern the type of number or identifier.
+     * <p>
+     * Does not fully identify multi-character operators.
+     * <p>
+     * This function is kind of stupid. I should rewrite the Tokenizer.
      */
     private static TokenType GetTokenType(char c) {
         switch (c) {
@@ -304,6 +330,10 @@ class Tokenizer {
                 return TokenType.LOG_AND;
             case '|':
                 return TokenType.LOG_OR;
+            case '?' :
+                return TokenType.TERNARY_THEN;
+            case ':':
+                return TokenType.TERNARY_ELSE;
             case ' ':
             case '\t':
                 return TokenType.WHITESPACE;
