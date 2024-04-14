@@ -45,7 +45,7 @@ public interface CustomItemHoversConfig extends Config {
             position = 2
     )
     default boolean enableObsoleteMessage() {
-        return true;
+        return false;
     }
 
     @ConfigItem(
