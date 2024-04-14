@@ -120,6 +120,16 @@ public class HoverFileParser {
                     continue;
                 }
 
+                // Ensure this is a tag opener
+                char nextChar = concatenatedHovers.charAt(curPos + 1);
+                if((c == '$' && nextChar != '{') || (c == '<' && nextChar != '%')) {
+                    // Not a tag opener. Just continue.
+                    _hoverBuilder.append(c);
+                    _hoverBuilder.append(nextChar);
+                    curPos += 2;
+                    continue;
+                }
+
                 // We have a tag opener. Try to read the expression.
                 Tokenizer tokenizer = new Tokenizer(concatenatedHovers, curPos);
                 CompiledExpression compiledExpression = null;
@@ -133,8 +143,9 @@ public class HoverFileParser {
 
                 // If a failed parse, just add the raw expression text
                 if(compiledExpression == null) {
-                    _hoverBuilder.append(concatenatedHovers.substring(curPos, endPos));
+                    String expression = concatenatedHovers.substring(curPos, endPos);
                     curPos = endPos;
+                    _hoverBuilder.append(expression);
                     continue;
                 }
 
