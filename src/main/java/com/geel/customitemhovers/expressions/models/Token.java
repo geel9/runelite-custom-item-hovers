@@ -1,6 +1,5 @@
-package com.geel.customitemhovers.expressions;
+package com.geel.customitemhovers.expressions.models;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

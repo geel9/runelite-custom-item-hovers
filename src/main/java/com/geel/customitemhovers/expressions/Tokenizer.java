@@ -1,5 +1,8 @@
 package com.geel.customitemhovers.expressions;
 
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.expressions.models.TokenizedExpression;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -15,11 +18,10 @@ public class Tokenizer {
 
     // The actual expression we've parsed out
     private StringBuilder parsedExpressionBuilder = new StringBuilder();
+    private TokenizedExpression tokenizedExpression = null;
 
-    @Getter
-    private String parsedExpression = null;
-
-    @Getter
+    // The tokens we've read so far.
+    // Empty if tokenization has not yet begun, or has already finished.
     private final ArrayList<Token> tokens = new ArrayList<>();
 
     // Where we started reading the string
@@ -45,27 +47,34 @@ public class Tokenizer {
      * <p>
      * If the expression has already been tokenized, just returns the result.
      */
-    public Token[] tokenize() {
+    public TokenizedExpression tokenize() {
         // Do actual tokenization if we haven't yet
         if (numRead == 0) {
+            boolean isLegacyExpression = false;
             boolean isFirst = true;
             Token t;
             while ((t = readToken()) != null) {
+                TokenType type = t.getType();
                 // First token must be expression start, and expression start can only appear as the first token
-                if (isFirst && !t.getType().isExpressionBegin()) {
+                if (isFirst && !type.isExpressionBegin()) {
                     throw new IllegalArgumentException("Expected EXPRESSION_START");
-                } else if (!isFirst && t.getType().isExpressionBegin()) {
+                } else if (!isFirst && type.isExpressionBegin()) {
                     throw new IllegalArgumentException("Unexpected EXPRESSION_START");
                 }
 
+                // Detect if it's a legacy expression
+                if (type.isLegacyExpressionBeginOrEnd()) {
+                    isLegacyExpression = true;
+                }
+
                 // If we reach an expression end, we're done
-                if (t.getType().isExpressionEnd()) {
+                if (type.isExpressionEnd()) {
                     parsedExpressionBuilder.setLength(parsedExpressionBuilder.length() - t.getValue().length());
                     break;
                 }
 
                 // Don't add ${ and } to the actual tokenized output / expression
-                if (!t.getType().isExpressionBegin() && !t.getType().isExpressionEnd()) {
+                if (!type.isExpressionBeginOrEnd()) {
                     tokens.add(t);
                 } else {
                     // Strip out opening/ending tags from output
@@ -80,13 +89,18 @@ public class Tokenizer {
             }
 
             // Copy expression into parsedExpression, and clear out haystack and the builder
-            parsedExpression = parsedExpressionBuilder.toString();
+            tokenizedExpression = new TokenizedExpression(tokens.toArray(new Token[0]), parsedExpressionBuilder.toString(), isLegacyExpression);
             parsedExpressionBuilder.setLength(0);
             parsedExpressionBuilder = null;
             haystack = null;
         }
 
-        return tokens.toArray(new Token[0]);
+        // Result is null after we've read some -- expression must be invalid
+        if(tokenizedExpression == null) {
+            throw new IllegalArgumentException("Invalid expression");
+        }
+
+        return tokenizedExpression;
     }
 
     /**
@@ -109,9 +123,9 @@ public class Tokenizer {
 
         // Handle expression begin/end. We do this specially here because, although we classify them as
         // "operators" (for ease of parsing), the rules are different for them.
-        if(isFirstToken && isExpressionBeginFirstChar(c)) {
+        if (isFirstToken && isExpressionBeginFirstChar(c)) {
             return readOperator();
-        } else if(!isFirstToken && isExpressionEndFirstChar(c)) {
+        } else if (!isFirstToken && isExpressionEndFirstChar(c)) {
             return readOperator();
         }
 

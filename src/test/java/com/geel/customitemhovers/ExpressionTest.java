@@ -1,6 +1,9 @@
 package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
+import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.models.TokenType;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -140,8 +143,7 @@ public class ExpressionTest {
 
     private void testIntExpr(String expression, int expected) {
         Tokenizer t = new Tokenizer("${" + expression + "}", 0);
-        t.tokenize();
-        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().intValue());
@@ -149,8 +151,7 @@ public class ExpressionTest {
 
     private void testDoubleExpr(String expression, double expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
-        t.tokenize();
-        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().doubleValue(), EPSILON);
@@ -158,8 +159,7 @@ public class ExpressionTest {
 
     private void testStringExpr(String expression, String expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
-        t.tokenize();
-        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
 
         assertEquals(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getValue());

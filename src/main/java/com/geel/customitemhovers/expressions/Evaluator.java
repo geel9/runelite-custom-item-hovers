@@ -1,19 +1,24 @@
 package com.geel.customitemhovers.expressions;
 
 import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.models.BaseExpression;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.models.TokenType;
+
 import java.util.Stack;
 
 /**
  * Expression evaluator.
  * <p>
- * Responsible for taking the output of the Shunting Yard Algorithm (implemented by `ShuntingYard`), and evaluating
+ * Responsible for taking the output of the Shunting Yard Algorithm (implemented by `ExpressionCompiler`), and evaluating
  * it to produce a final numerical result.
  */
-public class ExpressionEvaluator {
+public class Evaluator {
     /**
-     * Evaluates a Reverse Polish Notation queue (output from `ShuntingYard`), returning the result
+     * Evaluates a Reverse Polish Notation queue (output from `ExpressionCompiler`), returning the result
      */
-    public static Token Evaluate(Expression expression, ItemHoverContext context) {
+    public static Token Evaluate(CompiledExpression expression, ItemHoverContext context) {
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {

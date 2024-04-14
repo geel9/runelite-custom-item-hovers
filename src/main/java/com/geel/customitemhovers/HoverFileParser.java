@@ -1,9 +1,10 @@
 package com.geel.customitemhovers;
 
-import ch.qos.logback.core.subst.Token;
-import com.geel.customitemhovers.expressions.Expression;
-import com.geel.customitemhovers.expressions.ExpressionParser;
+import com.geel.customitemhovers.expressions.models.BaseExpression;
+import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.Tokenizer;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
+import com.geel.customitemhovers.expressions.models.TokenizedExpression;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -16,8 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -106,7 +105,7 @@ public class HoverFileParser {
             _hoverBuilder.setLength(0);
 
             // Now, find all expressions in the hoverText
-            ArrayList<Expression> expressions = new ArrayList<>();
+            ArrayList<CompiledExpression> expressions = new ArrayList<>();
             ArrayList<Integer> expressionLocations = new ArrayList<>();
 
             int offset = 0;
@@ -123,20 +122,17 @@ public class HoverFileParser {
 
                 // We have a tag opener. Try to read the expression.
                 Tokenizer tokenizer = new Tokenizer(concatenatedHovers, curPos);
-
-                boolean success = false;
+                CompiledExpression compiledExpression = null;
                 try {
-                    tokenizer.tokenize();
-                    success = tokenizer.getTokens().size() > 0;
+                    compiledExpression = Compiler.Compile(tokenizer.tokenize());
                 } catch (IllegalArgumentException e) {
-                    success = false;
                 }
 
                 int len = tokenizer.getNumRead();
                 int endPos = curPos + len;
 
                 // If a failed parse, just add the raw expression text
-                if(!success) {
+                if(compiledExpression == null) {
                     _hoverBuilder.append(concatenatedHovers.substring(curPos, endPos));
                     curPos = endPos;
                     continue;
@@ -144,14 +140,14 @@ public class HoverFileParser {
 
                 // If a successful parse, skip ahead to endPos
                 expressionLocations.add(curPos - offset);
-                expressions.add(ExpressionParser.Parse(tokenizer));
+                expressions.add(compiledExpression);
                 curPos = endPos;
                 offset += len;
             }
 
             d.ParsedHoverTexts[i++] = new ParsedHover(_hoverBuilder.toString(),
                     expressionLocations.toArray(new Integer[0]),
-                    expressions.toArray(new Expression[0]));
+                    expressions.toArray(new CompiledExpression[0]));
         }
     }
 }

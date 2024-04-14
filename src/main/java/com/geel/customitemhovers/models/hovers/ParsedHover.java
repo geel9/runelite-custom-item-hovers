@@ -1,6 +1,7 @@
 package com.geel.customitemhovers.models.hovers;
 
-import com.geel.customitemhovers.expressions.Expression;
+import com.geel.customitemhovers.expressions.models.BaseExpression;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -36,5 +37,5 @@ public class ParsedHover {
     private final Integer[] expressionLocations;
 
     @Getter
-    private final Expression[] expressions;
+    private final CompiledExpression[] expressions;
 }

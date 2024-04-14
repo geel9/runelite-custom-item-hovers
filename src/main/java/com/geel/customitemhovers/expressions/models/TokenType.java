@@ -1,4 +1,4 @@
-package com.geel.customitemhovers.expressions;
+package com.geel.customitemhovers.expressions.models;
 
 import lombok.Getter;
 
@@ -71,6 +71,14 @@ public enum TokenType {
         return operatorTokens;
     }
 
+    public boolean isExpressionBeginOrEnd() {
+        return isExpressionBegin() || isExpressionEnd();
+    }
+
+    public boolean isLegacyExpressionBeginOrEnd() {
+        return this == EXPRESSION_BEGIN_LEGACY || this == EXPRESSION_END_LEGACY;
+    }
+
     public boolean isExpressionBegin() {
         return this == EXPRESSION_BEGIN || this == EXPRESSION_BEGIN_LEGACY;
     }
@@ -78,7 +86,6 @@ public enum TokenType {
     public boolean isExpressionEnd() {
         return this == EXPRESSION_END || this == EXPRESSION_END_LEGACY;
     }
-
 
     public boolean isArithmetic() {
         return this == OP_PLUS || this == OP_MINUS;

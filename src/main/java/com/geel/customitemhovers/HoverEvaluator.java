@@ -1,6 +1,7 @@
 package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
+import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -34,7 +35,7 @@ public class HoverEvaluator {
         int pos = 0;
         for(int i = 0; i < hover.getExpressionLocations().length; i++) {
             int nextPos = hover.getExpressionLocations()[i];
-            Expression expression = hover.getExpressions()[i];
+            CompiledExpression expression = hover.getExpressions()[i];
 
             // Append all text preceding this expression
             ret.append(hover.getHoverText(), pos, nextPos);
@@ -54,11 +55,11 @@ public class HoverEvaluator {
         return ret.toString();
     }
 
-    private static String evaluateExpression(Expression expression, ItemHoverContext context) {
+    private static String evaluateExpression(CompiledExpression expression, ItemHoverContext context) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {
-            Token result = ExpressionEvaluator.Evaluate(expression, context);
+            Token result = Evaluator.Evaluate(expression, context);
 
             if(result.getType() == TokenType.STRING) {
                 return result.getValue();

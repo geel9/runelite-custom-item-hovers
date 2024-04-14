@@ -1,4 +1,6 @@
 package com.geel.customitemhovers.expressions;
+import com.geel.customitemhovers.expressions.models.*;
+
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -8,14 +10,14 @@ import java.util.Stack;
  * This is here so that we can enable rich mathematical expressions, including variables and functions, in
  * item hover text.
  */
-public class ExpressionParser {
+public class Compiler {
     /**
      * Parses an infix notation (eg "(a + b) - sqrt(12)") expression, returning an Expression object.
      */
-    public static Expression Parse(Tokenizer tokenizer) {
-        Token[] tokenized = tokenizer.tokenize();
+    public static CompiledExpression Compile(TokenizedExpression expression) {
+        Token[] tokenized = expression.getTokens();
         if (tokenized.length == 0) {
-            return new Expression(tokenized, tokenizer.getParsedExpression());
+            return new CompiledExpression(expression);
         }
 
         ArrayList<Token> outputQueue = new ArrayList<>();
@@ -88,7 +90,7 @@ public class ExpressionParser {
             outputQueue.add(popped);
         }
 
-        return new Expression(outputQueue.toArray(new Token[0]), tokenizer.getParsedExpression());
+        return new CompiledExpression(outputQueue.toArray(new Token[0]), expression.getExpressionText(), expression.isLegacy());
     }
 
     /**
