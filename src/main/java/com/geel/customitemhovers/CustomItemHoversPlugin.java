@@ -16,7 +16,6 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
@@ -29,7 +28,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.Semaphore;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -149,11 +147,15 @@ public class CustomItemHoversPlugin extends Plugin {
 
     /**
      * Returns an array of hover texts that should be rendered for a given item
-     *
-     * @param item
-     * @return
      */
+    private Item lastItem = null;
+    private String[] lastHovers = null;
+
     public String[] getItemHovers(Item item) {
+        if (item.equals(lastItem)) {
+            return lastHovers;
+        }
+
         //Do a hot-reload if we should
         if (config.hoverEnableHotReload()) {
             if (hoverWatcherTriggered()) {
@@ -200,6 +202,9 @@ public class CustomItemHoversPlugin extends Plugin {
         //Turn `ret` into an array from an ArrayList
         String[] retArr = new String[ret.size()];
         retArr = ret.toArray(retArr);
+
+        lastItem = item;
+        lastHovers = retArr;
 
         return retArr;
     }
