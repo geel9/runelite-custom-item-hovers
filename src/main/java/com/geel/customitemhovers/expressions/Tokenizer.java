@@ -37,7 +37,7 @@ public class Tokenizer {
         Token t;
         while ((t = readToken()) != null) {
             tokens.add(t);
-            }
+        }
 
         if (!isValidFinalToken()) {
             throw new IllegalArgumentException("Invalid final token in expression");
@@ -54,7 +54,7 @@ public class Tokenizer {
     private Token readToken() {
         if (pos >= expression.length()) {
             return null;
-                    }
+        }
 
         // Get last token
         Token lastToken = tokens.size() == 0 ? null : tokens.get(tokens.size() - 1);
@@ -69,13 +69,13 @@ public class Tokenizer {
         if (isNumber(c)) {
             assertCanReadIdentifier();
             return readNumber();
-                }
+        }
 
         // Handle identifiers
         if (isNameChar(c)) {
             assertCanReadIdentifier();
             return readIdentifier();
-            }
+        }
 
         // Handle parentheses
         if (c == '(') {
@@ -86,7 +86,7 @@ public class Tokenizer {
             assertCanReadParenEnd();
             parenDepth--;
             return readOperator();
-            }
+        }
 
         // Handle ternary
         if (c == '?') {
@@ -97,16 +97,16 @@ public class Tokenizer {
             assertCanReadTernaryElse();
             ternaryDepth--;
             return readOperator();
-            }
+        }
 
         // Handle all operators
         if (isOperatorChar(c)) {
             assertCanReadOperator();
             return readOperator();
-                }
+        }
 
         return null;
-                }
+    }
 
     /**
      * Reads a number Token from the string
@@ -124,36 +124,15 @@ public class Tokenizer {
                     throw new IllegalArgumentException("Invalid period placement");
 
                 hasHadPeriod = true;
-                }
+            }
         } while (isNumericChar(peekChar()));
 
         if (hasHadPeriod) {
             return Token.fromDouble(Double.parseDouble(builder.toString()));
         } else {
             return Token.fromInt(Integer.parseInt(builder.toString()));
-            }
-                }
-
-                ternaryDepth++;
-            } else if(curType == TokenType.TERNARY_ELSE) {
-                if(ternaryDepth == 0) {
-                    // TODO: Is this the right way to handle ternary?
-                    throw new IllegalArgumentException("Ternary : without a preceding ?");
-                }
-
-                if (!IsValidBeforeOperator(lastToken)) {
-                    throw new IllegalArgumentException("Invalid operator placement");
-                }
-
-                ternaryDepth--;
-            }
-            // Handle all other operators
-            else if (curType.isOperator()) {
-                if (!IsValidBeforeOperator(lastToken)) {
-                    throw new IllegalArgumentException("Invalid operator placement");
-                }
-
-                possibleOperators = ComputeOperatorsStartingWith(String.valueOf(curChar));
+        }
+    }
 
     /**
      * Reads an identifier Token (variable name, function name) from the string
@@ -167,7 +146,7 @@ public class Tokenizer {
 
             if (builder.length() == 1 && isNumber(c)) {
                 throw new IllegalArgumentException("First character of an identifier cannot be a number");
-                }
+            }
         } while (isNameChar(peekChar()));
 
         // Won't catch a space between identifier and paren. Don't really care atm.
@@ -176,7 +155,7 @@ public class Tokenizer {
         }
 
         return new Token(TokenType.VARIABLE, builder.toString());
-        }
+    }
 
     /**
      * Reads an operator Token from the string
@@ -195,7 +174,7 @@ public class Tokenizer {
             if (newPossibleOperators.size() == 0) {
                 TokenType type = possibleOperators.stream().filter(p -> p.getConstantValue().length() == buff.length()).findFirst().get();
                 return new Token(type, buff.toString());
-        }
+            }
 
             // If only one matches, and it has the same length as the current buffer, use it
             if (newPossibleOperators.size() == 1) {
@@ -203,7 +182,7 @@ public class Tokenizer {
                 if (type.getConstantValue().length() == buff.length()) {
                     break;
                 }
-        }
+            }
 
             // If multiple things still match, or only one matches but it's not fully read yet, continue
             possibleOperators = newPossibleOperators;
@@ -240,17 +219,17 @@ public class Tokenizer {
             // If it's too short, don't consider it
             if (offset >= value.length()) {
                 continue;
-                }
+            }
 
             if (value.charAt(offset) != newChar) {
-                    continue;
-                }
+                continue;
+            }
 
             ret.add(tokenType);
-                }
+        }
 
         return ret;
-                }
+    }
 
     /**
      * Reads a single character and advances the stream
@@ -258,7 +237,7 @@ public class Tokenizer {
     private char readChar() {
         if (pos >= expression.length()) return '\0';
         return expression.charAt(pos++);
-            }
+    }
 
     /**
      * Reads a single character without advancing the stream
@@ -266,7 +245,7 @@ public class Tokenizer {
     private char peekChar() {
         if (pos >= expression.length()) return '\0';
         return expression.charAt(pos);
-        }
+    }
 
     /**
      * Gets the type of the last token we parsed
@@ -354,7 +333,7 @@ public class Tokenizer {
         }
 
         return false;
-        }
+    }
 
     /**
      * Determines if a character is in the character set allowed for identifiers (function and variable names)
