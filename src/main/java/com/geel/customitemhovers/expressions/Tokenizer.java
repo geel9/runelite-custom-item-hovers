@@ -56,9 +56,6 @@ public class Tokenizer {
             return null;
         }
 
-        // Get last token
-        Token lastToken = tokens.size() == 0 ? null : tokens.get(tokens.size() - 1);
-
         // Find the first next character that isn't whitespace
         while (isWhitespaceChar(peekChar()))
             readChar();
@@ -69,6 +66,12 @@ public class Tokenizer {
         if (isNumber(c)) {
             assertCanReadIdentifier();
             return readNumber();
+        }
+
+        // Handle strings
+        if(c == '\'') {
+            assertCanReadIdentifier();
+            return readString();
         }
 
         // Handle identifiers
@@ -132,6 +135,42 @@ public class Tokenizer {
         } else {
             return Token.fromInt(Integer.parseInt(builder.toString()));
         }
+    }
+
+    /**
+     * Reads a string constant Token from the string
+     */
+    private Token readString() {
+        readChar(); // Discard opening '
+        StringBuilder builder = new StringBuilder();
+        boolean isEscaping = false;
+
+        char c;
+        while ((c = readChar()) != '\0') {
+            // If an escape is afoot, just append whatever character is after.
+            // There are no invalid escapes :)
+            if (isEscaping) {
+                builder.append(c);
+                isEscaping = false;
+                continue;
+            }
+
+            // Detect an escapee
+            if (c == '\\') {
+                isEscaping = true;
+                continue;
+            }
+
+            // Handle closing string
+            if (c == '\'') {
+                return new Token(TokenType.STRING, builder.toString());
+            }
+
+            // If it's not an escape or a ', I think... any character is valid?
+            builder.append(c);
+        }
+
+        throw new IllegalArgumentException("End of string reached without string termination");
     }
 
     /**

@@ -19,6 +19,7 @@ enum TokenType {
     OP_MODULO(1, "%"),
     OP_PLUS(2, "+"),
     OP_MINUS(2, "-"),
+    STRING(3, null),
     INTEGER(3, null),
     DOUBLE(3, null),
     VARIABLE(3, null),
