@@ -2,7 +2,7 @@ package com.geel.customitemhovers.expressions;
 
 import lombok.Getter;
 
-enum TokenType {
+public enum TokenType {
     // Order of operations:
     // Parentheses/Functions (0), Multiplication/Division (1), Arithmetic (2), Constants/Variables (3),
     // Range Comparators (<, <=, >, >=) (4), Equality Comparators (==, !=) (5), Logical && (6), Logical || (7),
@@ -19,6 +19,7 @@ enum TokenType {
     OP_MODULO(1, "%"),
     OP_PLUS(2, "+"),
     OP_MINUS(2, "-"),
+    STRING(3, null),
     INTEGER(3, null),
     DOUBLE(3, null),
     VARIABLE(3, null),
@@ -32,6 +33,10 @@ enum TokenType {
     LOG_OR(7, "||"),
     TERNARY_THEN(8, "?", true),
     TERNARY_ELSE(9, ":", true),
+    EXPRESSION_BEGIN(10, "${"),
+    EXPRESSION_BEGIN_LEGACY(10, "<%"),
+    EXPRESSION_END(10, "}"),
+    EXPRESSION_END_LEGACY(10, "%>"),
     WHITESPACE(10, null); // Not a real token
 
     @Getter
@@ -56,6 +61,7 @@ enum TokenType {
     }
 
     private static TokenType[] operatorTokens = new TokenType[] {
+            EXPRESSION_BEGIN, EXPRESSION_BEGIN_LEGACY, EXPRESSION_END, EXPRESSION_END_LEGACY,
             OP_TIMES, OP_DIVIDE, OP_MODULO, OP_MINUS, OP_PLUS,
             CMP_LT, CMP_LTE, CMP_GT, CMP_GTE, CMP_EQUALS, CMP_NEQUALS,
             LOG_AND, LOG_OR, TERNARY_THEN, TERNARY_ELSE, PAREN_LEFT, PAREN_RIGHT
@@ -64,6 +70,15 @@ enum TokenType {
     public static TokenType[] GetOperatorTokenTypes() {
         return operatorTokens;
     }
+
+    public boolean isExpressionBegin() {
+        return this == EXPRESSION_BEGIN || this == EXPRESSION_BEGIN_LEGACY;
+    }
+
+    public boolean isExpressionEnd() {
+        return this == EXPRESSION_END || this == EXPRESSION_END_LEGACY;
+    }
+
 
     public boolean isArithmetic() {
         return this == OP_PLUS || this == OP_MINUS;
@@ -79,6 +94,10 @@ enum TokenType {
 
     public boolean isComparatorOperator() {
         return this == CMP_LT || this == CMP_GT || this == CMP_LTE || this == CMP_GTE || this == CMP_EQUALS || this == CMP_NEQUALS;
+    }
+
+    public boolean operatorSupportsStringArguments() {
+        return this == CMP_EQUALS || this == CMP_NEQUALS || this == OP_PLUS;
     }
 
     public boolean isTernaryOperator() {
@@ -110,7 +129,7 @@ enum TokenType {
     }
 
     public boolean isConstant() {
-        return this == INTEGER || this == DOUBLE;
+        return this == INTEGER || this == DOUBLE || this == STRING;
     }
 
     public boolean isIdentifier() {

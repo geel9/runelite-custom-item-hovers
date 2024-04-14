@@ -1,17 +1,18 @@
 package com.geel.customitemhovers.expressions;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-class Token {
+public class Token {
     @Getter
     private TokenType type;
 
     @Getter
     private String value; // TODO: Make more efficient than Strings. Are slices a thing in Java?
 
-    public Number getConstantValue() {
+    public Number getNumericValue() {
         if(type == TokenType.INTEGER) {
             return Integer.parseInt(value);
         } else if(type == TokenType.DOUBLE) {
@@ -27,5 +28,9 @@ class Token {
 
     public static Token fromInt(int value) {
         return new Token(TokenType.INTEGER, String.valueOf(value));
+    }
+
+    public static Token fromString(String value) {
+        return new Token(TokenType.STRING, value);
     }
 }

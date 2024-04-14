@@ -58,7 +58,13 @@ public class HoverEvaluator {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {
-            return formatter.format(ExpressionEvaluator.Evaluate(expression, context));
+            Token result = ExpressionEvaluator.Evaluate(expression, context);
+
+            if(result.getType() == TokenType.STRING) {
+                return result.getValue();
+            }
+
+            return formatter.format(result.getNumericValue());
         } catch (IllegalArgumentException e) {
             return "${" + expression.getExpressionText() + "}";
         }

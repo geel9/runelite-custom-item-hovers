@@ -13,7 +13,7 @@ public class ExpressionEvaluator {
     /**
      * Evaluates a Reverse Polish Notation queue (output from `ShuntingYard`), returning the result
      */
-    public static Number Evaluate(Expression expression, ItemHoverContext context) {
+    public static Token Evaluate(Expression expression, ItemHoverContext context) {
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
@@ -56,18 +56,23 @@ public class ExpressionEvaluator {
             throw new IllegalArgumentException("Stack should only have a single entry at the end");
         }
 
-        // Single entry should be a constant integer value
+        // Single entry should be a constant integer, double, or string value
         Token result = stack.pop();
         if (!result.getType().isConstant()) {
             throw new IllegalArgumentException("Invalid token type after RPN evaluation");
         }
 
         // Return result
-        return result.getConstantValue();
+        return result;
     }
 
     private static Token evaluateFunction(Token functionToken, Token argToken, ItemHoverContext context) {
-        Number argValue = argToken.getConstantValue();
+        // TODO: Better argument typing restriction system
+        if(argToken.getType() == TokenType.STRING) {
+            throw new IllegalArgumentException("No functions currently support string arguments");
+        }
+
+        Number argValue = argToken.getNumericValue();
         switch (functionToken.getValue()) {
             case "floor":
                 return new Token(TokenType.INTEGER, String.valueOf((int) Math.floor(argValue.doubleValue())));
@@ -105,7 +110,7 @@ public class ExpressionEvaluator {
     private static Token evaluateTernaryThen(Token operator, Token condition, Token ifTrue) {
         // Ensure that the number is false in integer or double representation
         // (0.1 is not false)
-        if(Math.abs(condition.getConstantValue().doubleValue()) > 0.0000001) {
+        if(Math.abs(condition.getNumericValue().doubleValue()) > 0.0000001) {
             return ifTrue;
         }
 
@@ -139,8 +144,12 @@ public class ExpressionEvaluator {
             return evaluateTernaryElse(rightValue, leftValue);
         }
 
-        Number leftVal, rightVal, result;
+        // If either operator is a string, handle it specially
+        if(leftValue.getType() == TokenType.STRING || rightValue.getType() == TokenType.STRING) {
+            return evaluateStringOperator(operatorToken, leftValue, rightValue);
+        }
 
+        Number leftVal, rightVal, result;
         // TODO: Figure out a better way to handle this. Fundamentally, we are trying to figure out:
         // 1. How do we deserialize the input?
         // 2. How do we serialize the output?
@@ -222,6 +231,29 @@ public class ExpressionEvaluator {
                 : Token.fromInt(result.intValue());
     }
 
+    private static Token evaluateStringOperator(Token operatorToken, Token leftValue, Token rightValue) {
+        // Operator must be valid for use on strings
+        if(!operatorToken.getType().operatorSupportsStringArguments()) {
+            throw new IllegalArgumentException("Operator " + operatorToken.getValue() + " does not support strings");
+        }
+
+        // Both arguments must be strings
+        if(leftValue.getType() != rightValue.getType() || leftValue.getType() != TokenType.STRING) {
+            throw new IllegalArgumentException("Both arguments must be string values");
+        }
+
+        switch(operatorToken.getType()) {
+            case CMP_EQUALS:
+                return Token.fromInt(leftValue.getValue().equals(rightValue.getValue()) ? 1 : 0);
+            case CMP_NEQUALS:
+                return Token.fromInt(leftValue.getValue().equals(rightValue.getValue()) ? 0 : 1);
+            case OP_PLUS:
+                return Token.fromString(leftValue.getValue() + rightValue.getValue());
+            default:
+                throw new IllegalArgumentException("Unknown string operator " + operatorToken.getValue());
+        }
+    }
+
     /**
      * Determines if an operation requires the use of decimal numbers.
      * <p>
@@ -275,11 +307,11 @@ public class ExpressionEvaluator {
         }
 
         if (isInt) {
-            return new Token(TokenType.INTEGER, String.valueOf(intVal));
+            return Token.fromInt(intVal);
         } else if (isDouble) {
-            return new Token(TokenType.DOUBLE, String.valueOf(doubleVal));
+            return Token.fromDouble(doubleVal);
         } else {
-            throw new IllegalArgumentException("Neither int nor double");
+            return Token.fromString(variableVal);
         }
     }
 }

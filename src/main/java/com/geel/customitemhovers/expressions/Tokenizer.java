@@ -10,13 +10,24 @@ import java.util.ArrayList;
  * Not for external use; used by `ExpressionParser` as first step in parsing of an expression
  */
 public class Tokenizer {
+    // The text we are evaluating to find an expression in
+    private String haystack;
+
+    // The actual expression we've parsed out
+    private StringBuilder parsedExpressionBuilder = new StringBuilder();
+
     @Getter
-    private final String expression;
+    private String parsedExpression = null;
+
     @Getter
     private final ArrayList<Token> tokens = new ArrayList<>();
 
+    // Where we started reading the string
+    private int startPos = 0;
+
     // How far into the current string we've read
-    private int pos = 0;
+    @Getter
+    private int numRead = 0;
 
     // The current parentheses depth
     private int parenDepth = 0;
@@ -24,8 +35,9 @@ public class Tokenizer {
     // The current ternary depth
     private int ternaryDepth = 0;
 
-    public Tokenizer(String expression) {
-        this.expression = expression;
+    public Tokenizer(String haystack, int position) {
+        this.haystack = haystack;
+        this.startPos = position;
     }
 
     /**
@@ -34,13 +46,44 @@ public class Tokenizer {
      * If the expression has already been tokenized, just returns the result.
      */
     public Token[] tokenize() {
-        Token t;
-        while ((t = readToken()) != null) {
-            tokens.add(t);
-        }
+        // Do actual tokenization if we haven't yet
+        if (numRead == 0) {
+            boolean isFirst = true;
+            Token t;
+            while ((t = readToken()) != null) {
+                // First token must be expression start, and expression start can only appear as the first token
+                if (isFirst && !t.getType().isExpressionBegin()) {
+                    throw new IllegalArgumentException("Expected EXPRESSION_START");
+                } else if (!isFirst && t.getType().isExpressionBegin()) {
+                    throw new IllegalArgumentException("Unexpected EXPRESSION_START");
+                }
 
-        if (!isValidFinalToken()) {
-            throw new IllegalArgumentException("Invalid final token in expression");
+                // If we reach an expression end, we're done
+                if (t.getType().isExpressionEnd()) {
+                    parsedExpressionBuilder.setLength(parsedExpressionBuilder.length() - t.getValue().length());
+                    break;
+                }
+
+                // Don't add ${ and } to the actual tokenized output / expression
+                if (!t.getType().isExpressionBegin() && !t.getType().isExpressionEnd()) {
+                    tokens.add(t);
+                } else {
+                    // Strip out opening/ending tags from output
+                    parsedExpressionBuilder.setLength(parsedExpressionBuilder.length() - t.getValue().length());
+                }
+
+                isFirst = false;
+            }
+
+            if (!isValidFinalToken()) {
+                throw new IllegalArgumentException("Invalid final token in expression");
+            }
+
+            // Copy expression into parsedExpression, and clear out haystack and the builder
+            parsedExpression = parsedExpressionBuilder.toString();
+            parsedExpressionBuilder.setLength(0);
+            parsedExpressionBuilder = null;
+            haystack = null;
         }
 
         return tokens.toArray(new Token[0]);
@@ -52,12 +95,11 @@ public class Tokenizer {
      * Returns null if the end of the string has been reached.
      */
     private Token readToken() {
-        if (pos >= expression.length()) {
+        boolean isFirstToken = numRead == 0;
+
+        if ((startPos + numRead) >= haystack.length()) {
             return null;
         }
-
-        // Get last token
-        Token lastToken = tokens.size() == 0 ? null : tokens.get(tokens.size() - 1);
 
         // Find the first next character that isn't whitespace
         while (isWhitespaceChar(peekChar()))
@@ -65,10 +107,24 @@ public class Tokenizer {
 
         char c = peekChar();
 
+        // Handle expression begin/end. We do this specially here because, although we classify them as
+        // "operators" (for ease of parsing), the rules are different for them.
+        if(isFirstToken && isExpressionBeginFirstChar(c)) {
+            return readOperator();
+        } else if(!isFirstToken && isExpressionEndFirstChar(c)) {
+            return readOperator();
+        }
+
         // Handle numbers
         if (isNumber(c)) {
             assertCanReadIdentifier();
             return readNumber();
+        }
+
+        // Handle strings
+        if (c == '\'') {
+            assertCanReadIdentifier();
+            return readString();
         }
 
         // Handle identifiers
@@ -135,6 +191,42 @@ public class Tokenizer {
     }
 
     /**
+     * Reads a string constant Token from the string
+     */
+    private Token readString() {
+        readChar(); // Discard opening '
+        StringBuilder builder = new StringBuilder();
+        boolean isEscaping = false;
+
+        char c;
+        while ((c = readChar()) != '\0') {
+            // If an escape is afoot, just append whatever character is after.
+            // There are no invalid escapes :)
+            if (isEscaping) {
+                builder.append(c);
+                isEscaping = false;
+                continue;
+            }
+
+            // Detect an escapee
+            if (c == '\\') {
+                isEscaping = true;
+                continue;
+            }
+
+            // Handle closing string
+            if (c == '\'') {
+                return new Token(TokenType.STRING, builder.toString());
+            }
+
+            // If it's not an escape or a ', I think... any character is valid?
+            builder.append(c);
+        }
+
+        throw new IllegalArgumentException("End of string reached without string termination");
+    }
+
+    /**
      * Reads an identifier Token (variable name, function name) from the string
      */
     private Token readIdentifier() {
@@ -176,6 +268,8 @@ public class Tokenizer {
                 return new Token(type, buff.toString());
             }
 
+            buff.append(readChar());
+
             // If only one matches, and it has the same length as the current buffer, use it
             if (newPossibleOperators.size() == 1) {
                 TokenType type = possibleOperators.get(possibleOperators.size() - 1);
@@ -186,7 +280,6 @@ public class Tokenizer {
 
             // If multiple things still match, or only one matches but it's not fully read yet, continue
             possibleOperators = newPossibleOperators;
-            buff.append(readChar());
         }
 
         return new Token(possibleOperators.get(0), buff.toString());
@@ -235,16 +328,18 @@ public class Tokenizer {
      * Reads a single character and advances the stream
      */
     private char readChar() {
-        if (pos >= expression.length()) return '\0';
-        return expression.charAt(pos++);
+        if ((startPos + numRead) >= haystack.length()) return '\0';
+        char ret = haystack.charAt((startPos + numRead++));
+        parsedExpressionBuilder.append(ret);
+        return ret;
     }
 
     /**
      * Reads a single character without advancing the stream
      */
     private char peekChar() {
-        if (pos >= expression.length()) return '\0';
-        return expression.charAt(pos);
+        if ((startPos + numRead) >= haystack.length()) return '\0';
+        return haystack.charAt(startPos + numRead);
     }
 
     /**
@@ -321,7 +416,15 @@ public class Tokenizer {
         return token != null && token.isValue() || token == TokenType.PAREN_RIGHT;
     }
 
-    final static char[] allowedOperators = "+-*/%><=!&|?:".toCharArray();
+    private static boolean isExpressionBeginFirstChar(char c) {
+        return c == '$' || c == '<';
+    }
+
+    private static boolean isExpressionEndFirstChar(char c) {
+        return c == '}' || c == '%';
+    }
+
+    final static char[] allowedOperators = "${}+-*/%><=!&|?:".toCharArray();
 
     /**
      * Determines if c is a valid operator character

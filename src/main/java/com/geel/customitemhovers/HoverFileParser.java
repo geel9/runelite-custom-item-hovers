@@ -1,7 +1,9 @@
 package com.geel.customitemhovers;
 
+import ch.qos.logback.core.subst.Token;
 import com.geel.customitemhovers.expressions.Expression;
 import com.geel.customitemhovers.expressions.ExpressionParser;
+import com.geel.customitemhovers.expressions.Tokenizer;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -22,9 +24,6 @@ import java.util.stream.Stream;
 public class HoverFileParser {
     @Inject
     private Gson gson;
-
-    //Regex for expressions
-    private final Pattern expressionFinder = Pattern.compile("(\\$\\{|<%)([a-zA-Z0-9_/*+ ().><=!&|?:\\-]*)(}|%>)");
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
@@ -112,26 +111,42 @@ public class HoverFileParser {
 
             int offset = 0;
             int curPos = 0;
-            Matcher varMatcher = expressionFinder.matcher(concatenatedHovers);
-            while (varMatcher.find()) {
-                int start = varMatcher.start();
-                int end = varMatcher.end();
-                int len = end - start;
+            while (curPos < concatenatedHovers.length()) {
+                char c = concatenatedHovers.charAt(curPos);
 
-                Expression expression = ExpressionParser.Parse(varMatcher.group(2));
+                // If not a tag opener, or the end of the string, just add to output
+                if ((c != '$' && c != '<') || curPos == concatenatedHovers.length() - 1) {
+                    _hoverBuilder.append(c);
+                    curPos++;
+                    continue;
+                }
 
-                expressions.add(expression);
-                expressionLocations.add(start - offset);
+                // We have a tag opener. Try to read the expression.
+                Tokenizer tokenizer = new Tokenizer(concatenatedHovers, curPos);
 
-                // Append everything BEFORE this expression
-                _hoverBuilder.append(concatenatedHovers, curPos, start);
+                boolean success = false;
+                try {
+                    tokenizer.tokenize();
+                    success = tokenizer.getTokens().size() > 0;
+                } catch (IllegalArgumentException e) {
+                    success = false;
+                }
+
+                int len = tokenizer.getNumRead();
+                int endPos = curPos + len;
+
+                // If a failed parse, just add the raw expression text
+                if(!success) {
+                    _hoverBuilder.append(concatenatedHovers.substring(curPos, endPos));
+                    curPos = endPos;
+                    continue;
+                }
+
+                // If a successful parse, skip ahead to endPos
+                expressionLocations.add(curPos - offset);
+                expressions.add(ExpressionParser.Parse(tokenizer));
+                curPos = endPos;
                 offset += len;
-                curPos = end;
-            }
-
-            int remaining = concatenatedHovers.length() - curPos;
-            if (remaining > 0) {
-                _hoverBuilder.append(concatenatedHovers, curPos, curPos + remaining);
             }
 
             d.ParsedHoverTexts[i++] = new ParsedHover(_hoverBuilder.toString(),
