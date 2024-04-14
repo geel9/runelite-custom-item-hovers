@@ -268,18 +268,16 @@ public class Tokenizer {
                 return new Token(type, buff.toString());
             }
 
+            possibleOperators = newPossibleOperators;
             buff.append(readChar());
 
             // If only one matches, and it has the same length as the current buffer, use it
-            if (newPossibleOperators.size() == 1) {
-                TokenType type = possibleOperators.get(possibleOperators.size() - 1);
+            if (possibleOperators.size() == 1) {
+                TokenType type = possibleOperators.get(0);
                 if (type.getConstantValue().length() == buff.length()) {
                     break;
                 }
             }
-
-            // If multiple things still match, or only one matches but it's not fully read yet, continue
-            possibleOperators = newPossibleOperators;
         }
 
         return new Token(possibleOperators.get(0), buff.toString());
