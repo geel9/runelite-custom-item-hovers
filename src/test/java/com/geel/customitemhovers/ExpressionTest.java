@@ -1,28 +1,15 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.expressions.ExpressionEvaluator;
-import com.geel.customitemhovers.expressions.ExpressionParser;
+import com.geel.customitemhovers.expressions.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-public class TokenizerTest {
+public class ExpressionTest {
     private static double EPSILON = 0.000001;
 
     @Test
     public void TestTokenizer() {
-        // Ternary
-        testIntExpr("1 ? 2 : 3", 2);
-        testIntExpr("0 ? 2 : 3", 3);
-        testIntExpr("1 + 0 ? (1 + 1) : (2 + 1)", 2);
-        testIntExpr("1 - 1 ? (1 + 1) : (2 + 1)", 3);
-        testIntExpr("(1 - 1) ? (4 / 4) : (3 - 4)", -1);
-        testIntExpr("(1 + 1) ? (8 / 4) : (3 - 4)", 2);
-        testIntExpr("1 ? 1 ? 3 : 2 : 4", 3);
-        // This kind of breaks without parens but fuck you if you write ternary like this anyways, the base shit works
-        testIntExpr("0 ? (1 ? 3 : 2) : 4", 4);
-        testIntExpr("1 ? 0 ? 3 : 2 : 4", 2);
-
         // Arithmetic
         testIntExpr("0 + 0", 0);
         testIntExpr("0 + 1", 1);
@@ -120,13 +107,61 @@ public class TokenizerTest {
         testIntExpr("1.123 == 1.1234", 0);
         testIntExpr("1 == 1.0", 1);
         testIntExpr("1 == 1.00000000001", 1);
+
+        // Ternary
+        testIntExpr("1 ? 2 : 3", 2);
+        testIntExpr("0 ? 2 : 3", 3);
+        testIntExpr("1 + 0 ? (1 + 1) : (2 + 1)", 2);
+        testIntExpr("1 - 1 ? (1 + 1) : (2 + 1)", 3);
+        testIntExpr("(1 - 1) ? (4 / 4) : (3 - 4)", -1);
+        testIntExpr("(1 + 1) ? (8 / 4) : (3 - 4)", 2);
+        testIntExpr("1 ? 1 ? 3 : 2 : 4", 3);
+        // This kind of breaks without parens but fuck you if you write ternary like this anyways, the base shit works
+        testIntExpr("0 ? (1 ? 3 : 2) : 4", 4);
+        testIntExpr("1 ? 0 ? 3 : 2 : 4", 2);
+
+        // Strings
+        testStringExpr("'a'", "a");
+        testStringExpr("'a' + 'b'", "ab");
+        testStringExpr("1 ? 'hello' : 'world'", "hello");
+        testStringExpr("0 ? 'hello' : 'world'", "world");
+        testStringExpr("1 ? 'hello' : 'world' + 'foo'", "hello");
+        testStringExpr("0 ? 'hello' : 'world' + 'foo'", "worldfoo");
+        testStringExpr("(1 ? 'hello' : 'world') + 'foo'", "hellofoo");
+        testStringExpr("(0 ? 'hello' : 'world') + 'foo'", "worldfoo");
+        testIntExpr("'hello' == 'world'", 0);
+        testIntExpr("'hello' != 'world'", 1);
+        testIntExpr("'hello' == 'hello'", 1);
+        testIntExpr("'hello' != 'hello'", 0);
+        testIntExpr("'hello' == 'he' + 'llo'", 1);
+        testStringExpr("('hello' + (1 > 5 ? ' world' : ' something else')) + ('abc' == ('a' + 'b' + 'c') ? 'foo' : 'bar')",
+                "hello something elsefoo");
     }
 
     private void testIntExpr(String expression, int expected) {
-        assertEquals(expression, expected, ExpressionEvaluator.Evaluate(ExpressionParser.Parse(expression), null).intValue());
+        Tokenizer t = new Tokenizer("${" + expression + "}", 0);
+        t.tokenize();
+        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+
+        assertNotSame(result.getType(), TokenType.STRING);
+        assertEquals(expression, expected, result.getNumericValue().intValue());
     }
 
     private void testDoubleExpr(String expression, double expected) {
-        assertEquals(expression, expected, ExpressionEvaluator.Evaluate(ExpressionParser.Parse(expression), null).doubleValue(), EPSILON);
+        Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
+        t.tokenize();
+        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+
+        assertNotSame(result.getType(), TokenType.STRING);
+        assertEquals(expression, expected, result.getNumericValue().doubleValue(), EPSILON);
+    }
+
+    private void testStringExpr(String expression, String expected) {
+        Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
+        t.tokenize();
+        Token result = ExpressionEvaluator.Evaluate(ExpressionParser.Parse(t), null);
+
+        assertEquals(result.getType(), TokenType.STRING);
+        assertEquals(expression, expected, result.getValue());
     }
 }

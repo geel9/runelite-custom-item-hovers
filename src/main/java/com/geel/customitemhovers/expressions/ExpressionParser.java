@@ -12,11 +12,10 @@ public class ExpressionParser {
     /**
      * Parses an infix notation (eg "(a + b) - sqrt(12)") expression, returning an Expression object.
      */
-    public static Expression Parse(String expression) {
-        Tokenizer tokenizer = new Tokenizer(expression);
+    public static Expression Parse(Tokenizer tokenizer) {
         Token[] tokenized = tokenizer.tokenize();
         if (tokenized.length == 0) {
-            return new Expression(tokenized, expression);
+            return new Expression(tokenized, tokenizer.getParsedExpression());
         }
 
         ArrayList<Token> outputQueue = new ArrayList<>();
@@ -76,7 +75,6 @@ public class ExpressionParser {
                     outputQueue.add(operatorStack.pop());
                 }
             }
-
         }
 
         // Cleanup Stack
@@ -90,7 +88,7 @@ public class ExpressionParser {
             outputQueue.add(popped);
         }
 
-        return new Expression(outputQueue.toArray(new Token[0]), expression);
+        return new Expression(outputQueue.toArray(new Token[0]), tokenizer.getParsedExpression());
     }
 
     /**
