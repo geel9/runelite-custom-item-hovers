@@ -58,7 +58,7 @@ enum TokenType {
     private static TokenType[] operatorTokens = new TokenType[] {
             OP_TIMES, OP_DIVIDE, OP_MODULO, OP_MINUS, OP_PLUS,
             CMP_LT, CMP_LTE, CMP_GT, CMP_GTE, CMP_EQUALS, CMP_NEQUALS,
-            LOG_AND, LOG_OR, TERNARY_THEN, TERNARY_ELSE
+            LOG_AND, LOG_OR, TERNARY_THEN, TERNARY_ELSE, PAREN_LEFT, PAREN_RIGHT
     };
 
     public static TokenType[] GetOperatorTokenTypes() {

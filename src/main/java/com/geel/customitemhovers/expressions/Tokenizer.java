@@ -1,127 +1,137 @@
 package com.geel.customitemhovers.expressions;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Tokenizes a mathematical expression (including variables and functions).
- *
+ * <p>
  * Not for external use; used by `ExpressionParser` as first step in parsing of an expression
  */
-class Tokenizer {
-    public Token[] Tokenize(String input) {
-        ArrayList<Token> output = new ArrayList<>();
-        StringBuilder tempBuff = new StringBuilder();
-        boolean isReadingIdentifier = false;
+public class Tokenizer {
+    @Getter
+    private final String expression;
+    @Getter
+    private final ArrayList<Token> tokens = new ArrayList<>();
 
-        ArrayList<TokenType> possibleOperators = new ArrayList<>();
-        boolean isReadingOperator = false;
+    // How far into the current string we've read
+    private int pos = 0;
 
-        int parenDepth = 0;
-        int ternaryDepth = 0;
+    // The current parentheses depth
+    private int parenDepth = 0;
 
-        Consumer<TokenType> addToken = (TokenType t) -> {
-            output.add(new Token(t, tempBuff.toString()));
-            tempBuff.delete(0, tempBuff.length());
-        };
+    // The current ternary depth
+    private int ternaryDepth = 0;
 
-        for (int i = 0; i < input.length(); i++) {
-            char curChar = input.charAt(i);
+    public Tokenizer(String expression) {
+        this.expression = expression;
+    }
 
-            TokenType curType = GetTokenType(curChar);
-            if (curType == null) {
-                throw new IllegalArgumentException("Invalid expression");
+    /**
+     * Tokenizes the expression and returns the result.
+     * <p>
+     * If the expression has already been tokenized, just returns the result.
+     */
+    public Token[] tokenize() {
+        Token t;
+        while ((t = readToken()) != null) {
+            tokens.add(t);
             }
 
-            // If we're currently reading an operator, then we should evaluate this new character
-            // to see if it belongs to the current operator or is the start of a new token
-            if (isReadingOperator) {
-                String curOperatorText = tempBuff.toString();
-                String withNewChar = curOperatorText + curChar; // Eep
+        if (!isValidFinalToken()) {
+            throw new IllegalArgumentException("Invalid final token in expression");
+        }
 
-                // Determine which operators start with the new total string
-                ArrayList<TokenType> newPossibleOperators = ComputeOperatorsStartingWith(withNewChar);
+        return tokens.toArray(new Token[0]);
+    }
 
-                // New string does not complete an operator.
-                // Take old string, find its equivalent operator, and push it.
-                // Then treat new character as start of new token.
-                if (newPossibleOperators.size() == 0) {
-                    Optional<TokenType> match = possibleOperators.stream().filter(t -> t.getConstantValue().equals(curOperatorText)).findFirst();
-                    if (match.isEmpty()) {
-                        throw new IllegalArgumentException("Invalid operator " + curOperatorText);
+    /**
+     * Reads a single Token from the input string.
+     * <p>
+     * Returns null if the end of the string has been reached.
+     */
+    private Token readToken() {
+        if (pos >= expression.length()) {
+            return null;
                     }
 
-                    addToken.accept(match.get());
-                    isReadingOperator = false;
-                    possibleOperators.clear();
-                }
-                else if (newPossibleOperators.size() == 1 && newPossibleOperators.get(0).getConstantValue().equals(withNewChar)) {
-                    // Only one possible operator left, and it matches the new char.
-                    // Consume the operator and move on to the next char
-                    tempBuff.append(curChar);
-                    addToken.accept(newPossibleOperators.get(0));
+        // Get last token
+        Token lastToken = tokens.size() == 0 ? null : tokens.get(tokens.size() - 1);
 
-                    isReadingOperator = false;
-                    possibleOperators.clear();
-                    continue;
-                } else {
-                    // Either multiple possible operators left, OR one operator that's longer than the current buffer.
-                    // Just keep reading.
-                    tempBuff.append(curChar);
-                    continue;
+        // Find the first next character that isn't whitespace
+        while (isWhitespaceChar(peekChar()))
+            readChar();
+
+        char c = peekChar();
+
+        // Handle numbers
+        if (isNumber(c)) {
+            assertCanReadIdentifier();
+            return readNumber();
                 }
+
+        // Handle identifiers
+        if (isNameChar(c)) {
+            assertCanReadIdentifier();
+            return readIdentifier();
             }
 
-            // If we're currently reading an identifier, and the current token type is NOT an identifier,
-            // then we're done reading the identifier
-            if (isReadingIdentifier) {
-                if (!curType.isIdentifier()) {
-                    // Not an identifier character -- identifier has ended. Process character normally.
-                    addToken.accept(DiscriminateIdentifier(tempBuff, curChar));
-                    isReadingIdentifier = false;
-                }
+        // Handle parentheses
+        if (c == '(') {
+            assertCanReadParenStart();
+            parenDepth++;
+            return readOperator();
+        } else if (c == ')') {
+            assertCanReadParenEnd();
+            parenDepth--;
+            return readOperator();
             }
 
-            // If whitespace, then just ignore the character.
-            if (curType == TokenType.WHITESPACE) {
-                continue;
+        // Handle ternary
+        if (c == '?') {
+            assertCanReadTernaryThen();
+            ternaryDepth++;
+            return readOperator();
+        } else if (c == ':') {
+            assertCanReadTernaryElse();
+            ternaryDepth--;
+            return readOperator();
             }
 
-            Token lastToken = output.size() == 0 ? null : output.get(output.size() - 1);
-            tempBuff.append(curChar);
-
-            // If this is an identifier char, start readin' it
-            if (curType.isIdentifier()) {
-                if (!IsValidBeforeIdentifier(lastToken)) {
-                    throw new IllegalArgumentException("Unexpected identifier start");
+        // Handle all operators
+        if (isOperatorChar(c)) {
+            assertCanReadOperator();
+            return readOperator();
                 }
-                isReadingIdentifier = true;
-                continue;
+
+        return null;
+                }
+
+    /**
+     * Reads a number Token from the string
+     */
+    private Token readNumber() {
+        StringBuilder builder = new StringBuilder();
+        boolean hasHadPeriod = false;
+
+        do {
+            char c = readChar();
+            builder.append(c);
+
+            if (c == '.') {
+                if (hasHadPeriod || builder.length() == 1)
+                    throw new IllegalArgumentException("Invalid period placement");
+
+                hasHadPeriod = true;
+                }
+        } while (isNumericChar(peekChar()));
+
+        if (hasHadPeriod) {
+            return Token.fromDouble(Double.parseDouble(builder.toString()));
+        } else {
+            return Token.fromInt(Integer.parseInt(builder.toString()));
             }
-
-            // Handle parentheses
-            if (curType == TokenType.PAREN_LEFT) {
-                if (!IsValidBeforeParenStart(lastToken)) {
-                    throw new IllegalArgumentException("Invalid opening parenthesis");
-                }
-
-                parenDepth++;
-            } else if (curType == TokenType.PAREN_RIGHT) {
-                if (parenDepth == 0) {
-                    throw new IllegalArgumentException("Ending parenthesis without an opening one");
-                }
-
-                if (!IsValidBeforeParenEnd(lastToken)) {
-                    throw new IllegalArgumentException("Invalid ending parenthesis");
-                }
-
-                parenDepth--;
-            }
-            // Handle Ternary
-            else if(curType == TokenType.TERNARY_THEN) {
-                if (!IsValidBeforeOperator(lastToken)) {
-                    throw new IllegalArgumentException("Invalid operator placement");
                 }
 
                 ternaryDepth++;
@@ -145,51 +155,68 @@ class Tokenizer {
 
                 possibleOperators = ComputeOperatorsStartingWith(String.valueOf(curChar));
 
-                if (possibleOperators.size() == 0) {
-                    // No operators start with this character? Impossible
-                    throw new IllegalArgumentException("Somehow, no possible operators? Don't think this code will ever be hit actually");
-                } else if (possibleOperators.size() == 1 && possibleOperators.get(0).getConstantValue().length() == 1) {
-                    // Only one operator starts with this character, and it's a single-character operator.
-                    // Just consume it immediately.
-                    // We'll fall through to `addToken.accept(curType)` below.
-                    // Set curType to what the operator actually is (though they should match).
-                    curType = possibleOperators.get(0);
-                } else {
-                    // Either multiple operators start with this character, OR only one does, but it's a multi-char
-                    // operator, so we need to finish reading it.
-                    isReadingOperator = true;
-                    continue;
+    /**
+     * Reads an identifier Token (variable name, function name) from the string
+     */
+    private Token readIdentifier() {
+        StringBuilder builder = new StringBuilder();
+
+        do {
+            char c = readChar();
+            builder.append(c);
+
+            if (builder.length() == 1 && isNumber(c)) {
+                throw new IllegalArgumentException("First character of an identifier cannot be a number");
                 }
-            }
+        } while (isNameChar(peekChar()));
 
-            addToken.accept(curType);
+        // Won't catch a space between identifier and paren. Don't really care atm.
+        if (peekChar() == '(') {
+            return new Token(TokenType.FUNCTION, builder.toString());
         }
 
-        // Handle reading an identifier at the end
-        if (isReadingIdentifier) {
-            addToken.accept(DiscriminateIdentifier(tempBuff, '\0'));
+        return new Token(TokenType.VARIABLE, builder.toString());
         }
 
-        // Handle reading an operator at the end
-        // We can just fail -- operators shouldn't be ending an expression
-        if (isReadingOperator) {
-            throw new IllegalArgumentException("Expression ended with an operator");
+    /**
+     * Reads an operator Token from the string
+     */
+    private Token readOperator() {
+        StringBuilder buff = new StringBuilder();
+        buff.append(readChar());
+
+        ArrayList<TokenType> possibleOperators = computeOperatorsStartingWith(buff.toString());
+        int offset = 0;
+        while (true) {
+            char c = peekChar();
+            ArrayList<TokenType> newPossibleOperators = constrainOperators(c, ++offset, possibleOperators);
+
+            // If nothing matches the next character, then we need to just use whatever matches `buff`
+            if (newPossibleOperators.size() == 0) {
+                TokenType type = possibleOperators.stream().filter(p -> p.getConstantValue().length() == buff.length()).findFirst().get();
+                return new Token(type, buff.toString());
         }
 
-        // Handle dangling parenthesis
-        if (parenDepth != 0) {
-            throw new IllegalArgumentException("Unmatched opening parenthesis");
+            // If only one matches, and it has the same length as the current buffer, use it
+            if (newPossibleOperators.size() == 1) {
+                TokenType type = possibleOperators.get(possibleOperators.size() - 1);
+                if (type.getConstantValue().length() == buff.length()) {
+                    break;
+                }
         }
 
-        // Ensure we ended on a good note
-        if (output.size() > 0 && !IsValidFinalToken(output.get(output.size() - 1))) {
-            throw new IllegalArgumentException("Invalid ending token");
+            // If multiple things still match, or only one matches but it's not fully read yet, continue
+            possibleOperators = newPossibleOperators;
+            buff.append(readChar());
         }
 
-        return output.toArray(new Token[0]);
+        return new Token(possibleOperators.get(0), buff.toString());
     }
 
-    private static ArrayList<TokenType> ComputeOperatorsStartingWith(String prefix) {
+    /**
+     * Returns a list of the operators which start with the given string
+     */
+    private static ArrayList<TokenType> computeOperatorsStartingWith(String prefix) {
         ArrayList<TokenType> ret = new ArrayList<>(2);
 
         for (TokenType tokenType : TokenType.GetOperatorTokenTypes()) {
@@ -202,171 +229,158 @@ class Tokenizer {
     }
 
     /**
-     * Determines if a value that was read is an integer, double, variable, or function.
+     * Returns a list of the operators in `existing` which continue to match with the addition of `newChar`
      */
-    private static TokenType DiscriminateIdentifier(StringBuilder identifier, char newChar) throws IllegalArgumentException {
-        char firstChar = identifier.charAt(0);
-        boolean identifierIsNumeric = IsNumericChar(firstChar);
+    private static ArrayList<TokenType> constrainOperators(char newChar, int offset, ArrayList<TokenType> existing) {
+        ArrayList<TokenType> ret = new ArrayList<>(2);
 
-        // An identifier is numeric if it's an unending stream of numeric characters
-        //      (but neither starts nor ends with a period)
-        if (identifierIsNumeric) {
-            if (firstChar == '.') {
-                throw new IllegalArgumentException("Invalid identifier " + identifier.toString());
-            }
+        for (TokenType tokenType : existing) {
+            String value = tokenType.getConstantValue();
 
-            boolean containsPeriod = false;
-            for (int i = 1; i < identifier.length(); i++) {
-                boolean isEnd = i == identifier.length() - 1;
-                char curChar = identifier.charAt(i);
-
-                if (!IsNumericChar(curChar)) {
-                    throw new IllegalArgumentException("Invalid identifier " + identifier.toString());
+            // If it's too short, don't consider it
+            if (offset >= value.length()) {
+                continue;
                 }
 
-                if (curChar != '.') {
+            if (value.charAt(offset) != newChar) {
                     continue;
                 }
 
-                if (containsPeriod) {
-                    throw new IllegalArgumentException("Invalid identifier " + identifier.toString());
+            ret.add(tokenType);
                 }
 
-                containsPeriod = true;
-
-                if (isEnd) {
-                    throw new IllegalArgumentException("Invalid identifier " + identifier.toString());
+        return ret;
                 }
+
+    /**
+     * Reads a single character and advances the stream
+     */
+    private char readChar() {
+        if (pos >= expression.length()) return '\0';
+        return expression.charAt(pos++);
             }
 
-            return containsPeriod ? TokenType.DOUBLE : TokenType.INTEGER;
+    /**
+     * Reads a single character without advancing the stream
+     */
+    private char peekChar() {
+        if (pos >= expression.length()) return '\0';
+        return expression.charAt(pos);
         }
 
-        // If the next character after the identifier is a parenthesis, it's a function.
-        // Otherwise, a variable
-        // TODO: This won't catch instances where someone puts whitespace between an identifier and left paren
-        return newChar == '(' ? TokenType.FUNCTION : TokenType.VARIABLE;
+    /**
+     * Gets the type of the last token we parsed
+     */
+    private TokenType lastTokenType() {
+        return tokens.size() == 0 ? null : tokens.get(tokens.size() - 1).getType();
     }
 
     /**
      * Determines if an Identifier can start given the last Token
      */
-    private static boolean IsValidBeforeIdentifier(Token token) {
-        return token == null
-                || token.getType().isOperator()
-                || token.getType() == TokenType.PAREN_LEFT;
+    private void assertCanReadIdentifier() {
+        TokenType token = lastTokenType();
+        if (!(token == null || token.isOperator() || token == TokenType.PAREN_LEFT)) {
+            throw new IllegalArgumentException("Unexpected identifier");
+        }
     }
 
     /**
      * Determines if an Operator can start given the last Token
      */
-    private static boolean IsValidBeforeOperator(Token token) {
-        return token != null &&
-                (token.getType().isValue()
-                        || token.getType() == TokenType.PAREN_RIGHT);
+    private void assertCanReadOperator() {
+        TokenType token = lastTokenType();
+        if (!(token != null && (token.isValue() || token == TokenType.PAREN_RIGHT))) {
+            throw new IllegalArgumentException("Unexpected operator");
+        }
+    }
+
+    private void assertCanReadTernaryThen() {
+        assertCanReadOperator();
+    }
+
+    private void assertCanReadTernaryElse() {
+        assertCanReadOperator();
+
+        if (ternaryDepth <= 0) {
+            throw new IllegalArgumentException("Mismatched ternary : operator");
+        }
     }
 
     /**
      * Determines if a ) can occur given the last Token
      */
-    private static boolean IsValidBeforeParenEnd(Token token) {
-        return token != null
-                && (token.getType() == TokenType.PAREN_RIGHT
-                || token.getType().isValue());
+    private void assertCanReadParenEnd() {
+        if (parenDepth <= 0) {
+            throw new IllegalArgumentException("Mismatched ending parenthesis");
+        }
+        TokenType token = lastTokenType();
+        if (!(token != null
+                && (token == TokenType.PAREN_RIGHT || token.isValue()))) {
+            throw new IllegalArgumentException("Unexpected )");
+        }
     }
 
     /**
      * Determines if a ( can occur given the last Token
      */
-    private static boolean IsValidBeforeParenStart(Token token) {
-        return token == null
-                || token.getType() == TokenType.PAREN_LEFT
-                || token.getType() == TokenType.FUNCTION
-                || token.getType().isOperator();
+    private void assertCanReadParenStart() {
+        TokenType token = lastTokenType();
+        if (!(token == null
+                || token == TokenType.PAREN_LEFT
+                || token == TokenType.FUNCTION
+                || token.isOperator())) {
+            throw new IllegalArgumentException("Unexpected (");
+        }
     }
 
     /**
      * Determines if a Token is a valid ending token
      */
-    private static boolean IsValidFinalToken(Token token) {
-        return token.getType().isValue() || token.getType() == TokenType.PAREN_RIGHT;
+    private boolean isValidFinalToken() {
+        TokenType token = lastTokenType();
+        return token != null && token.isValue() || token == TokenType.PAREN_RIGHT;
     }
+
+    final static char[] allowedOperators = "+-*/%><=!&|?:".toCharArray();
 
     /**
-     * Returns the Type of token corresponding to c, for most cases.
-     * <p>
-     * Will return INTEGER for all numeric types and VARIABLE for identifiers (which may be functions).
-     * Further investigation of the entire token value is necessary to discern the type of number or identifier.
-     * <p>
-     * Does not fully identify multi-character operators.
-     * <p>
-     * This function is kind of stupid. I should rewrite the Tokenizer.
+     * Determines if c is a valid operator character
      */
-    private static TokenType GetTokenType(char c) {
-        switch (c) {
-            case '(':
-                return TokenType.PAREN_LEFT;
-            case ')':
-                return TokenType.PAREN_RIGHT;
-            case '+':
-                return TokenType.OP_PLUS;
-            case '-':
-                return TokenType.OP_MINUS;
-            case '*':
-                return TokenType.OP_TIMES;
-            case '/':
-                return TokenType.OP_DIVIDE;
-            case '%':
-                return TokenType.OP_MODULO;
-            case '<':
-                return TokenType.CMP_LT;
-            case '>':
-                return TokenType.CMP_GT;
-            case '=':
-                return TokenType.CMP_EQUALS;
-            case '!':
-                return TokenType.CMP_NEQUALS;
-            case '&':
-                return TokenType.LOG_AND;
-            case '|':
-                return TokenType.LOG_OR;
-            case '?' :
-                return TokenType.TERNARY_THEN;
-            case ':':
-                return TokenType.TERNARY_ELSE;
-            case ' ':
-            case '\t':
-                return TokenType.WHITESPACE;
+    private static boolean isOperatorChar(char c) {
+
+        for (char t : allowedOperators) {
+            if (t == c) return true;
         }
 
-        // Could be a DOUBLE, we can't know for sure (we check later)
-        if (IsNumericChar(c)) {
-            return TokenType.INTEGER;
+        return false;
         }
-
-        // Could be a FUNCTION
-        if (IsNameChar(c)) {
-            return TokenType.VARIABLE;
-        }
-
-        return null;
-    }
-
-    private static boolean IsOperatorChar(char c) {
-        return c == '>' || c == '<' || c == '=' || c == '+' || c == '-' || c == '|' || c == '&';
-    }
 
     /**
      * Determines if a character is in the character set allowed for identifiers (function and variable names)
      */
-    private static boolean IsNameChar(char c) {
+    private static boolean isNameChar(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
     }
 
     /**
      * Determines if a character is in the character set allowed for numbers (0-9 and a period)
      */
-    private static boolean IsNumericChar(char c) {
-        return (c >= '0' && c <= '9') || c == '.';
+    private static boolean isNumericChar(char c) {
+        return isNumber(c) || c == '.';
+    }
+
+    /**
+     * Determines if a character is in the character set allowed for numbers (0-9)
+     */
+    private static boolean isNumber(char c) {
+        return (c >= '0' && c <= '9');
+    }
+
+    /**
+     * Determines if a character is in the character set allowed for whitespace
+     */
+    private static boolean isWhitespaceChar(char c) {
+        return c == ' ' || c == '\t';
     }
 }
