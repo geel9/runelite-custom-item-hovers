@@ -4,18 +4,19 @@ import javax.inject.Inject;
 
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
+import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.geel.customitemhovers.models.itemtables.ItemTable;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
+import net.runelite.api.*;
 import net.runelite.api.events.CommandExecuted;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
@@ -28,6 +29,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -46,6 +48,9 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Inject
     private ClientThread clientThread;
+
+    @Inject
+    private ConfigManager configManager;
 
     @Inject
     private OverlayManager overlayManager;
@@ -93,6 +98,7 @@ public class CustomItemHoversPlugin extends Plugin {
             prepareItemTables();
             prepareHoverMap();
             prepareHoverWatcher();
+            tryWarnTutorialMessage();
         });
 
         overlayManager.add(overlay);
@@ -115,6 +121,11 @@ public class CustomItemHoversPlugin extends Plugin {
                 clientThread.invoke(this::stopHoverWatcher);
             }
         }
+    }
+
+    @Subscribe
+    public void onGameStateChanged(GameStateChanged ev) {
+        tryWarnTutorialMessage();
     }
 
     @Subscribe
@@ -149,7 +160,7 @@ public class CustomItemHoversPlugin extends Plugin {
                 prepareHoverMap();
             }
 
-            if(tableWatcherTriggered()) {
+            if (tableWatcherTriggered()) {
                 prepareItemTables();
             }
         }
@@ -168,8 +179,22 @@ public class CustomItemHoversPlugin extends Plugin {
         //For each hover associated with this item, add its transformed text to the resultant array
         ItemHoverContext context = new ItemHoverContext(item, comp, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
-        for (HoverDef d : hovers.get(itemID)) {
-            ret.addAll(Arrays.asList(d.GetTransformedTexts(context)));
+        for (HoverDef hoverDef : hovers.get(itemID)) {
+            String[] transformed = new String[hoverDef.ParsedHoverTexts.length];
+
+            int i = 0;
+            for (ParsedHover parsedHover : hoverDef.ParsedHoverTexts) {
+                transformed[i++] = HoverEvaluator.Evaluate(parsedHover, context);
+
+                // Warn about obsolete expressions
+                if (config.enableObsoleteMessage()) {
+                    Arrays
+                            .stream(parsedHover.getExpressions())
+                            .filter(e -> e.isLegacy()).forEach(e -> warnObsoleteExpression());
+                }
+            }
+
+            ret.addAll(Arrays.asList(transformed));
         }
 
         //Turn `ret` into an array from an ArrayList
@@ -177,6 +202,35 @@ public class CustomItemHoversPlugin extends Plugin {
         retArr = ret.toArray(retArr);
 
         return retArr;
+    }
+
+    private void warnObsoleteExpression() {
+        client.addChatMessage(ChatMessageType.GAMEMESSAGE,
+                "",
+                "<col=e74c3c>[Custom Item Hovers]</col> " +
+                        "Obsolete expression detected. " +
+                        "See the plugin support page (or GitHub) to learn about the new, better expression system. " +
+                        "Turn this message off in settings.",
+                "");
+    }
+
+    private void tryWarnTutorialMessage() {
+        if (!config.enableTutorialMessage())
+            return;
+
+        if (client.getGameState() != GameState.LOGGED_IN)
+            return;
+
+        if (hovers.size() > 0)
+            return;
+
+        client.addChatMessage(ChatMessageType.GAMEMESSAGE,
+                "",
+                "<col=e74c3c>[Custom Item Hovers]</col> Welcome! " +
+                        "This plugin offers powerful functionality, but requires some effort. " +
+                        "Right click the plugin in RuneLite and click 'Support' to learn more. " +
+                        "Turn this message off in settings.",
+                "");
     }
 
     /**
@@ -222,15 +276,14 @@ public class CustomItemHoversPlugin extends Plugin {
         prepareSpecificHoverFolder(getTablePath());
     }
 
-    private void prepareSpecificHoverFolder(Path path) throws IOException
-    {
+    private void prepareSpecificHoverFolder(Path path) throws IOException {
         // Create directory if it doesn't exist
-        if(Files.notExists(path)) {
+        if (Files.notExists(path)) {
             Files.createDirectory(path);
         }
 
         // Make sure we actually created the directory and it's readable
-        if(!Files.isDirectory(path) || !Files.isReadable(path)) {
+        if (!Files.isDirectory(path) || !Files.isReadable(path)) {
             log.error("[CUSTOMITEMHOVERS] Couldn't ensure path " + path);
         }
     }
