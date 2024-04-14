@@ -13,8 +13,8 @@ public class ExpressionParser {
      * Parses an infix notation (eg "(a + b) - sqrt(12)") expression, returning an Expression object.
      */
     public static Expression Parse(String expression) {
-        Tokenizer tokenizer = new Tokenizer();
-        Token[] tokenized = tokenizer.Tokenize(expression);
+        Tokenizer tokenizer = new Tokenizer(expression);
+        Token[] tokenized = tokenizer.tokenize();
         if (tokenized.length == 0) {
             return new Expression(tokenized, expression);
         }
