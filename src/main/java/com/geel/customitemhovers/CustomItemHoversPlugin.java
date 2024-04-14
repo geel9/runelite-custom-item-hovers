@@ -179,6 +179,7 @@ public class CustomItemHoversPlugin extends Plugin {
         ItemTable baseTable = itemTableManager.getBaseTableForItem(item);
 
         //For each hover associated with this item, add its transformed text to the resultant array
+        boolean obsoleteExpressionDetected = false;
         ItemHoverContext context = new ItemHoverContext(item, comp, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef hoverDef : hovers.get(itemID)) {
@@ -190,13 +191,19 @@ public class CustomItemHoversPlugin extends Plugin {
 
                 // Warn about obsolete expressions
                 if (config.enableObsoleteMessage()) {
-                    Arrays
-                            .stream(parsedHover.getExpressions())
-                            .filter(e -> e.isLegacy()).forEach(e -> warnObsoleteExpression());
+                    obsoleteExpressionDetected = obsoleteExpressionDetected ||
+                            Arrays
+                                    .stream(parsedHover.getExpressions())
+                                    .anyMatch(e -> e.isLegacy());
                 }
             }
 
             ret.addAll(Arrays.asList(transformed));
+        }
+
+        // Warn about obsolete expressions if we find any
+        if(obsoleteExpressionDetected) {
+            warnObsoleteExpression();
         }
 
         //Turn `ret` into an array from an ArrayList
