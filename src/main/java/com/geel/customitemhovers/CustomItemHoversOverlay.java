@@ -66,49 +66,67 @@ class CustomItemHoversOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
+		// If the player is not hovering over any items, reset the cache
+		if(!innerRender(graphics)) {
+			plugin.resetHoveredItemCache();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Handles the hover.
+	 *
+	 * Returns true if the user is presently hovering over any item, inlcuding those without a hover.
+	 */
+	private boolean innerRender(Graphics2D graphics) {
 		//Don't display anything if a right-click menu is open.
 		if (client.isMenuOpen())
-			return null;
+			return false;
 
 		//Get the current menu entries; if there aren't any, return.
 		final MenuEntry[] menuEntries = client.getMenuEntries();
 		if (menuEntries.length <= 0)
-			return null;
+			return false;
 
 		final MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
 		final MenuAction action = lastEntry.getType();
 		final Widget widget = lastEntry.getWidget();
+		if(widget == null) {
+			return false;
+		}
+
 		final int widgetId = widget.getId();
 		final int interfaceId = widgetId >>> 16;
 
 		if (!VALID_MENU_ACTIONS.contains(action))
-			return null;
+			return false;
 
 		if (!VALID_INTERFACE_IDS.contains(interfaceId))
-			return null;
+			return false;
 
 		//We should now display a hover.
 		ItemContainer container = getContainer(interfaceId);
 
 		if (container == null)
-			return null;
+			return false;
 
 		//Get the Item from the Container
 		final int containerItemIndex = lastEntry.getParam0();
 		final Item item = container.getItem(containerItemIndex);
 		if (item == null)
-			return null;
+			return false;
 
 		//Get the hovers for this item ID
 		String[] hoverTexts = plugin.getItemHovers(item);
 		if (hoverTexts.length == 0)
-			return null;
+			return true;
 
 		for (String s : hoverTexts) {
 			tooltipManager.add(new Tooltip(ColorUtil.prependColorTag(s, config.defaultHoverColor())));
 		}
 
-		return null;
+		return true;
 	}
 
 	private ItemContainer getContainer(int interfaceId)

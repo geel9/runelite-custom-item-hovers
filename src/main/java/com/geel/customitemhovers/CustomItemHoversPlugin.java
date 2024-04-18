@@ -157,6 +157,16 @@ public class CustomItemHoversPlugin extends Plugin {
     private Item lastItem = null;
     private String[] lastHovers = null;
 
+    /**
+     * Resets the cache of the item hover.
+     *
+     * This system seems badly coupled. I should refactor this. Blech.
+     */
+    public void resetHoveredItemCache() {
+        lastHovers = null;
+        lastItem = null;
+    }
+
     public String[] getItemHovers(Item item) {
         if (item.equals(lastItem)) {
             return lastHovers;
