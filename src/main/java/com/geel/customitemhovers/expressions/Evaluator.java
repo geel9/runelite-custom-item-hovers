@@ -105,11 +105,11 @@ public class Evaluator {
      * The ? operator receives `condition` and `ifTrue` as its arguments.
      *
      * If `condition` is truthy, then `ifTrue` is the result of this operator.
-     * Otherwise, the operator token itself is the result of the operator.
+     * Otherwise, the TERNARY_WAS_FALSE token (?!) is the result of the operator.
      *
      * After evaluating the above ternary, the resulting stack will look like:
      * [if `condition` is true] `ifTrue ifFalse :`
-     * [if `condition` is false] `? ifFalse :`
+     * [if `condition` is false] `?! ifFalse :`
      *
      * This sets up the `:` operator to do its job
      */
@@ -120,7 +120,7 @@ public class Evaluator {
             return ifTrue;
         }
 
-        return operator;
+        return new Token(TokenType.TERNARY_WAS_FALSE, "?!");
     }
 
     /**
@@ -128,14 +128,14 @@ public class Evaluator {
      *
      * After evaluating the ? operator paired with this :, the resulting stack will look like:
      * [if `condition` is true] `ifTrue ifFalse :`
-     * [if `condition` is false] `? ifFalse :`
+     * [if `condition` is false] `?! ifFalse :`
      *
-     * So, to evaluate `:`, we just see if the lefthand argument is a `?`.
+     * So, to evaluate `:`, we just see if the lefthand argument is a `?!`.
      * If it is, then we return `ifFalse`.
      * Otherwise, we return the lefthand argument.
      */
     private static Token evaluateTernaryElse(Token ifFalse, Token discriminator) {
-        if(discriminator.getType() == TokenType.TERNARY_THEN) {
+        if(discriminator.getType() == TokenType.TERNARY_WAS_FALSE) {
             return ifFalse;
         }
 
