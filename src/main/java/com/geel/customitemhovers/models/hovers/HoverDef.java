@@ -2,6 +2,7 @@ package com.geel.customitemhovers.models.hovers;
 
 import com.geel.customitemhovers.HoverEvaluator;
 import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -17,8 +18,16 @@ public class HoverDef {
     @SerializedName("items_regex")
     public String[] ItemNamesRegex;
 
+    @SerializedName("condition")
+    public String ConditionString;
+
     @SerializedName("hovers")
     public String[][] HoverTexts;
+
+    /**
+     * A condition expression, which controls whether or not this hover will display.
+     */
+    public CompiledExpression Condition;
 
     /**
      * An array of Hovers; each element in this array corresponds to an individual hover box that should be rendered.

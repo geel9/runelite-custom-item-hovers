@@ -186,9 +186,17 @@ public class CustomItemHoversPlugin extends Plugin {
 
         //For each hover associated with this item, add its transformed text to the resultant array
         boolean obsoleteExpressionDetected = false;
-        ItemHoverContext context = new ItemHoverContext(item, comp, tableCollection, baseTable);
+        ItemHoverContext context = new ItemHoverContext(client, this, item, comp, functionProvider, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef hoverDef : hovers.get(itemID)) {
+            // If the hoverdef has a condition, evaluate it first
+            if(hoverDef.Condition != null) {
+                Token conditionResult = Evaluator.Evaluate(hoverDef.Condition, context);
+                if(conditionResult.getNumericValue().intValue() == 0) {
+                    continue;
+                }
+            }
+
             String[] transformed = new String[hoverDef.ParsedHoverTexts.length];
 
             int i = 0;

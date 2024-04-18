@@ -79,6 +79,7 @@ public class HoverFileParser {
     private void postProcessHoverFile(HoverFile f) {
         for (HoverDef d : f.Hovers) {
             parseHoverDefHovers(d);
+            parseHoverDefCondition(d);
         }
     }
 
@@ -159,6 +160,23 @@ public class HoverFileParser {
             d.ParsedHoverTexts[i++] = new ParsedHover(_hoverBuilder.toString(),
                     expressionLocations.toArray(new Integer[0]),
                     expressions.toArray(new CompiledExpression[0]));
+        }
+    }
+
+    private void parseHoverDefCondition(HoverDef hover) {
+        if(hover.ConditionString == null || hover.ConditionString.length() == 0) {
+            return;
+        }
+
+        if(!hover.ConditionString.startsWith("${") && !hover.ConditionString.startsWith("<%")) {
+            hover.ConditionString = "${" + hover.ConditionString + "}";
+        }
+
+        try {
+            Tokenizer tokenizer = new Tokenizer(hover.ConditionString, 0);
+            hover.Condition = Compiler.Compile(tokenizer.tokenize());
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to parse hover condition");
         }
     }
 }
