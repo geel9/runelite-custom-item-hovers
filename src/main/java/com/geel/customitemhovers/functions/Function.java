@@ -1,0 +1,36 @@
+package com.geel.customitemhovers.functions;
+
+import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.models.ArgumentType;
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.models.TokenType;
+import lombok.Getter;
+
+public abstract class Function {
+    @Getter
+    protected String name;
+
+    @Getter
+    protected TokenType returnType;
+
+    @Getter
+    protected boolean isConstExpr;
+
+    public Function(String name, TokenType returnType) {
+        this.name = name;
+        this.returnType = returnType;
+    }
+
+    public Function(String name, TokenType returnType, boolean isConstExpr) {
+        this(name, returnType);
+        this.isConstExpr = true;
+    }
+
+    public abstract int getArgumentsHashCode();
+
+    public abstract boolean argumentsMatch(Token[] matchArguments);
+
+    public abstract Token execute(Token[] arguments, ItemHoverContext context);
+
+    protected abstract Token innerExecute(Token[] arguments, ItemHoverContext context);
+}
