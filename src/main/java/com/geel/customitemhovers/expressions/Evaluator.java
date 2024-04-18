@@ -5,6 +5,8 @@ import com.geel.customitemhovers.expressions.models.BaseExpression;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.functions.Function;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Stack;
 
@@ -40,8 +42,7 @@ public class Evaluator {
                     throw new IllegalArgumentException("Function called with empty stack");
                 }
 
-                Token popped = stack.pop();
-                stack.add(evaluateFunction(token, popped, context));
+                stack.add(evaluateFunction(token, stack, context));
             }
 
             // Handle operators
@@ -71,29 +72,29 @@ public class Evaluator {
         return result;
     }
 
-    private static Token evaluateFunction(Token functionToken, Token argToken, ItemHoverContext context) {
-        // TODO: Better argument typing restriction system
-        if(argToken.getType() == TokenType.STRING) {
-            throw new IllegalArgumentException("No functions currently support string arguments");
+    private static Token evaluateFunction(Token functionToken, Stack<Token> stack, ItemHoverContext context) {
+        String name = functionToken.getValue();
+        int numArgs = functionToken.getNumFunctionArgs();
+
+        // Ensure stack has the right amount of arguments
+        if(stack.size() < numArgs) {
+            throw new IllegalArgumentException("Function called with too few arguments on stack");
         }
 
-        Number argValue = argToken.getNumericValue();
-        switch (functionToken.getValue()) {
-            case "floor":
-                return new Token(TokenType.INTEGER, String.valueOf((int) Math.floor(argValue.doubleValue())));
-            case "ceil":
-                return new Token(TokenType.INTEGER, String.valueOf((int) Math.ceil(argValue.doubleValue())));
-
-            // These three functions are here for backwards-compatibility with the old, garbage, function system
-            case "qtymult":
-                return new Token(TokenType.INTEGER, String.valueOf(context.getItem().getQuantity() * argValue.intValue()));
-            case "qtydivide":
-                return new Token(TokenType.INTEGER, String.valueOf(context.getItem().getQuantity() / argValue.intValue()));
-            case "qtydivideceil":
-                return new Token(TokenType.INTEGER, String.valueOf(Math.ceil((double) context.getItem().getQuantity() / (double) argValue.intValue())));
-            default:
-                return argToken;
+        // Parse out the args.
+        // They'll be on the stack in reverse order.
+        Token[] args = new Token[numArgs];
+        for(int i = args.length - 1; i >= 0; i--) {
+            args[i] = stack.pop();
         }
+
+        // Find a function which fits
+        Function func = context.getFunctionProvider().findFunction(name, args);
+        if(func == null) {
+            return Token.fromString("[INVALID FUNCTION CALL]");
+        }
+
+        return func.execute(args, context);
     }
 
     /**
@@ -227,6 +228,12 @@ public class Evaluator {
             case LOG_OR:
                 result = (leftVal.intValue() != 0 || rightVal.intValue() != 0) ? 1 : 0;
                 break;
+            case BIT_AND:
+            case BIT_OR:
+            case BIT_XOR:
+            case BITSHIFT_LEFT:
+            case BITSHIFT_RIGHT:
+                throw new NotImplementedException();
             default:
                 throw new IllegalStateException("Unexpected value: " + operatorToken.getType());
         }

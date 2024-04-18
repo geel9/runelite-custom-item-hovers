@@ -23,6 +23,9 @@ public class Compiler {
         ArrayList<Token> outputQueue = new ArrayList<>();
         Stack<Token> operatorStack = new Stack<>();
 
+        // Stack for tracking how many arguments are passed to each function as we parse it
+        Stack<Integer> functionArgs = new Stack<>();
+
         for (Token token : tokenized) {
             // Handle numbers and variables
             if (token.getType().isValue()) {
@@ -33,6 +36,30 @@ public class Compiler {
             // Handle functions
             if (token.getType() == TokenType.FUNCTION) {
                 operatorStack.add(token);
+                functionArgs.add(1);
+                continue;
+            }
+
+            // Handle comma
+            if(token.getType() == TokenType.COMMA) {
+                // While the top of the stack isn't a left paren, pop from operator stack to output queue
+                while (true) {
+                    // If the stack is empty before we hit a left paren, there's a mismatch
+                    if (operatorStack.isEmpty()) {
+                        throw new IllegalArgumentException("Operator stack empty");
+                    }
+
+                    // If we find a left paren, exit the loop. Leave the left paren on the stack.
+                    if (operatorStack.peek().getType() == TokenType.PAREN_LEFT) {
+                        break;
+                    }
+
+                    // If not a left paren, just move to the output queue
+                    outputQueue.add(operatorStack.pop());
+                }
+
+                // Increment top of functionArgs stack
+                functionArgs.push(functionArgs.pop() + 1);
                 continue;
             }
 
@@ -74,7 +101,13 @@ public class Compiler {
 
                 // If the top of the operator stack is a function, then the function should also be moved now
                 if (!operatorStack.isEmpty() && operatorStack.peek().getType() == TokenType.FUNCTION) {
-                    outputQueue.add(operatorStack.pop());
+                    if(functionArgs.size() == 0) {
+                        throw new IllegalArgumentException("Function argument stack corrupted");
+                    }
+
+                    Token funcArg = operatorStack.pop();
+                    funcArg.setNumFunctionArgs(functionArgs.pop());
+                    outputQueue.add(funcArg);
                 }
             }
         }
@@ -90,7 +123,8 @@ public class Compiler {
             outputQueue.add(popped);
         }
 
-        return new CompiledExpression(outputQueue.toArray(new Token[0]), expression.getExpressionText(), expression.isLegacy());
+        CompiledExpression compiled = new CompiledExpression(outputQueue.toArray(new Token[0]), expression.getExpressionText(), expression.isLegacy());
+        return compiled;
     }
 
     /**

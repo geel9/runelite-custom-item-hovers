@@ -436,7 +436,7 @@ public class Tokenizer {
         return c == '}' || c == '%';
     }
 
-    final static char[] allowedOperators = "${}+-*/%><=!&|?:".toCharArray();
+    final static char[] allowedOperators = "${}+-*/%><=!&|^?:,".toCharArray();
 
     /**
      * Determines if c is a valid operator character

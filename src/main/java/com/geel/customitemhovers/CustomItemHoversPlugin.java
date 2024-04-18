@@ -2,6 +2,9 @@ package com.geel.customitemhovers;
 
 import javax.inject.Inject;
 
+import com.geel.customitemhovers.expressions.Evaluator;
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.functions.FunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -73,6 +76,9 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Inject
     private ItemTableManager itemTableManager;
+
+    @Inject
+    private FunctionProvider functionProvider;
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
