@@ -46,7 +46,6 @@ public class ItemNameMap {
             String itemName = comp.getName();
 
             if(itemName.toLowerCase().equals("null")) {
-                log.error("Item ID " + canonicalID + " has a null name");
                 continue;
             }
 
