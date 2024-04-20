@@ -5,22 +5,22 @@ import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.functions.FunctionProvider;
-import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ExpressionTest {
     private static double EPSILON = 0.000001;
-    private static ItemHoverContext context;
+    private static ExecutionContext context;
 
     @Test
     public void TestTokenizer() {
-        ItemTable blah = new ItemTable();
-        blah.put("a", "b");
-        FunctionProvider provider = new FunctionProvider(null, null);
-        context = new ItemHoverContext(null, null, null, null, provider, null, blah);
+        // Prepare execution context
+        TestVariableProvider variableProvider = new TestVariableProvider();
+        variableProvider.put("a", "b");
+        IFunctionProvider functionProvider = new CustomItemHoversFunctionProvider(null, null);
+        context = new ExecutionContext(functionProvider, variableProvider);
 
         // Functions
         testStringExpr("red(a)", "<col=ff0000>b</col>");
@@ -163,7 +163,7 @@ public class ExpressionTest {
     private void testIntExpr(String expression, int expected) {
         Tokenizer t = new Tokenizer("${" + expression + "}", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
         Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
@@ -173,7 +173,7 @@ public class ExpressionTest {
     private void testDoubleExpr(String expression, double expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
         Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
@@ -183,7 +183,7 @@ public class ExpressionTest {
     private void testStringExpr(String expression, String expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
         Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertEquals(result.getType(), TokenType.STRING);

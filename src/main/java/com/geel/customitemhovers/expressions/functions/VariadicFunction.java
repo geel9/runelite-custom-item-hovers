@@ -1,10 +1,9 @@
-package com.geel.customitemhovers.functions;
+package com.geel.customitemhovers.expressions.functions;
 
-import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
-import com.sun.org.apache.xpath.internal.Arg;
 import lombok.Getter;
 
 public abstract class VariadicFunction extends Function {
@@ -107,7 +106,7 @@ public abstract class VariadicFunction extends Function {
         return true;
     }
 
-    public Token execute(Token[] arguments, ItemHoverContext context) {
+    public Token execute(Token[] arguments, ExecutionContext context) {
         if(!argumentsMatch(arguments)) {
             throw new IllegalArgumentException("Invalid number of arguments to " + name);
         }

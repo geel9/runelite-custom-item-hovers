@@ -1,15 +1,7 @@
 package com.geel.customitemhovers.expressions;
 
-import com.geel.customitemhovers.ItemHoverContext;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.functions.Function;
-import com.geel.customitemhovers.functions.FunctionProvider;
-import com.geel.customitemhovers.models.itemtables.ItemTable;
-import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
-import net.runelite.api.Item;
-
-import java.util.Stack;
 
 /**
  * Statically evaluates a `CompiledExpression`.
@@ -45,23 +37,7 @@ public class StaticEvaluator {
      * If the expression is fully statically evaluatable, the resultant `CompiledExpression` will contain only
      * a single Token, which is the result of evaluation.
      */
-    public static CompiledExpression Evaluate(CompiledExpression expression, FunctionProvider functionProvider) {
-        // Prepare an ItemHoverContext (TODO: rename/refactor that)
-        ItemTableCollection collection = new ItemTableCollection();
-        ItemTable table = new ItemTable();
-        collection.getItemTables().put("", table);
-        ItemHoverContext context = new ItemHoverContext(null, null, null, null, functionProvider, collection, table);
-
-        return Evaluate(expression, context);
-    }
-
-    /**
-     * Statically evaluates a CompiledExpression, returning its simplified form.
-     *
-     * If the expression is fully statically evaluatable, the resultant `CompiledExpression` will contain only
-     * a single Token, which is the result of evaluation.
-     */
-    public static CompiledExpression Evaluate(CompiledExpression expression, ItemHoverContext context) {
+    public static CompiledExpression Evaluate(CompiledExpression expression, ExecutionContext context) {
         Token[] evaluationResult = EvaluationUtil.evaluateExpression(expression, context, true);
 
         // Stack should not be empty

@@ -17,6 +17,7 @@ public class HoverEvaluator {
      *
      * @return A hover string, properly evaluated, ready to render into a hover box.
      */
+    public static String Evaluate(ParsedHover hover, ExecutionContext context) {
         // If the ParsedHover has a condition, evaluate it -- if it returns a falsey value, don't render!
         if(hover.getCondition() != null) {
             Token conditionResult = RuntimeEvaluator.Evaluate(hover.getCondition(), context);
@@ -33,7 +34,7 @@ public class HoverEvaluator {
         return evaluateExpressions(hover, context);
     }
 
-    private static String evaluateExpressions(ParsedHover hover, ItemHoverContext context) {
+    private static String evaluateExpressions(ParsedHover hover, ExecutionContext context) {
         // Evaluate expressions (in the form ${expression} or <%expression%> (backwards-compat))
         StringBuilder ret = new StringBuilder();
 
@@ -62,7 +63,7 @@ public class HoverEvaluator {
         return ret.toString();
     }
 
-    private static String evaluateExpression(CompiledExpression expression, ItemHoverContext context) {
+    private static String evaluateExpression(CompiledExpression expression, ExecutionContext context) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {

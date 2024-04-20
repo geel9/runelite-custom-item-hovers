@@ -2,9 +2,10 @@ package com.geel.customitemhovers;
 
 import javax.inject.Inject;
 
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.RuntimeEvaluator;
 import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.functions.FunctionProvider;
+import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -78,7 +79,7 @@ public class CustomItemHoversPlugin extends Plugin {
     private ItemTableManager itemTableManager;
 
     @Inject
-    private FunctionProvider functionProvider;
+    private CustomItemHoversFunctionProvider functionProvider;
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
@@ -190,13 +191,14 @@ public class CustomItemHoversPlugin extends Plugin {
         if (!hovers.containsKey(itemID))
             return new String[0];
 
-        // Get item data tables
+        // Prepare expression execution context
         ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
         ItemTable baseTable = itemTableManager.getBaseTableForItemAndPlayer(item, client);
+        CustomItemHoversVariableProvider variableProvider = new CustomItemHoversVariableProvider(tableCollection, baseTable);
+        ExecutionContext context = new ExecutionContext(functionProvider, variableProvider);
 
         //For each hover associated with this item, add its transformed text to the resultant array
         boolean obsoleteExpressionDetected = false;
-        ItemHoverContext context = new ItemHoverContext(client, this, item, comp, functionProvider, tableCollection, baseTable);
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef hoverDef : hovers.get(itemID)) {
             // If the hoverdef has a condition, evaluate it first

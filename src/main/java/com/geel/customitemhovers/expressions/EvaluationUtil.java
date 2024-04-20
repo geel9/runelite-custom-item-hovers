@@ -1,10 +1,9 @@
 package com.geel.customitemhovers.expressions;
 
-import com.geel.customitemhovers.ItemHoverContext;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.functions.Function;
+import com.geel.customitemhovers.expressions.functions.Function;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Stack;
@@ -18,7 +17,7 @@ import java.util.Stack;
  */
 class EvaluationUtil {
     public static Token[] evaluateExpression(CompiledExpression expression,
-                                             ItemHoverContext context,
+                                             ExecutionContext context,
                                              boolean staticEval) {
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
@@ -72,7 +71,7 @@ class EvaluationUtil {
      */
     private static Token evaluateValue(
             Token value,
-            ItemHoverContext context,
+            ExecutionContext context,
             boolean staticEval
     ) {
         // If it's a constant type, just return that
@@ -131,7 +130,7 @@ class EvaluationUtil {
     private static Token evaluateFunction(
             Stack<Token> stack,
             Token functionToken,
-            ItemHoverContext context,
+            ExecutionContext context,
             boolean staticEval) {
         String name = functionToken.getValue();
         int numArgs = functionToken.getNumFunctionArgs();
@@ -159,7 +158,7 @@ class EvaluationUtil {
 
         // If all the arguments are const, then try to find a function that fits
         if (allConst) {
-            Function func = context.getFunctionProvider().findFunction(name, args);
+            Function func = context.resolveFunction(name, args);
             if (func != null && (!staticEval || func.isConstExpr())) {
                 // We found a function, and either we're not in static eval mode, or we are and it's a constexpr func
                 return func.execute(args, context);

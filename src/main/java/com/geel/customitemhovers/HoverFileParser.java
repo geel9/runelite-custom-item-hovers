@@ -1,10 +1,11 @@
 package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.StaticEvaluator;
 import com.geel.customitemhovers.expressions.Tokenizer;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.functions.FunctionProvider;
+import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -25,7 +26,7 @@ public class HoverFileParser {
     private Gson gson;
 
     @Inject
-    private FunctionProvider functionProvider;
+    private CustomItemHoversFunctionProvider functionProvider;
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
@@ -149,7 +150,7 @@ public class HoverFileParser {
                 CompiledExpression compiledExpression = null;
                 try {
                     compiledExpression = Compiler.Compile(tokenizer.tokenize());
-                    compiledExpression = StaticEvaluator.Evaluate(compiledExpression, functionProvider);
+                    compiledExpression = StaticEvaluator.Evaluate(compiledExpression, new ExecutionContext(functionProvider, null));
                 } catch (IllegalArgumentException e) {
                 }
 
@@ -198,7 +199,7 @@ public class HoverFileParser {
         try {
             Tokenizer tokenizer = new Tokenizer(expression, 0);
             CompiledExpression compiled = Compiler.Compile(tokenizer.tokenize());
-            return StaticEvaluator.Evaluate(compiled, functionProvider);
+            return StaticEvaluator.Evaluate(compiled, new ExecutionContext(functionProvider, null));
         } catch (IllegalArgumentException e) {
             log.error("Failed to parse hover condition");
             return null;

@@ -1,6 +1,6 @@
-package com.geel.customitemhovers.functions;
+package com.geel.customitemhovers.expressions.functions;
 
-import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
@@ -8,13 +8,13 @@ import com.geel.customitemhovers.expressions.models.TokenType;
 import java.util.function.BiFunction;
 
 public class LambdaVariadicFunction extends VariadicFunction {
-    private BiFunction<Token[], ItemHoverContext, Token> executionFunc;
+    private BiFunction<Token[], ExecutionContext, Token> executionFunc;
 
     public LambdaVariadicFunction(String name,
                                   TokenType returnType,
                                   ArgumentType variadicArgumentType,
                                   ArgumentType[] fixedArguments,
-                                  BiFunction<Token[], ItemHoverContext, Token> callback
+                                  BiFunction<Token[], ExecutionContext, Token> callback
     ) {
         super(name, returnType, variadicArgumentType, fixedArguments);
 
@@ -26,14 +26,14 @@ public class LambdaVariadicFunction extends VariadicFunction {
                                   ArgumentType variadicArgumentType,
                                   ArgumentType[] fixedArguments,
                                   boolean isConstExpr,
-                                  BiFunction<Token[], ItemHoverContext, Token> callback
+                                  BiFunction<Token[], ExecutionContext, Token> callback
     ) {
         super(name, returnType, variadicArgumentType, fixedArguments, isConstExpr);
 
         this.executionFunc = callback;
     }
 
-    protected Token innerExecute(Token[] arguments, ItemHoverContext context) {
+    protected Token innerExecute(Token[] arguments, ExecutionContext context) {
         return executionFunc.apply(arguments, context);
     }
 }

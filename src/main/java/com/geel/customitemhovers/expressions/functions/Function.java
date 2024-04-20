@@ -1,7 +1,6 @@
-package com.geel.customitemhovers.functions;
+package com.geel.customitemhovers.expressions.functions;
 
-import com.geel.customitemhovers.ItemHoverContext;
-import com.geel.customitemhovers.expressions.models.ArgumentType;
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
 import lombok.Getter;
@@ -30,7 +29,7 @@ public abstract class Function {
 
     public abstract boolean argumentsMatch(Token[] matchArguments);
 
-    public abstract Token execute(Token[] arguments, ItemHoverContext context);
+    public abstract Token execute(Token[] arguments, ExecutionContext context);
 
-    protected abstract Token innerExecute(Token[] arguments, ItemHoverContext context);
+    protected abstract Token innerExecute(Token[] arguments, ExecutionContext context);
 }

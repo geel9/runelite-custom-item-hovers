@@ -1,12 +1,7 @@
 package com.geel.customitemhovers.expressions;
 
-import com.geel.customitemhovers.ItemHoverContext;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.functions.Function;
-
-import java.util.Stack;
 
 /**
  * Evaluates a CompiledExpression at runtime.
@@ -15,7 +10,7 @@ public class RuntimeEvaluator {
     /**
      * Evaluates a Reverse Polish Notation queue (output from `ExpressionCompiler`), returning the result
      */
-    public static Token Evaluate(CompiledExpression expression, ItemHoverContext context) {
+    public static Token Evaluate(CompiledExpression expression, ExecutionContext context) {
         Token[] evaluationResult = EvaluationUtil.evaluateExpression(expression, context, false);
 
         // Stack should have one entry: the result

@@ -1,10 +1,13 @@
-package com.geel.customitemhovers.functions;
+package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.ItemHoverContext;
-import com.geel.customitemhovers.ItemNameMap;
+import com.geel.customitemhovers.expressions.ExecutionContext;
+import com.geel.customitemhovers.expressions.functions.Function;
+import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
+import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import lombok.Getter;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
@@ -17,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * Provides functions to the expression engine.
+ */
 @Singleton
-public class FunctionProvider {
+public class CustomItemHoversFunctionProvider implements IFunctionProvider {
     // A map(functionName -> map(numArguments -> listOfFunctions))
     @Getter
     private HashMap<String, HashMap<Integer, ArrayList<Function>>> functions;
@@ -28,7 +34,7 @@ public class FunctionProvider {
     public ItemManager itemManager;
 
     @Inject
-    public FunctionProvider(Client client, ItemManager itemManager) {
+    public CustomItemHoversFunctionProvider(Client client, ItemManager itemManager) {
         this.client = client;
         this.itemManager = itemManager;
 
@@ -223,6 +229,7 @@ public class FunctionProvider {
         }));
     }
 
+    private Token containerQty(Token[] args, ExecutionContext context, InventoryID inventoryID) {
         if (client == null || client.getLocalPlayer() == null)
             return Token.fromInt(0);
 
@@ -256,7 +263,7 @@ public class FunctionProvider {
         return Token.fromInt(count);
     }
 
-    private Token containerContainsItem(Token[] args, ItemHoverContext context, InventoryID inventoryID) {
+    private Token containerContainsItem(Token[] args, ExecutionContext context, InventoryID inventoryID) {
         Token qty = containerQty(args, context, inventoryID);
         return Token.fromBool(qty.getNumericValue().intValue() > 0);
     }

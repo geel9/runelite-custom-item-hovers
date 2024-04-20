@@ -1,6 +1,6 @@
-package com.geel.customitemhovers.functions;
+package com.geel.customitemhovers.expressions.functions;
 
-import com.geel.customitemhovers.ItemHoverContext;
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
@@ -43,7 +43,7 @@ public abstract class FixedArgsFunction extends Function {
         return true;
     }
 
-    public Token execute(Token[] arguments, ItemHoverContext context) {
+    public Token execute(Token[] arguments, ExecutionContext context) {
         if(arguments.length != numArguments) {
             throw new IllegalArgumentException("Invalid number of arguments to " + name);
         }
