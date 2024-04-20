@@ -1,19 +1,20 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.models.itemtables.ItemTableFile;
 import com.geel.customitemhovers.models.itemtables.ItemTable;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
+import com.geel.customitemhovers.models.itemtables.ItemTableFile;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
+import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 @Singleton
@@ -74,7 +75,7 @@ public class ItemTableManager {
                     itemTable.setItemName(baseItemName);
 
                     String[] itemNames = itemTable.getAllNames();
-                    for(String itemName : itemNames) {
+                    for (String itemName : itemNames) {
                         // Store an (itemName -> collection) reference in newItemMap
                         if (!newItemMap.containsKey(itemName)) {
                             newItemMap.put(itemName, new ItemTableCollection());
@@ -100,17 +101,16 @@ public class ItemTableManager {
     /**
      * Get the ItemCollection associated with the given item name
      */
-    public ItemTableCollection getCollectionForItem(String itemName)
-    {
+    public ItemTableCollection getCollectionForItem(String itemName) {
         return itemMap.getOrDefault(itemName, new ItemTableCollection());
     }
 
     /**
-     * Get the base ItemTable for the given item.
-     *
+     * Get the base ItemTable for the given item/player combo.
+     * <p>
      * This is a special table, available for every item, which defines certain variables -- eg "id", "qty", etc.
      */
-    public ItemTable getBaseTableForItem(Item item) {
+    public ItemTable getBaseTableForItemAndPlayer(Item item, Client client) {
         ItemComposition itemComposition = itemManager.getItemComposition(item.getId());
 
         ItemTable baseTable = new ItemTable();
@@ -119,11 +119,40 @@ public class ItemTableManager {
         baseTable.put("value", String.valueOf(itemComposition.getPrice()));
         baseTable.put("high_alch", String.valueOf(itemComposition.getHaPrice()));
 
+        if (client == null || client.getGameState() != GameState.LOGGED_IN) {
+            return baseTable;
+        }
+
+        // Prepare player variables
+        // TODO: move this somewhere else
+        Player player = client.getLocalPlayer();
+
+        // Skill levels/xp
+        for (Skill skill : Skill.values()) {
+            String skillName = skill.getName().toLowerCase(Locale.ROOT);
+            baseTable.put(skillName + "_level", String.valueOf(client.getBoostedSkillLevel(skill)));
+            baseTable.put(skillName + "_level_real", String.valueOf(client.getRealSkillLevel(skill)));
+            baseTable.put(skillName + "_xp", String.valueOf(client.getSkillExperience(skill)));
+        }
+
+        // World location
+        baseTable.put("player_x", String.valueOf(player.getWorldLocation().getX()));
+        baseTable.put("player_y", String.valueOf(player.getWorldLocation().getY()));
+        baseTable.put("player_plane", String.valueOf(player.getWorldLocation().getPlane()));
+        baseTable.put("player_region", String.valueOf(player.getWorldLocation().getRegionID()));
+        baseTable.put("player_region_x", String.valueOf(player.getWorldLocation().getRegionX()));
+        baseTable.put("player_region_y", String.valueOf(player.getWorldLocation().getRegionY()));
+
+        // Health/prayer
+        baseTable.put("hp", String.valueOf(client.getBoostedSkillLevel(Skill.HITPOINTS)));
+        baseTable.put("prayer", String.valueOf(client.getBoostedSkillLevel(Skill.PRAYER)));
+
         return baseTable;
     }
 
     /**
      * Parse a file from JSON
+     *
      * @param tableFile
      * @return
      */
