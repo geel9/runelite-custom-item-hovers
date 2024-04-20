@@ -207,11 +207,13 @@ public class CustomItemHoversPlugin extends Plugin {
                 }
             }
 
-            String[] transformed = new String[hoverDef.ParsedHoverTexts.length];
-
-            int i = 0;
             for (ParsedHover parsedHover : hoverDef.ParsedHoverTexts) {
-                transformed[i++] = HoverEvaluator.Evaluate(parsedHover, context);
+                String transformed = HoverEvaluator.Evaluate(parsedHover, context);
+                if(transformed == null) {
+                    continue;
+                }
+
+                ret.add(transformed);
 
                 // Warn about obsolete expressions
                 if (config.enableObsoleteMessage()) {
@@ -221,8 +223,6 @@ public class CustomItemHoversPlugin extends Plugin {
                                     .anyMatch(e -> e.isLegacy());
                 }
             }
-
-            ret.addAll(Arrays.asList(transformed));
         }
 
         // Warn about obsolete expressions if we find any
