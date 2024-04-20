@@ -192,7 +192,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
         // Get item data tables
         ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
-        ItemTable baseTable = itemTableManager.getBaseTableForItem(item);
+        ItemTable baseTable = itemTableManager.getBaseTableForItemAndPlayer(item, client);
 
         //For each hover associated with this item, add its transformed text to the resultant array
         boolean obsoleteExpressionDetected = false;
