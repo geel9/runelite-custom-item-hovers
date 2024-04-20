@@ -59,7 +59,7 @@ public class HoverEvaluator {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {
-            Token result = Evaluator.Evaluate(expression, context);
+            Token result = RuntimeEvaluator.Evaluate(expression, context);
 
             if(result.getType() == TokenType.STRING) {
                 return result.getValue();

@@ -2,17 +2,36 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.functions.FunctionProvider;
+import com.geel.customitemhovers.models.itemtables.ItemTable;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ExpressionTest {
     private static double EPSILON = 0.000001;
+    private static ItemHoverContext context;
 
     @Test
     public void TestTokenizer() {
+        ItemTable blah = new ItemTable();
+        blah.put("a", "b");
+        FunctionProvider provider = new FunctionProvider(null, null);
+        context = new ItemHoverContext(null, null, null, null, provider, null, blah);
+
+        // Functions
+        testStringExpr("red(a)", "<col=ff0000>b</col>");
+        testStringExpr("green('a')", "<col=00ff00>a</col>");
+        testStringExpr("blue('a')", "<col=0000ff>a</col>");
+        testStringExpr("rgb(255, pow(2, 8) - 1, 2, 'hi')", "<col=ffff02>hi</col>");
+        testDoubleExpr("pow(2, 3)", 8);
+        testDoubleExpr("max(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 + 0.5 - (2 * 1/3)))", 15.833333333333);
+        testDoubleExpr("min(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)))", -52);
+        testDoubleExpr("min((15 - (201 * 1/3)))", -52);
+
         // Arithmetic
         testIntExpr("0 + 0", 0);
         testIntExpr("0 + 1", 1);
@@ -139,11 +158,13 @@ public class ExpressionTest {
         testIntExpr("'hello' == 'he' + 'llo'", 1);
         testStringExpr("('hello' + (1 > 5 ? ' world' : ' something else')) + ('abc' == ('a' + 'b' + 'c') ? 'foo' : 'bar')",
                 "hello something elsefoo");
-    }
+ }
 
     private void testIntExpr(String expression, int expected) {
         Tokenizer t = new Tokenizer("${" + expression + "}", 0);
-        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
+        CompiledExpression compiled = Compiler.Compile(t.tokenize());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().intValue());
@@ -151,7 +172,9 @@ public class ExpressionTest {
 
     private void testDoubleExpr(String expression, double expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
-        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
+        CompiledExpression compiled = Compiler.Compile(t.tokenize());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().doubleValue(), EPSILON);
@@ -159,7 +182,9 @@ public class ExpressionTest {
 
     private void testStringExpr(String expression, String expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
-        Token result = Evaluator.Evaluate(Compiler.Compile(t.tokenize()), null);
+        CompiledExpression compiled = Compiler.Compile(t.tokenize());
+        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context.getFunctionProvider());
+        Token result = RuntimeEvaluator.Evaluate(condensed, context);
 
         assertEquals(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getValue());

@@ -1,12 +1,12 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.expressions.models.BaseExpression;
 import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.StaticEvaluator;
 import com.geel.customitemhovers.expressions.Tokenizer;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.expressions.models.TokenizedExpression;
-import com.geel.customitemhovers.models.hovers.HoverFile;
+import com.geel.customitemhovers.functions.FunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverDef;
+import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +23,9 @@ import java.util.stream.Stream;
 public class HoverFileParser {
     @Inject
     private Gson gson;
+
+    @Inject
+    private FunctionProvider functionProvider;
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
@@ -123,7 +126,7 @@ public class HoverFileParser {
 
                 // Ensure this is a tag opener
                 char nextChar = concatenatedHovers.charAt(curPos + 1);
-                if((c == '$' && nextChar != '{') || (c == '<' && nextChar != '%')) {
+                if ((c == '$' && nextChar != '{') || (c == '<' && nextChar != '%')) {
                     // Not a tag opener. Just continue.
                     _hoverBuilder.append(c);
                     _hoverBuilder.append(nextChar);
@@ -136,6 +139,7 @@ public class HoverFileParser {
                 CompiledExpression compiledExpression = null;
                 try {
                     compiledExpression = Compiler.Compile(tokenizer.tokenize());
+                    compiledExpression = StaticEvaluator.Evaluate(compiledExpression, functionProvider);
                 } catch (IllegalArgumentException e) {
                 }
 
@@ -143,7 +147,7 @@ public class HoverFileParser {
                 int endPos = curPos + len;
 
                 // If a failed parse, just add the raw expression text
-                if(compiledExpression == null) {
+                if (compiledExpression == null) {
                     String expression = concatenatedHovers.substring(curPos, endPos);
                     curPos = endPos;
                     _hoverBuilder.append(expression);
@@ -164,17 +168,20 @@ public class HoverFileParser {
     }
 
     private void parseHoverDefCondition(HoverDef hover) {
-        if(hover.ConditionString == null || hover.ConditionString.length() == 0) {
+        if (hover.ConditionString == null || hover.ConditionString.length() == 0) {
             return;
         }
 
-        if(!hover.ConditionString.startsWith("${") && !hover.ConditionString.startsWith("<%")) {
+        if (!hover.ConditionString.startsWith("${") && !hover.ConditionString.startsWith("<%")) {
             hover.ConditionString = "${" + hover.ConditionString + "}";
         }
 
+        // TODO: If static eval returns a constant value, we can resolve the condition here
+        //      (either remove the condition if it should always be shown, or remove the hover if it should never be shown)
         try {
             Tokenizer tokenizer = new Tokenizer(hover.ConditionString, 0);
-            hover.Condition = Compiler.Compile(tokenizer.tokenize());
+            CompiledExpression compiled = Compiler.Compile(tokenizer.tokenize());
+            hover.Condition = StaticEvaluator.Evaluate(compiled, functionProvider);
         } catch (IllegalArgumentException e) {
             log.error("Failed to parse hover condition");
         }

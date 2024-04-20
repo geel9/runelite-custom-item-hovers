@@ -2,7 +2,7 @@ package com.geel.customitemhovers;
 
 import javax.inject.Inject;
 
-import com.geel.customitemhovers.expressions.Evaluator;
+import com.geel.customitemhovers.expressions.RuntimeEvaluator;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.functions.FunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverFile;
@@ -201,7 +201,7 @@ public class CustomItemHoversPlugin extends Plugin {
         for (HoverDef hoverDef : hovers.get(itemID)) {
             // If the hoverdef has a condition, evaluate it first
             if(hoverDef.Condition != null) {
-                Token conditionResult = Evaluator.Evaluate(hoverDef.Condition, context);
+                Token conditionResult = RuntimeEvaluator.Evaluate(hoverDef.Condition, context);
                 if(conditionResult.getNumericValue().intValue() == 0) {
                     continue;
                 }
