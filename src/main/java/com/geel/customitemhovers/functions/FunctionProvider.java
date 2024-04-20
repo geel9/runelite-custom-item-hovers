@@ -6,10 +6,7 @@ import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
 import lombok.Getter;
-import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
+import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.ColorUtil;
 
@@ -108,18 +105,22 @@ public class FunctionProvider {
 
     private void prepareVarBitFunctions() {
         addFunction(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+            if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarbitValue(args[0].getNumericValue().intValue()));
         }));
 
         addFunction(new LambdaFixedArgsFunction("varplayer", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+            if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarpValue(args[0].getNumericValue().intValue()));
         }));
 
         addFunction(new LambdaFixedArgsFunction("varcint", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+            if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarcIntValue(args[0].getNumericValue().intValue()));
         }));
 
         addFunction(new LambdaFixedArgsFunction("varcstr", TokenType.STRING, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+            if(client == null) return Token.fromFalse();
             return Token.fromString(client.getVarcStrValue(args[0].getNumericValue().intValue()));
         }));
     }
@@ -201,23 +202,28 @@ public class FunctionProvider {
         // THE FOLLOWING FUNCTIONS ARE ONLY PRESENT FOR BACKWARDS COMPATIBILITY WITH THE OLD SHITTY SYSTEM
         // qtymult(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            int numInStack = context.getItem().getQuantity();
-            return Token.fromInt(numInStack * args[0].getNumericValue().intValue());
+            String numInStackStr = context.resolveVariable("qty");
+            if(numInStackStr == null) return Token.fromInt(0);
+
+            return Token.fromInt(Integer.parseInt(numInStackStr) * args[0].getNumericValue().intValue());
         }));
         // qtydivide(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            int numInStack = context.getItem().getQuantity();
-            return Token.fromInt(numInStack / args[0].getNumericValue().intValue());
+            String numInStackStr = context.resolveVariable("qty");
+            if(numInStackStr == null) return Token.fromInt(0);
+
+            return Token.fromInt(Integer.parseInt(numInStackStr) / args[0].getNumericValue().intValue());
         }));
         // qtydivideceil(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            int numInStack = context.getItem().getQuantity();
-            return Token.fromInt((int) Math.ceil((double) numInStack / (double) args[0].getNumericValue().intValue()));
+            String numInStackStr = context.resolveVariable("qty");
+            if(numInStackStr == null) return Token.fromInt(0);
+
+            return Token.fromInt((int) Math.ceil((double) Integer.parseInt(numInStackStr) / (double) args[0].getNumericValue().intValue()));
         }));
     }
 
-    private Token containerQty(Token[] args, ItemHoverContext context, InventoryID inventoryID) {
-        if (context.getClient().getLocalPlayer() == null)
+        if (client == null || client.getLocalPlayer() == null)
             return Token.fromInt(0);
 
         ItemContainer container = client.getItemContainer(inventoryID);
