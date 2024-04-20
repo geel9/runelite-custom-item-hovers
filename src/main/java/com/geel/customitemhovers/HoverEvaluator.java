@@ -17,7 +17,14 @@ public class HoverEvaluator {
      *
      * @return A hover string, properly evaluated, ready to render into a hover box.
      */
-    public static String Evaluate(ParsedHover hover, ItemHoverContext context) {
+        // If the ParsedHover has a condition, evaluate it -- if it returns a falsey value, don't render!
+        if(hover.getCondition() != null) {
+            Token conditionResult = RuntimeEvaluator.Evaluate(hover.getCondition(), context);
+            if(conditionResult.getNumericValue().intValue() == 0) {
+                return null;
+            }
+        }
+
         // No expressions? Nothing to evaluate
         if(hover.getExpressions().length == 0) {
             return hover.getHoverText();

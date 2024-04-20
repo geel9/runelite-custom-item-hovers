@@ -93,16 +93,26 @@ public class HoverFileParser {
 
         int i = 0;
         for (String[] hovers : d.HoverTexts) {
+            CompiledExpression hoverBlockCondition = null; // Condition for whether this hoverblock should render
+            int startPoint = 0; // Which entry in `hovers` to start reading from -- the first could be a condition
             _hoverBuilder.setLength(0); //clear stringbuilder but keep memory allocated
 
-            // First, collapse each sub-array into a <br/>-delimited single String
-            boolean firstLine = true;
-            for (String hoverLine : hovers) {
-                if (!firstLine)
-                    _hoverBuilder.append("</br>");
-                _hoverBuilder.append(hoverLine);
+            // First, detect if the first entry indicates a condition.
+            if (hovers.length > 0 && hovers[0].startsWith("?${") && hovers[0].endsWith("}")) {
+                //Try to parse the condition
+                hoverBlockCondition = compileSingleExpression(hovers[0].substring(1));
 
-                firstLine = false;
+                // If the condition parses and is valid, ignore the first entry when building the hover.
+                if (hoverBlockCondition != null) {
+                    startPoint++;
+                }
+            }
+
+            // Collapse each sub-array into a <br/>-delimited single String
+            for (int j = startPoint; j < hovers.length; j++) {
+                if (j != startPoint)
+                    _hoverBuilder.append("</br>");
+                _hoverBuilder.append(hovers[j]);
             }
 
             String concatenatedHovers = _hoverBuilder.toString();
@@ -161,9 +171,12 @@ public class HoverFileParser {
                 offset += len;
             }
 
-            d.ParsedHoverTexts[i++] = new ParsedHover(_hoverBuilder.toString(),
+            d.ParsedHoverTexts[i++] = new ParsedHover(
+                    _hoverBuilder.toString(),
                     expressionLocations.toArray(new Integer[0]),
-                    expressions.toArray(new CompiledExpression[0]));
+                    expressions.toArray(new CompiledExpression[0]),
+                    hoverBlockCondition
+            );
         }
     }
 
@@ -178,12 +191,17 @@ public class HoverFileParser {
 
         // TODO: If static eval returns a constant value, we can resolve the condition here
         //      (either remove the condition if it should always be shown, or remove the hover if it should never be shown)
+        hover.Condition = compileSingleExpression(hover.ConditionString);
+    }
+
+    private CompiledExpression compileSingleExpression(String expression) {
         try {
-            Tokenizer tokenizer = new Tokenizer(hover.ConditionString, 0);
+            Tokenizer tokenizer = new Tokenizer(expression, 0);
             CompiledExpression compiled = Compiler.Compile(tokenizer.tokenize());
-            hover.Condition = StaticEvaluator.Evaluate(compiled, functionProvider);
+            return StaticEvaluator.Evaluate(compiled, functionProvider);
         } catch (IllegalArgumentException e) {
             log.error("Failed to parse hover condition");
+            return null;
         }
     }
 }

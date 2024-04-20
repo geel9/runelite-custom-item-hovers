@@ -38,4 +38,7 @@ public class ParsedHover {
 
     @Getter
     private final CompiledExpression[] expressions;
+
+    @Getter
+    private final CompiledExpression condition;
 }
