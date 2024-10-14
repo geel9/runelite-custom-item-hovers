@@ -96,7 +96,6 @@ public class CustomItemHoversPlugin extends Plugin {
             prepareItemTables();
             prepareHoverMap();
             prepareHoverWatcher();
-            tryWarnTutorialMessage();
         });
 
         overlayManager.add(overlay);
@@ -119,11 +118,6 @@ public class CustomItemHoversPlugin extends Plugin {
                 clientThread.invoke(this::stopHoverWatcher);
             }
         }
-    }
-
-    @Subscribe
-    public void onGameStateChanged(GameStateChanged ev) {
-        tryWarnTutorialMessage();
     }
 
     @Subscribe
@@ -222,25 +216,6 @@ public class CustomItemHoversPlugin extends Plugin {
                 "<col=e74c3c>[Custom Item Hovers]</col> " +
                         "Obsolete expression detected. " +
                         "See the plugin support page (or GitHub) to learn about the new, better expression system. " +
-                        "Turn this message off in settings.",
-                "");
-    }
-
-    private void tryWarnTutorialMessage() {
-        if (!config.enableTutorialMessage())
-            return;
-
-        if (client.getGameState() != GameState.LOGGED_IN)
-            return;
-
-        if (hovers.size() > 0)
-            return;
-
-        client.addChatMessage(ChatMessageType.GAMEMESSAGE,
-                "",
-                "<col=e74c3c>[Custom Item Hovers]</col> Welcome! " +
-                        "This plugin offers powerful functionality, but requires some effort. " +
-                        "Right click the plugin in RuneLite and click 'Support' to learn more. " +
                         "Turn this message off in settings.",
                 "");
     }
