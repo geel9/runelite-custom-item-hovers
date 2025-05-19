@@ -95,7 +95,7 @@ class CustomItemHoversOverlay extends Overlay
 
 		if(widget == null) {
 			return false;
-		}t
+		}
 
 		final int widgetId = widget.getId();
 		final int interfaceId = widgetId >>> 16;
