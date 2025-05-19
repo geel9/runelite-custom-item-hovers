@@ -92,9 +92,10 @@ class CustomItemHoversOverlay extends Overlay
 		final MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
 		final MenuAction action = lastEntry.getType();
 		final Widget widget = lastEntry.getWidget();
+
 		if(widget == null) {
 			return false;
-		}
+		}t
 
 		final int widgetId = widget.getId();
 		final int interfaceId = widgetId >>> 16;

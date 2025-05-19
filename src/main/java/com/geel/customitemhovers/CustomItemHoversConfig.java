@@ -27,22 +27,11 @@ public interface CustomItemHoversConfig extends Config {
     }
 
     @ConfigItem(
-            keyName = "enableTutorialMessage",
-            name = "Tutorial Message",
-            description = "Display a message on login if you have no hovers defined",
-            section = messageSection,
-            position = 1
-    )
-    default boolean enableTutorialMessage() {
-        return true;
-    }
-
-    @ConfigItem(
             keyName = "enableObsoleteMessage",
             name = "Deprecated Expression",
             description = "Display a message whenever your hover files are displayed if they contain obsolete expressions",
             section = messageSection,
-            position = 2
+            position = 1
     )
     default boolean enableObsoleteMessage() {
         return false;
@@ -52,7 +41,7 @@ public interface CustomItemHoversConfig extends Config {
             keyName = "hoverDefaultColor",
             name = "Default Text Color",
             description = "The default text color for a hover when no color is specified",
-            position = 3
+            position = 2
     )
     default Color defaultHoverColor() {
         return new Color(238, 238, 238);
@@ -62,7 +51,7 @@ public interface CustomItemHoversConfig extends Config {
             keyName = "openDirChatCommand",
             name = "Hover Directory Chat Command",
             description = "Chat command to open hoverfile directory in your file explorer",
-            position = 4
+            position = 3
     )
     default String openDirChatCommand() {
         return "openhoverdir";
