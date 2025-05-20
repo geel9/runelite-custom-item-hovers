@@ -16,9 +16,7 @@ import net.runelite.client.util.ColorUtil;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Provides functions to the expression engine.
@@ -44,8 +42,11 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
 
     public Function findFunction(String name, Token[] arguments) {
         int numArgs = arguments.length;
+
+        // Find the function by name. The result will be a map(numArgs -> list_of_functions)
         HashMap<Integer, ArrayList<Function>> numArgsMap = functions.getOrDefault(name, null);
 
+        // If no functions found, obviously return null
         if (numArgsMap == null) {
             return null;
         }
@@ -76,16 +77,20 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
 
     public void addFunction(Function f) {
         String name = f.getName();
+
+        // Ensure that the overarching map has an entry for the function name
         if (!functions.containsKey(name)) {
             functions.put(name, new HashMap<>());
         }
 
+        // Get the entry for the function name, and ensure the sub-map has an entry for the number of arguments
         HashMap<Integer, ArrayList<Function>> argumentsMap = functions.get(name);
         int argsHashCode = f.getArgumentsHashCode();
         if (!argumentsMap.containsKey(argsHashCode)) {
             argumentsMap.put(argsHashCode, new ArrayList<>(1));
         }
 
+        // Get the entry for the number of arguments from the sub-map, and insert the function into the list
         ArrayList<Function> funcList = argumentsMap.get(argsHashCode);
         if (funcList.contains(f)) {
             throw new IllegalArgumentException("Function already exists");
@@ -95,42 +100,65 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
     }
 
     private void prepareFunctions() {
+        // {inv}_contains() and {inv}_qty()
         prepareInventoryFunctions();
+
+        // floor(), ceil(), pow(), max(), min()
         prepareMathFunctions();
+
+        // len(), contains(), red(), green(), blue(), yellow(), rgb()
         prepareStringFunctions();
+
+        // varbit(), varplayer(), varcint(), varcstr()
         prepareVarBitFunctions();
 
+        // qtymult(), qtydivide(), qtydivideceil()
         prepareBackwardsCompatFunctions();
     }
 
+    /**
+     * Prepares inventory-related functions.
+     *
+     * EG, inv_contains(), bank_contains(), inv_qty(), etc
+     */
     private void prepareInventoryFunctions() {
         inventoryFunction("inv", InventoryID.INVENTORY);
         inventoryFunction("bank", InventoryID.BANK);
         inventoryFunction("equipment", InventoryID.EQUIPMENT);
     }
 
+    /**
+     * Creates varbit-related functions
+     */
     private void prepareVarBitFunctions() {
+        // The varbit(varbitId) function returns the integer value of a varbit
         addFunction(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarbitValue(args[0].getNumericValue().intValue()));
         }));
 
+        // The varplayer(varPlayerId) function returns the integer value of a varplayer
         addFunction(new LambdaFixedArgsFunction("varplayer", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarpValue(args[0].getNumericValue().intValue()));
         }));
 
+        // The varcint(varCIntId) function returns the integer value of a varcint
         addFunction(new LambdaFixedArgsFunction("varcint", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarcIntValue(args[0].getNumericValue().intValue()));
         }));
 
+        // The varcstr(varCStrId) function returns the string value of a varcstr
         addFunction(new LambdaFixedArgsFunction("varcstr", TokenType.STRING, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromString(client.getVarcStrValue(args[0].getNumericValue().intValue()));
         }));
     }
 
+    /**
+     * Creates string- and color-related functions
+     */
     private void prepareStringFunctions() {
         addFunction(new LambdaFixedArgsFunction("len", TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING}, true, (args, context) -> {
             return Token.fromInt(args[0].getValue().length());
@@ -159,6 +187,9 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
                 }));
     }
 
+    /**
+     * Creates the floor(), ceil(), pow(), max(), min() functions
+     */
     private void prepareMathFunctions() {
         // floor(x) takes a double and returns an integer
         addFunction(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
@@ -204,6 +235,9 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         }));
     }
 
+    /**
+     * Creates functions which exist for backwards compatibility with the previous (terrible) "expression" engine
+     */
     private void prepareBackwardsCompatFunctions() {
         // THE FOLLOWING FUNCTIONS ARE ONLY PRESENT FOR BACKWARDS COMPATIBILITY WITH THE OLD SHITTY SYSTEM
         // qtymult(x) takes an integer and returns an integer
@@ -229,7 +263,10 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         }));
     }
 
-    private Token containerQty(Token[] args, ExecutionContext context, InventoryID inventoryID) {
+    /**
+     * Implements the logic for the `{inv}_qty()` functions
+     */
+    private Token containerQty(Token[] args, ExecutionContext context, InventoryID inventoryID, boolean shortCircuitOnFind) {
         if (client == null || client.getLocalPlayer() == null)
             return Token.fromInt(0);
 
@@ -238,56 +275,65 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
             return Token.fromInt(0);
         }
 
-        Token arg = args[0];
-        int[] itemIDs;
+        // Loop through the arguments, constructing a list of item IDs
+        Set<Integer> itemIDs = new HashSet<>(args.length);
+        for(Token arg : args) {
+            if (arg.getType() == TokenType.STRING) {
+                for(int itemId : ItemNameMap.GetItemIDs(arg.getValue())) {
+                    itemIDs.add(itemId);
+                }
+            } else {
+                int itemID = arg.getNumericValue().intValue();
+                if (itemManager != null) itemID = itemManager.canonicalize(itemID);
 
-        if (arg.getType() == TokenType.STRING) {
-            itemIDs = ItemNameMap.GetItemIDs(args[0].getValue());
-        } else {
-            int itemID = arg.getNumericValue().intValue();
-            if (itemManager != null) itemID = itemManager.canonicalize(itemID);
-            itemIDs = new int[]{itemID};
+                itemIDs.add(itemID);
+            }
         }
 
-        if (itemIDs.length == 0)
+        // No item IDs are relevant -- so zero
+        if (itemIDs.size() == 0)
             return Token.fromInt(0);
 
+        // Find the sum of quantities of items in the given inventory which are represented in `itemIDs`
         int count = 0;
         for (Item item : container.getItems()) {
             int canonicalId = itemManager == null ? item.getId() : itemManager.canonicalize(item.getId());
-            if (Arrays.stream(itemIDs).anyMatch(id -> id == canonicalId)) {
+            if (itemIDs.contains(canonicalId)) {
                 count += item.getQuantity();
+
+                // If we should short-circuit when we find the first match, then... do that.
+                if(shortCircuitOnFind) {
+                    break;
+                }
             }
         }
 
         return Token.fromInt(count);
     }
 
-    private Token containerContainsItem(Token[] args, ExecutionContext context, InventoryID inventoryID) {
-        Token qty = containerQty(args, context, inventoryID);
+    /**
+     * Implements the logic for the `{inv}_contains()` functions
+     */
+    private Token containerContainsAnyItem(Token[] args, ExecutionContext context, InventoryID inventoryID) {
+        Token qty = containerQty(args, context, inventoryID, true);
         return Token.fromBool(qty.getNumericValue().intValue() > 0);
     }
 
+    /**
+     * Creates the `{inventory}_qty()` and `{inventory}_contains()` functions for a given inventory
+     */
     private void inventoryFunction(String prefix, InventoryID inventoryID) {
         String containsFuncName = prefix + "_contains";
         String qtyFuncName = prefix + "_qty";
 
-        // {prefix}_contains(id) takes an item ID and returns 1 if the item is in the specified inventory
-        addFunction(new LambdaFixedArgsFunction(containsFuncName, TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            return containerContainsItem(args, context, inventoryID);
-        }));
-        // {prefix}_contains(name) takes an item name and returns 1 if the item is in the specified inventory
-        addFunction(new LambdaFixedArgsFunction(containsFuncName, TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING}, (args, context) -> {
-            return containerContainsItem(args, context, inventoryID);
+        // {prefix}_contains(idOrName, ...) takes variable item IDs/names and returns 1 if any of said items are in the specified inventory
+        addFunction(new LambdaVariadicFunction(containsFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
+            return containerContainsAnyItem(args, context, inventoryID);
         }));
 
-        // {prefix}_qty(id) takes an item ID and returns the number of items with that ID in the given inventory
-        addFunction(new LambdaFixedArgsFunction(qtyFuncName, TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            return containerQty(args, context, inventoryID);
-        }));
-        // {prefix}_qty(name) takes an item ID and returns the number of items with that ID in the given inventory
-        addFunction(new LambdaFixedArgsFunction(qtyFuncName, TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING}, (args, context) -> {
-            return containerQty(args, context, inventoryID);
+        // {prefix}_qty(idOrName, ...) takes variable item IDs/names and returns the number of items with any of said IDs in the given inventory
+        addFunction(new LambdaVariadicFunction(qtyFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
+            return containerQty(args, context, inventoryID, false);
         }));
     }
 
