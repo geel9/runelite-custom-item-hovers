@@ -3,9 +3,8 @@ package com.geel.customitemhovers;
 import javax.inject.Inject;
 
 import com.geel.customitemhovers.expressions.ExecutionContext;
-import com.geel.customitemhovers.expressions.RuntimeEvaluator;
+import com.geel.customitemhovers.expressions.EvaluationUtil;
 import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
@@ -16,7 +15,6 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.CommandExecuted;
-import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -208,7 +206,7 @@ public class CustomItemHoversPlugin extends Plugin {
         for (HoverDef hoverDef : hovers.get(itemID)) {
             // If the hoverdef has a condition, evaluate it first
             if(hoverDef.Condition != null) {
-                Token conditionResult = RuntimeEvaluator.Evaluate(hoverDef.Condition, context);
+                Token conditionResult = EvaluationUtil.EvaluateAtRuntime(hoverDef.Condition, context);
                 if(conditionResult.getNumericValue().intValue() == 0) {
                     continue;
                 }

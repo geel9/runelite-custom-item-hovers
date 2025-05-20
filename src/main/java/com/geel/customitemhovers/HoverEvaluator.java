@@ -20,7 +20,7 @@ public class HoverEvaluator {
     public static String Evaluate(ParsedHover hover, ExecutionContext context) {
         // If the ParsedHover has a condition, evaluate it -- if it returns a falsey value, don't render!
         if(hover.getCondition() != null) {
-            Token conditionResult = RuntimeEvaluator.Evaluate(hover.getCondition(), context);
+            Token conditionResult = EvaluationUtil.EvaluateAtRuntime(hover.getCondition(), context);
             if(conditionResult.getNumericValue().intValue() == 0) {
                 return null;
             }
@@ -67,7 +67,7 @@ public class HoverEvaluator {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
 
         try {
-            Token result = RuntimeEvaluator.Evaluate(expression, context);
+            Token result = EvaluationUtil.EvaluateAtRuntime(expression, context);
 
             if(result.getType() == TokenType.STRING) {
                 return result.getValue();

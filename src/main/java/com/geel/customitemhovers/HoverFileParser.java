@@ -1,9 +1,7 @@
 package com.geel.customitemhovers;
 
+import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
-import com.geel.customitemhovers.expressions.ExecutionContext;
-import com.geel.customitemhovers.expressions.StaticEvaluator;
-import com.geel.customitemhovers.expressions.Tokenizer;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverDef;
@@ -150,7 +148,7 @@ public class HoverFileParser {
                 CompiledExpression compiledExpression = null;
                 try {
                     compiledExpression = Compiler.Compile(tokenizer.tokenize());
-                    compiledExpression = StaticEvaluator.Evaluate(compiledExpression, new ExecutionContext(functionProvider, null));
+                    compiledExpression = EvaluationUtil.EvaluateStatically(compiledExpression, new ExecutionContext(functionProvider, null));
                 } catch (IllegalArgumentException e) {
                 }
 
@@ -199,7 +197,7 @@ public class HoverFileParser {
         try {
             Tokenizer tokenizer = new Tokenizer(expression, 0);
             CompiledExpression compiled = Compiler.Compile(tokenizer.tokenize());
-            return StaticEvaluator.Evaluate(compiled, new ExecutionContext(functionProvider, null));
+            return EvaluationUtil.EvaluateStatically(compiled, new ExecutionContext(functionProvider, null));
         } catch (IllegalArgumentException e) {
             log.error("Failed to parse hover condition");
             return null;

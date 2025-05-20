@@ -27,10 +27,22 @@ public class ExpressionTest {
         testStringExpr("green('a')", "<col=00ff00>a</col>");
         testStringExpr("blue('a')", "<col=0000ff>a</col>");
         testStringExpr("rgb(255, pow(2, 8) - 1, 2, 'hi')", "<col=ffff02>hi</col>");
+        testStringExpr("rgb(255, 255, 255, 'hi')", "<col=ffffff>hi</col>");
         testDoubleExpr("pow(2, 3)", 8);
+        testDoubleExpr("pow(2, 3.0)", 8);
+        testDoubleExpr("pow(2.0, 3)", 8);
+        testDoubleExpr("pow(2.0, 3.0)", 8);
+        testDoubleExpr("pow(2, 3.0000000000001)", 8);
         testDoubleExpr("max(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 + 0.5 - (2 * 1/3)))", 15.833333333333);
         testDoubleExpr("min(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)))", -52);
         testDoubleExpr("min((15 - (201 * 1/3)))", -52);
+        testDoubleExpr("max((15 + 0.5 + (1/3)), (15 - (201 * 1/3)))", 15.833333333333);
+        testDoubleExpr("max(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)))", 15.833333333333);
+        testDoubleExpr("max(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)), 0)", 15.833333333333);
+        testDoubleExpr("min(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)), 0)", -52);
+        testDoubleExpr("min(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)), 0, 100)", -52);
+        testDoubleExpr("max(1,2,15, 2.3, 15.4, (15 + 0.5 + (1/3)), (15 - (201 * 1/3)), 0, 100)", 100);
+
 
         // Arithmetic
         testIntExpr("0 + 0", 0);
@@ -44,6 +56,9 @@ public class ExpressionTest {
         testDoubleExpr("1 - 1.01", -0.01);
         testDoubleExpr("1.0 - 1", 0);
         testDoubleExpr("1 - 1.0", 0);
+        testDoubleExpr("1.0 - 1.0000000000001", 0);
+        testDoubleExpr("1.0000000000001 - 1", 0);
+        testDoubleExpr("1.0000000000001 - 1.0000000000001", 0);
 
         // Multiplication/division
         testIntExpr("0 * 0", 0);
@@ -58,6 +73,12 @@ public class ExpressionTest {
         testDoubleExpr("1 / 2", 0.5);
         testIntExpr("2 / 1", 2);
         testDoubleExpr("(1 + 3) / (4.5 * 2)", 4d / 9d);
+        testDoubleExpr("1 / 2.0", 0.5);
+        testDoubleExpr("1.0 / 2", 0.5);
+        testDoubleExpr("1.0 / 2.0", 0.5);
+        testDoubleExpr("1.0 / 2.0000000000001", 0.4999999999999999);
+        testDoubleExpr("1.0000000000001 / 2", 0.5000000000000002);
+
 
         // Modulo
         testIntExpr("0 % 1", 0);
@@ -82,6 +103,9 @@ public class ExpressionTest {
         testDoubleExpr("ceil(2.1)", 3);
         testDoubleExpr("floor((0.01 + 15.03))", 15);
         testDoubleExpr("ceil((0.01 + 15.03))", 16);
+        testDoubleExpr("floor(0.01 + 15.03)", 15);
+        testDoubleExpr("ceil(0.01 + 15.03)", 16);
+        testDoubleExpr("floor(0.01 + 15.03) == ceil(0.01 + 15.03)", 0);
 
         // Boolean tests
         testIntExpr("((1 + 3) * (4.5 * 2)) == 36", 1);
@@ -133,14 +157,18 @@ public class ExpressionTest {
         // Ternary
         testIntExpr("1 ? 2 : 3", 2);
         testIntExpr("0 ? 2 : 3", 3);
+        testIntExpr("1 ? 2 : 0", 2);
+        testIntExpr("0 ? 2 : 0", 0);
         testIntExpr("1 + 0 ? (1 + 1) : (2 + 1)", 2);
         testIntExpr("1 - 1 ? (1 + 1) : (2 + 1)", 3);
         testIntExpr("(1 - 1) ? (4 / 4) : (3 - 4)", -1);
         testIntExpr("(1 + 1) ? (8 / 4) : (3 - 4)", 2);
+        testIntExpr("1 ? 1 ? 2 : 3 : 4", 2);
         testIntExpr("1 ? 1 ? 3 : 2 : 4", 3);
         // This kind of breaks without parens but fuck you if you write ternary like this anyways, the base shit works
         testIntExpr("0 ? (1 ? 3 : 2) : 4", 4);
         testIntExpr("1 ? 0 ? 3 : 2 : 4", 2);
+
 
         // Strings
         testStringExpr("'a'", "a");
@@ -163,8 +191,8 @@ public class ExpressionTest {
     private void testIntExpr(String expression, int expected) {
         Tokenizer t = new Tokenizer("${" + expression + "}", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
-        Token result = RuntimeEvaluator.Evaluate(condensed, context);
+        CompiledExpression condensed = EvaluationUtil.EvaluateStatically(compiled, context);
+        Token result = EvaluationUtil.EvaluateAtRuntime(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().intValue());
@@ -173,8 +201,8 @@ public class ExpressionTest {
     private void testDoubleExpr(String expression, double expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
-        Token result = RuntimeEvaluator.Evaluate(condensed, context);
+        CompiledExpression condensed = EvaluationUtil.EvaluateStatically(compiled, context);
+        Token result = EvaluationUtil.EvaluateAtRuntime(condensed, context);
 
         assertNotSame(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getNumericValue().doubleValue(), EPSILON);
@@ -183,8 +211,8 @@ public class ExpressionTest {
     private void testStringExpr(String expression, String expected) {
         Tokenizer t = new Tokenizer("<%" + expression + "%>", 0);
         CompiledExpression compiled = Compiler.Compile(t.tokenize());
-        CompiledExpression condensed = StaticEvaluator.Evaluate(compiled, context);
-        Token result = RuntimeEvaluator.Evaluate(condensed, context);
+        CompiledExpression condensed = EvaluationUtil.EvaluateStatically(compiled, context);
+        Token result = EvaluationUtil.EvaluateAtRuntime(condensed, context);
 
         assertEquals(result.getType(), TokenType.STRING);
         assertEquals(expression, expected, result.getValue());
