@@ -7,7 +7,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /***
- * Evaluates a hover text, replacing variable names with their values, and replacing function calls with their results.
+ * Evaluates a hover text, replacing any expressions with their evaluated results.
  */
 public class HoverEvaluator {
     /**

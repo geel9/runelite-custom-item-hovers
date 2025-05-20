@@ -89,6 +89,7 @@ public class CustomItemHoversPlugin extends Plugin {
     //Map between an Item ID and all of its associated HoverDefs.
     public Map<Integer, ArrayList<HoverDef>> hovers = new HashMap<>();
 
+    // Watchers of the hover directory
     WatchService hoverWatcher;
     WatchKey hoverWatchKey;
     WatchKey tableWatchKey;
@@ -162,7 +163,16 @@ public class CustomItemHoversPlugin extends Plugin {
         lastItem = null;
     }
 
+    /**
+     *
+     * For the given Item in a supported container, returns a String array, each representing
+     * HTML that should be rendered in a hover box.
+     *
+     * Fully processes all expressions contained within hover texts.
+     */
     public String[] getItemHovers(Item item) {
+        // Cache hovers
+        // TODO: FIXME: This prevents users from creating hovers which update dynamically without having to re-hover
         if (item.equals(lastItem)) {
             return lastHovers;
         }
@@ -178,6 +188,7 @@ public class CustomItemHoversPlugin extends Plugin {
             }
         }
 
+        // Canonicalize the item and get its composition
         int itemID = itemManager.canonicalize(item.getId());
         ItemComposition comp = itemManager.getItemComposition(itemID);
 
@@ -289,6 +300,9 @@ public class CustomItemHoversPlugin extends Plugin {
         prepareSpecificHoverFolder(getTablePath());
     }
 
+    /**
+     * Creates a directory if it doesn't exist, logging an error if creation failed
+     */
     private void prepareSpecificHoverFolder(Path path) throws IOException {
         // Create directory if it doesn't exist
         if (Files.notExists(path)) {
