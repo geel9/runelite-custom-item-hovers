@@ -317,8 +317,8 @@ class EvaluationUtil {
             throw new IllegalArgumentException("Operator " + operatorToken.getValue() + " does not support strings");
         }
 
-        // Both arguments must be strings
-        if (leftValue.getType() != rightValue.getType() || leftValue.getType() != TokenType.STRING) {
+        // At least one argument must be a string
+        if (leftValue.getType() != TokenType.STRING && rightValue.getType() != TokenType.STRING) {
             throw new IllegalArgumentException("Both arguments must be string values");
         }
 
