@@ -22,7 +22,7 @@ public abstract class Function {
 
     public Function(String name, TokenType returnType, boolean isConstExpr) {
         this(name, returnType);
-        this.isConstExpr = true;
+        this.isConstExpr = isConstExpr;
     }
 
     public abstract int getArgumentsHashCode();
