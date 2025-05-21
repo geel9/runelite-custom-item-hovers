@@ -15,9 +15,15 @@ This plugin displays arbitrary custom hover text over items.
   - Define variables on items, which are then usable by your hover expressions
 
 # Examples
-_Click any image to go to the example hover file_
+_Click any image to go to the example hover file. Note that many of these examples make use of Item Data Tables; make sure to also grab files in the `examples/tables` folder when downloading these examples._
 
 [![Bone Shards](/docs/img/examples/example_1.png)](/examples/bone_shards.json)
+[![Ensouled Heads](/docs/img/examples/example_2.png)](/examples/ensouled_heads_with_table.json)
+[![Gems](/docs/img/examples/example_3.png)](/examples/gems.json)
+[![Hunter Meats](/docs/img/examples/example_4.png)](/examples/hunter_meats.json)
+[![Hunter Meats](/docs/img/examples/example_4.png)](/examples/hunter_meats.json)
+[![Spicy Stews](/docs/img/examples/example_5.png)](/examples/spicy_stews.json)
+
 
 # Changelog
 
