@@ -4,7 +4,7 @@
 
 This plugin's expression engine provides a number of variables.
 
-You can define your own variables on an item-by-item basis by using item tables.
+You can define your own variables on an item-by-item basis by using [Item Tables](docs/ItemTables.md), though this only supports constant values.
 
 ## Variables
 
