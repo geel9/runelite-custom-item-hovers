@@ -74,10 +74,3 @@ EG, `hitpoints_level` or `woodcutting_xp`
 |`player_region_x`|Number|The player's current world map region's X coordinate|
 |`player_region_y`|Number|The player's current world map region's Y coordinate|
 
-
-## Functions
-
-*Note: Functions which return a `Boolean` really just return a `Number`: `1` if true, `0` if false.*
-
-### Inventory Functions
-
