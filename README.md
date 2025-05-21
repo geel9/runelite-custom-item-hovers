@@ -17,7 +17,7 @@ This plugin displays arbitrary custom hover text over items.
 # Examples
 _Click any image to go to the example hover file_
 
-[![Bone Shards](/docs/img/examples/example1.png)](/examples/bone_shards.json)
+[![Bone Shards](/docs/img/examples/example_1.png)](/examples/bone_shards.json)
 
 # Changelog
 
