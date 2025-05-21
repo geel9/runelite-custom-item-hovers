@@ -1,0 +1,22 @@
+{
+	"name": "spicy_stews",
+	"is_table_file": "absolutely",
+	"items": {
+		"Orange spice (4)": {
+			"$also": "Red spice (4)|Brown spice (4)|Yellow spice (4)",
+			"spice_doses": "4"
+		},
+		"Orange spice (3)": {
+			"$also": "Red spice (3)|Brown spice (3)|Yellow spice (3)",
+			"spice_doses": "3"
+		},
+		"Orange spice (2)": {
+			"$also": "Red spice (2)|Brown spice (2)|Yellow spice (2)",
+			"spice_doses": "2"
+		},
+		"Orange spice (1)": {
+			"$also": "Red spice (1)|Brown spice (1)|Yellow spice (1)",
+			"spice_doses": "1"
+		}
+	}
+}

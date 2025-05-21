@@ -613,13 +613,22 @@ Now that we have the item data table set up, let's modify the hover file to use 
 
 And that's it! You're done!
 
-## Another Example
+## Expressions As Variables
 
-For a more complex example, see [hunter_meats.json](/examples/hunter_meats.json) and its corresponding item data table, [hunter_meats_table.json](/examples/tables/hunter_meats_table.json)
+As of right now, **variable values cannot be expressions**. This is to keep the expression engine simple.
+
+
+## Examples
+
+- [Hunter Meats HoverFile](examples/hunter_meats.json) + [Hunter Meats Table](examples/tables/hunter_meats_table.json)
+  - Very simple table; just sets the number of whistle charges each Hunter Meat grants as a variable on said item
+  - Used in the hover file to show how many charges are in a player's inventory
+- [Spicy Stew HoverFile](examples/spicy_stews.json) + [Spicy Stew Table](examples/tables/spicy_stews.json)
+  - More complex table; computes the number of stews a player can make from the number of spices in a stack / their inventory
 
 ## FAQ
 
 - How can I set variables on multiple items with one entry in a table?
-    - Not well supported right now. You can use `$also` -- see example in `examples/hunter_meats_table.json`
+    - Not well supported right now. You can use `$also` -- see example in `examples/tables/hunter_meats_table.json` or `examples/tables/spicy_stews.json`.
 - How do I make variables in a table available to my hovers?
     - Variables are always available to all hovers. You don't need to do anything to link a hover file and a table file.

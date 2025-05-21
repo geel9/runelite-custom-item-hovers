@@ -13,6 +13,10 @@
         	"-Fletching",
         	"-Runecraft",
         	"-Smithing"
+        ],
+        [
+          "Stack can make: ${qty * spice_doses / 3} 3-dose stews",
+          "Inv can make: ${(inv_qty('Orange spice (4)') * 4 + inv_qty('Orange spice (3)') * 3 + inv_qty('Orange spice (2)') * 2 + inv_qty('Orange spice (1)')) / 3} 3-dose stews"
         ]
       ]
     },
@@ -26,6 +30,10 @@
         	"-Herblore",
         	"-Mining",
         	"-Woodcutting"
+        ],
+        [
+          "Stack can make: ${qty * spice_doses / 3} 3-dose stews",
+          "Inv can make: ${(inv_qty('Brown spice (4)') * 4 + inv_qty('Brown spice (3)') * 3 + inv_qty('Brown spice (2)') * 2 + inv_qty('Brown spice (1)')) / 3} 3-dose stews"
         ]
       ]
     },
@@ -39,6 +47,10 @@
         	"-Defence",
         	"-Magic",
         	"-Ranged"
+        ],
+        [
+          "Stack can make: ${qty * spice_doses / 3} 3-dose stews",
+          "Inv can make: ${(inv_qty('Red spice (4)') * 4 + inv_qty('Red spice (3)') * 3 + inv_qty('Red spice (2)') * 2 + inv_qty('Red spice (1)')) / 3} 3-dose stews"
         ]
       ]
     },
@@ -52,6 +64,10 @@
         	"-Prayer",
         	"-Slayer",
         	"-Thieving"
+        ],
+        [
+          "Stack can make: ${qty * spice_doses / 3} 3-dose stews",
+          "Inv can make: ${(inv_qty('Yellow spice (4)') * 4 + inv_qty('Yellow spice (3)') * 3 + inv_qty('Yellow spice (2)') * 2 + inv_qty('Yellow spice (1)')) / 3} 3-dose stews"
         ]
       ]
     }

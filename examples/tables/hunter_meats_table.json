@@ -4,66 +4,39 @@
 	"items": {
 		"Cooked wild kebbit": {
 			"$also": "Raw wild kebbit",
-			"immediate_heal": "4",
-			"delayed_heal": "4",
-			"quetzal_charges": "1",
-			"cooking_xp": "73"
+			"quetzal_charges": "1"
 		},
 		"Cooked larupia": {
 			"$also": "Raw larupia",
-			"immediate_heal": "6",
-			"delayed_heal": "5",
-			"quetzal_charges": "1",
-			"cooking_xp": "92"
+			"quetzal_charges": "1"
 		},
 		"Cooked barb-tailed kebbit": {
 			"$also": "Raw barb-tailed kebbit",
-			"immediate_heal": "7",
-			"delayed_heal": "5",
-			"quetzal_charges": "1",
-			"cooking_xp": "106"
+			"quetzal_charges": "1"
 		},
 		"Cooked graahk": {
 			"$also": "Raw graahk",
-			"immediate_heal": "8",
-			"delayed_heal": "8",
-			"quetzal_charges": "2",
-			"cooking_xp": "124"
+			"quetzal_charges": "2"
 		},
 		"Cooked kyatt": {
 			"$also": "Raw kyatt",
-			"immediate_heal": "9",
-			"delayed_heal": "8",
-			"quetzal_charges": "2",
-			"cooking_xp": "143"
+			"quetzal_charges": "2"
 		},
 		"Cooked pyre fox": {
 			"$also": "Raw pyre fox",
-			"immediate_heal": "11",
-			"delayed_heal": "8",
-			"quetzal_charges": "2",
-			"cooking_xp": "154"
+			"quetzal_charges": "2"
 		},
 		"Cooked sunlight antelope": {
 			"$also": "Raw sunlight antelope",
-			"immediate_heal": "12",
-			"delayed_heal": "9",
-			"quetzal_charges": "3",
-			"cooking_xp": "175"
+			"quetzal_charges": "3"
 		},
 		"Cooked dashing kebbit": {
 			"$also": "Raw dashing kebbit",
-			"immediate_heal": "13",
-			"delayed_heal": "10",
-			"quetzal_charges": "3",
-			"cooking_xp": "215"
+			"quetzal_charges": "3"
 		},
 		"Cooked moonlight antelope": {
 			"$also": "Raw moonlight antelope",
-			"immediate_heal": "14",
-			"delayed_heal": "12",
-			"quetzal_charges": "3",
-			"cooking_xp": "220"
+			"quetzal_charges": "3"
 		}
 	}
 }
