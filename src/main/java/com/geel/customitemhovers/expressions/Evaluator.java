@@ -4,7 +4,6 @@ import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
 import com.geel.customitemhovers.expressions.functions.Function;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Stack;
 
@@ -303,7 +302,7 @@ class Evaluator {
             case BIT_XOR:
             case BITSHIFT_LEFT:
             case BITSHIFT_RIGHT:
-                throw new NotImplementedException();
+                throw new Exception("Bitwise operations are not presently supported");
             default:
                 throw new IllegalStateException("Unexpected value: " + operatorToken.getType());
         }
