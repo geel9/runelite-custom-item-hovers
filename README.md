@@ -14,6 +14,11 @@ This plugin displays arbitrary custom hover text over items.
 - **Item Data Tables**
   - Define variables on items, which are then usable by your hover expressions
 
+# Examples
+_Click any image to go to the example hover file_
+
+[![Bone Shards](/docs/img/examples/example1.png)](/examples/bone_shards.json)
+
 # Changelog
 
 ## v1.3.0 - May 20, 2025

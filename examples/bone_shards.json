@@ -1,0 +1,46 @@
+{
+    "is_hover_map": "absolutely",
+    "hovers": [
+      {
+        "items": ["Sunfire splinters"],
+        "hovers": [
+          [
+              "<col=ff00ff>Bone Shards</col>",
+              "Jugs: ${floor(qty / 2)}",
+              "Shards: ${floor(qty / 2) * 400}"
+          ]
+        ]
+      },
+      {
+        "items": ["Jug of sunfire wine"],
+        "hovers": [
+          [
+              "<col=ff00ff>Bone Shards</col>",
+              "Shards: ${qty * 400}",
+              "XP: ${qty * 400 * 6}"
+          ]
+        ]
+      },
+      {
+        "items": ["Blessed bone shards"],
+        "hovers": [
+          [
+              "<col=ff00ff>Bone Shards</col>",
+              "Jugs Required: ${ceil(qty / 400)}",
+              "Splinters Required: ${ceil(qty / 400) * 2}",
+              "Regular XP: ${qty * 5} (5 ea)",
+              "Sunfire XP: ${qty * 6} (6 ea)"
+          ]
+        ]
+      },
+      {
+        "items": ["Sun-kissed bones"],
+        "hovers": [
+          [
+              "<col=ff00ff>Bone Shards</col>",
+              "Shards: ${qty * 45}"
+          ]
+        ]
+      }
+    ]
+  }
