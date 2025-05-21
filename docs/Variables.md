@@ -59,7 +59,7 @@ EG, `hitpoints_level` or `woodcutting_xp`
 |----|----|----|----|
 |`{name}_level`|Number|The current level (including boosts) of the skill|Compute net boosts for a potion|
 |`{name}_level_real`|Number|The current level (without boosts) of the skill|Display different hover text depending on whether user has the needed skill level|
-|`{name}_level_xp`|Number|The total experience in the skill||
+|`{name}_xp`|Number|The total experience in the skill||
 
 
 #### All Other Player Variables
