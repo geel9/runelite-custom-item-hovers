@@ -159,22 +159,16 @@ Specifically, the following features are supported:
 - Parentheses (`(`, `)`)
 - Arithmetic (`+`, `-`)
 - Multiplication/Division/Modulo (`*`, `/`, `%`)
-  - _Note: Modulo gives you the _remainder_ of division. EG, `5 % 3` results in `2`.
+  - _Note_: Modulo gives you the _remainder_ of division. EG, `5 % 3` results in `2`.
 - Variables (eg, `qty` or `price`)
   - See [variables](#variables)
 - Functions (eg, `floor(qty / 15)`)
   - See [functions](#functions)
 - Conditional (Ternary)
-  - EG, `Your fishing level is: ${fishing_level == 99 ? 'Good' : 'Terrible'}`
-  - **If you're going to nest ternary, I highly suggest you use parentheses!**
-    - `1 == 1 ? 2 == 2 ? 'True' : 'False' : 'False'` is a bit hard to read
-      - It also might break the expression engine!
-    - `1 == 1 ? (2 == 2 ? 'True' : 'False') : 'False'` is much easier to read
-      - And it won't break the expression engine!
-    - Better yet: just don't nest ternary.
+  - EG, `Your fishing level is: ${fishing_level == 99 ? 'Nice' : 'Terrible'}`
 - Boolean logic (`>`, `>=`, `<`, `<=`, `==`, `!=`, `||`, `&&`)
-  - A truthful value just resolves to `1` and a false value just resolves to `2`.
-    - EG, `${((1 == 1) && (2 == 2)) + (1 && 1)}` would resolve to `2`
+  - A truthful value just resolves to `1` and a false value just resolves to `0`.
+    - EG, `((1 == 1) && (2 == 2)) + (1 && 1)` would resolve to `2`
       - `((1 == 1) && (2 == 2))` simplifies to `((1) && (1))`, which simplifes to `1`
       - `(1 && 1)` results in `1` because `&&` returns `1` if both operators are non-zero
       - Therefore, the expression simplifies to `(1) + (1)` which equals `2`
