@@ -164,18 +164,30 @@ Specifically, the following features are supported:
   - See [variables](#variables)
 - Functions (eg, `floor(qty / 15)`)
   - See [functions](#functions)
+- Conditional (Ternary)
+  - EG, `Your fishing level is: ${fishing_level == 99 ? 'Good' : 'Terrible'}`
+  - **If you're going to nest ternary, I highly suggest you use parentheses!**
+    - `1 == 1 ? 2 == 2 ? 'True' : 'False' : 'False'` is a bit hard to read
+      - It also might break the expression engine!
+    - `1 == 1 ? (2 == 2 ? 'True' : 'False') : 'False'` is much easier to read
+      - And it won't break the expression engine!
+    - Better yet: just don't nest ternary.
 - Boolean logic (`>`, `>=`, `<`, `<=`, `==`, `!=`, `||`, `&&`)
-  - Right now, these don't serve much purpose: a truthful value just resolves to `1` and a false value just resolves to `2`.
+  - A truthful value just resolves to `1` and a false value just resolves to `2`.
     - EG, `${((1 == 1) && (2 == 2)) + (1 && 1)}` would resolve to `2`
       - `((1 == 1) && (2 == 2))` simplifies to `((1) && (1))`, which simplifes to `1`
       - `(1 && 1)` results in `1` because `&&` returns `1` if both operators are non-zero
       - Therefore, the expression simplifies to `(1) + (1)` which equals `2`
-  - Eventually, I will add support for _conditionals_ on hovers, which is where these operators will be actually useful
-    - EG, you could set the following condition on a hover: `qty > 50 && hunter_level < (fishing_level * 2)`
-      - The hover would then only appear if the item being hovered over has a stack count greater than 50, AND the player's
-  hunter level is less than twice their fishing level
 
 Exponents, and any other operator not listed above, **are not** presently supported.
+
+### Conditional Hovers
+
+Using expressions, you can define _conditions_ to dynamically determine whether a hover displays.
+
+EG, `prayer_level_real < 99` would only display a hover if the player's prayer level is less than `99`.
+
+[Click here](/docs/Conditions.md) to learn more about conditional hovers.
 
 ### Variables
 
@@ -183,27 +195,17 @@ Aside from raw numbers, you can use variables in your expressions.
 
 EG, `${qty + (high_alch * 2)}` would output a number equal to the item stack's quantity plus twice its high-alch value.
 
-There are a few variables that are always available for use:
-- `id`
-  - The numeric ID of the item in the game engine
-- `qty`
-  - The number of items in the stack
-- `value`
-  - The clientside value of the item (which is used to determine shop price, alch price, etc.)
-- `high_alch`
-  - The high-alch price of the item
+[Click here](/docs/Variables.md) to learn more about the available variables.
   
-Outside of these, you can define your own variables, using [Item Data Tables](#item-data-tables)
+Additionally, you can define your own variables, using [Item Data Tables](#item-data-tables)
 
 ### Functions
 
-Functions are also supported in expressions, although there are very few available right now.
+Functions are also supported in expressions.
 
+EG, `${inv_qty('Bones', 'Dragon bones') * 50}` would output the total number of Bones in your inventory, plus the number of Dragon bones in your inventory, all multiplied by `50`.
 
-- `floor(x)`
-  - Rounds down whatever is passed to it
-- `ceil(x)`
-  - Rounds up whatever is passed to it
+[Click here](/docs/Functions.md) to learn more about the available functions.
   
 ## Item Data Tables
 
