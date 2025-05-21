@@ -40,7 +40,7 @@ class Evaluator {
 
             // Handle functions
             if (token.getType().isFunction()) {
-                if (stack.isEmpty()) {
+                if (stack.isEmpty() && token.getNumFunctionArgs() != 0) {
                     throw new IllegalArgumentException("Function called with empty stack");
                 }
 

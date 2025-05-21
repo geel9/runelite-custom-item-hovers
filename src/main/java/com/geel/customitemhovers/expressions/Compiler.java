@@ -26,17 +26,33 @@ public class Compiler {
         // Stack for tracking how many arguments are passed to each function as we parse it
         Stack<Integer> functionArgs = new Stack<>();
 
-        for (Token token : tokenized) {
+        for (int i = 0; i < tokenized.length; i++) {
+            Token token = tokenized[i];
+
             // Handle numbers and variables
             if (token.getType().isValue()) {
                 outputQueue.add(token);
                 continue;
             }
 
-            // Handle functions
+            // Handle function calls
             if (token.getType() == TokenType.FUNCTION) {
                 operatorStack.add(token);
-                functionArgs.add(1);
+
+                int numArgsToInitiateWith = 1;
+
+                // HACK: look ahead two tokens, which we know will exist because the parser ensures it.
+                //       If it's a right paren, we know it's a function with no arguments,
+                //       so we can just add it to the output queue and move on.
+                //       We do this because we track the number of function arguments by incrementing whenever we encounter
+                //       an argument separator (comma), so to handle single-argument (no-comma) scenarios we start with 1,
+                //       but this breaks in a no-argument scenario.
+                if(i + 2 < tokenized.length
+                        && tokenized[i + 2].getType() == TokenType.PAREN_RIGHT) {
+                    numArgsToInitiateWith = 0;
+                }
+
+                functionArgs.add(numArgsToInitiateWith);
                 continue;
             }
 

@@ -96,7 +96,7 @@ public class Tokenizer {
         }
 
         // Result is null after we've read some -- expression must be invalid
-        if(tokenizedExpression == null) {
+        if (tokenizedExpression == null) {
             throw new IllegalArgumentException("Invalid expression");
         }
 
@@ -362,6 +362,13 @@ public class Tokenizer {
     }
 
     /**
+     * Gets the type of the token BEFORE the last token we parsed
+     */
+    private TokenType secondToLastTokenType() {
+        return tokens.size() <= 1 ? null : tokens.get(tokens.size() - 2).getType();
+    }
+
+    /**
      * Determines if an Identifier can start given the last Token
      */
     private void assertCanReadIdentifier() {
@@ -400,11 +407,27 @@ public class Tokenizer {
         if (parenDepth <= 0) {
             throw new IllegalArgumentException("Mismatched ending parenthesis");
         }
-        TokenType token = lastTokenType();
-        if (!(token != null
-                && (token == TokenType.PAREN_RIGHT || token.isValue()))) {
-            throw new IllegalArgumentException("Unexpected )");
+
+        TokenType lastToken = lastTokenType();
+        TokenType secondToLastToken = secondToLastTokenType();
+
+        if (lastToken == null) {
+            throw new IllegalArgumentException("Unexpected ) at start of expression");
         }
+
+        // Right parentheses is always allowed to follow another right parentheses or a value
+        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue()) {
+            return;
+        }
+
+        // HACK: If the last token isn't a right paren or a value, we *may* still be allowed to parse a right paren
+        // *IF* the last token was a LEFT paren and the token before that is a function identifier.
+        // This is a special case for function calls with no arguments.
+        if (lastToken == TokenType.PAREN_LEFT && secondToLastToken == TokenType.FUNCTION) {
+            return;
+        }
+
+        throw new IllegalArgumentException("Unexpected ) after " + lastToken.name());
     }
 
     /**
