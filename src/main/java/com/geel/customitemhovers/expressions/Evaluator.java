@@ -302,7 +302,7 @@ class Evaluator {
             case BIT_XOR:
             case BITSHIFT_LEFT:
             case BITSHIFT_RIGHT:
-                throw new Exception("Bitwise operations are not presently supported");
+                throw new IllegalStateException("Bitwise operations are not presently supported");
             default:
                 throw new IllegalStateException("Unexpected value: " + operatorToken.getType());
         }
