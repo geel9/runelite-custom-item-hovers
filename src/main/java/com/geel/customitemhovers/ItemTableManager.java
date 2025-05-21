@@ -111,10 +111,13 @@ public class ItemTableManager {
      * This is a special table, available for every item, which defines certain variables -- eg "id", "qty", etc.
      */
     public ItemTable getBaseTableForItemAndPlayer(Item item, Client client) {
+        // TODO: It's silly to construct this every time. So many heap allocations :(
+        //       Instead, we should just compute these values on the fly when an expression actually needs one.
         ItemComposition itemComposition = itemManager.getItemComposition(item.getId());
 
         ItemTable baseTable = new ItemTable();
         baseTable.put("id", String.valueOf(item.getId()));
+        baseTable.put("name", itemComposition.getName());
         baseTable.put("qty", String.valueOf(item.getQuantity()));
         baseTable.put("value", String.valueOf(itemComposition.getPrice()));
         baseTable.put("high_alch", String.valueOf(itemComposition.getHaPrice()));
@@ -144,8 +147,8 @@ public class ItemTableManager {
         baseTable.put("player_region_y", String.valueOf(player.getWorldLocation().getRegionY()));
 
         // Health/prayer
-        baseTable.put("hp", String.valueOf(client.getBoostedSkillLevel(Skill.HITPOINTS)));
-        baseTable.put("prayer", String.valueOf(client.getBoostedSkillLevel(Skill.PRAYER)));
+        baseTable.put("player_hp", String.valueOf(client.getBoostedSkillLevel(Skill.HITPOINTS)));
+        baseTable.put("player_prayer", String.valueOf(client.getBoostedSkillLevel(Skill.PRAYER)));
 
         return baseTable;
     }
