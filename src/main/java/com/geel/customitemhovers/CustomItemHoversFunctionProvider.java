@@ -103,7 +103,7 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         // {inv}_contains() and {inv}_qty()
         prepareInventoryFunctions();
 
-        // floor(), ceil(), pow(), max(), min()
+        // floor(), ceil(), pow(), max(), min(), abs()
         prepareMathFunctions();
 
         // len(), contains(), red(), green(), blue(), yellow(), rgb()
@@ -169,11 +169,27 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         }));
 
         // Colors
+        // Wrapping functions -- red(), green(), blue(), yellow()
         simpleColorStringFunc("red", Color.RED);
         simpleColorStringFunc("green", Color.GREEN);
         simpleColorStringFunc("blue", Color.BLUE);
         simpleColorStringFunc("yellow", Color.YELLOW);
 
+        // Tag *start* functions -- redStart(), greenStart(), blueStart(), yellowStart()
+        simpleColorStringStartFunc("red", Color.RED);
+        simpleColorStringStartFunc("green", Color.GREEN);
+        simpleColorStringStartFunc("blue", Color.BLUE);
+        simpleColorStringStartFunc("yellow", Color.YELLOW);
+
+        // colorEnd()
+        addFunction(new LambdaFixedArgsFunction("colorEnd", TokenType.STRING,
+                new ArgumentType[]{},
+                true,
+                (args, context) -> {
+                    return Token.fromString("</col>");
+                }));
+
+        // rgb()
         addFunction(new LambdaFixedArgsFunction("rgb", TokenType.STRING,
                 new ArgumentType[]{ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.STRING},
                 true,
@@ -185,12 +201,33 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
                     Color color = new Color(r, g, b);
                     return Token.fromString(ColorUtil.wrapWithColorTag(args[3].getValue(), color));
                 }));
+
+        // rgbStart()
+        addFunction(new LambdaFixedArgsFunction("rgbStart", TokenType.STRING,
+                new ArgumentType[]{ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.INTEGER},
+                true,
+                (args, context) -> {
+                    int r = args[0].getNumericValue().intValue() % 256;
+                    int g = args[1].getNumericValue().intValue() % 256;
+                    int b = args[2].getNumericValue().intValue() % 256;
+
+                    Color color = new Color(r, g, b);
+                    return Token.fromString(ColorUtil.colorTag(color));
+                }));
     }
 
     /**
      * Creates the floor(), ceil(), pow(), max(), min() functions
      */
     private void prepareMathFunctions() {
+        // abs(x) takes a number and returns the absolute value
+        addFunction(new LambdaFixedArgsFunction("abs", TokenType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
+            return Token.fromDouble(Math.abs(args[0].getNumericValue().doubleValue()));
+        }));
+        addFunction(new LambdaFixedArgsFunction("abs", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, true, (args, context) -> {
+            return Token.fromInt(Math.abs(args[0].getNumericValue().intValue()));
+        }));
+
         // floor(x) takes a double and returns an integer
         addFunction(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
             return Token.fromInt((int) Math.floor(args[0].getNumericValue().doubleValue()));
@@ -340,6 +377,12 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
     private void simpleColorStringFunc(String colorName, Color color) {
         addFunction(new LambdaFixedArgsFunction(colorName, TokenType.STRING, new ArgumentType[]{ArgumentType.ANY}, true, (args, context) -> {
             return Token.fromString(ColorUtil.wrapWithColorTag(args[0].getValue(), color));
+        }));
+    }
+
+    private void simpleColorStringStartFunc(String colorName, Color color) {
+        addFunction(new LambdaFixedArgsFunction(colorName + "Start", TokenType.STRING, new ArgumentType[]{}, true, (args, context) -> {
+            return Token.fromString(ColorUtil.colorTag(color));
         }));
     }
 }

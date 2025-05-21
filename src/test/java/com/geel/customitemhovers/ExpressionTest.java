@@ -186,6 +186,28 @@ public class ExpressionTest {
         testIntExpr("'hello' == 'he' + 'llo'", 1);
         testStringExpr("('hello' + (1 > 5 ? ' world' : ' something else')) + ('abc' == ('a' + 'b' + 'c') ? 'foo' : 'bar')",
                 "hello something elsefoo");
+
+        // Color functions
+        testStringExpr("red('a')", "<col=ff0000>a</col>");
+        testStringExpr("green('a')", "<col=00ff00>a</col>");
+        testStringExpr("blue('a')", "<col=0000ff>a</col>");
+        testStringExpr("rgb(255, 255, 255, 'hi')", "<col=ffffff>hi</col>");
+        testStringExpr("rgb(255, 0, 0, 'hi')", "<col=ff0000>hi</col>");
+        testStringExpr("rgb(0, 255, 0, 'hi')", "<col=00ff00>hi</col>");
+        testStringExpr("rgb(0, 0, 255, 'hi')", "<col=0000ff>hi</col>");
+        testStringExpr("rgb(255, 255, 0, 'hi')", "<col=ffff00>hi</col>");
+        testStringExpr("rgb(255, 255, 0, green(redStart() + blueStart()))", "<col=ffff00><col=00ff00><col=ff0000><col=0000ff></col></col>");
+
+        // redStart(), greenStart(), blueStart(), yellowStart(), rgbStart(), colorEnd()
+        testStringExpr("redStart()", "<col=ff0000>");
+        testStringExpr("greenStart()", "<col=00ff00>");
+        testStringExpr("blueStart()", "<col=0000ff>");
+        testStringExpr("yellowStart()", "<col=ffff00>");
+        testStringExpr("rgbStart(255, 255, 255)", "<col=ffffff>");
+        testStringExpr("rgbStart(255, 0, 0)", "<col=ff0000>");
+        testStringExpr("rgbStart(0, 255, 0)", "<col=00ff00>");
+        testStringExpr("rgbStart(0, 0, 255)", "<col=0000ff>");
+        testStringExpr("rgbStart(255, 255, 0) + 'hi' + colorEnd()", "<col=ffff00>hi</col>");
  }
 
     private void testIntExpr(String expression, int expected) {
