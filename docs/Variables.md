@@ -1,4 +1,4 @@
-# Functions & Variables
+# Variables
 
 ## Overview
 

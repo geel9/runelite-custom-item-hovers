@@ -4,7 +4,7 @@ This plugin displays arbitrary custom hover text over items.
 # Major Features
 - **Create your own hovers** to display over items in your inventory, equipment, or bank
 - **A rich expression engine**
-  - Use variables (such as `player_x`, `player_hp`, `qty`, `price`, etc.) and functions (such as `inv_qty()`, `bank_qty()`, etc.) to create dynamic hovers
+  - Use variables (such as `fishing_level`, `player_x`, `player_hp`, `qty`, `price`, etc.) and functions (such as `inv_qty()`, `bank_qty()`, etc.) to create dynamic hovers
     - Supports ternary! Wow!
 - **Conditional hovers**
   - Only display a hover if certain conditions are met
