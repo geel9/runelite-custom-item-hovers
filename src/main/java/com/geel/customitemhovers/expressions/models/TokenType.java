@@ -25,6 +25,7 @@ public enum TokenType {
     INTEGER(3, null),
     DOUBLE(3, null),
     VARIABLE(3, null),
+    SUB_EXPRESSION(3, null), // Produced by the Compiler
     BITSHIFT_LEFT(4, "<<"),
     BITSHIFT_RIGHT(4, ">>"),
     CMP_LT(5, "<"),
@@ -154,7 +155,7 @@ public enum TokenType {
     }
 
     public boolean isValue() {
-        return isVariable() || isConstant();
+        return isVariable() || isConstant() || this == SUB_EXPRESSION;
     }
 
     public boolean isFunction() {

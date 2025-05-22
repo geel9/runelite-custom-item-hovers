@@ -2,10 +2,8 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
-import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.expressions.models.Variable;
+import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
+import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import org.junit.Test;
 
@@ -20,7 +18,58 @@ public class ExpressionTest {
         // Prepare execution context
         TestVariableProvider variableProvider = new TestVariableProvider();
         variableProvider.put("a", Variable.fromConstant("b"));
-        IFunctionProvider functionProvider = new CustomItemHoversFunctionProvider(null, null);
+        variableProvider.put("b", Variable.fromConstant(2));
+        variableProvider.put("c", Variable.fromConstant(4));
+        CustomItemHoversFunctionProvider functionProvider = new CustomItemHoversFunctionProvider(null, null);
+
+        // Add methods for testing lambdas
+        // eval() -- just takes in an expression and executes it, returning the result
+        functionProvider.addFunction(new LambdaFixedArgsFunction("eval", TokenType.SUB_EXPRESSION,
+                new ArgumentType[]{ArgumentType.EXPRESSION}, (args, context) -> {
+            CompiledExpression compiledExpression = args[0].getCompiledSubExpression();
+            if (compiledExpression == null) {
+                return Token.fromFalse();
+            }
+
+            // Execute the expression within the current context
+            return EvaluationUtil.EvaluateAtRuntime(compiledExpression, context);
+        }));
+
+        // range_sum() -- takes in an expression, rStart, and rEnd. Loops i from rStart to rEnd, evaluating the expression,
+        // returning the sum of all the results
+        functionProvider.addFunction(new LambdaFixedArgsFunction("range_sum", TokenType.DOUBLE,
+                new ArgumentType[]{ArgumentType.EXPRESSION, ArgumentType.INTEGER, ArgumentType.INTEGER},
+                (args, context) -> {
+                    Variable existingIVariable = context.getVariableProvider().resolveVariable("i");
+
+                    CompiledExpression compiledExpression = args[0].getCompiledSubExpression();
+                    if (compiledExpression == null) {
+                        return Token.fromFalse();
+                    }
+
+                    int start = args[1].getNumericValue().intValue();
+                    int end = args[2].getNumericValue().intValue();
+
+                    double sum = 0;
+                    for (int i = start; i <= end; i++) {
+                        // Set `i` (HACK -- need to add a way to do this on executionContext)
+                        variableProvider.put("i", Variable.fromConstant(i));
+
+                        // Evaluate the expression
+                        Token result = EvaluationUtil.EvaluateAtRuntime(compiledExpression, context);
+                        sum += result.getNumericValue().doubleValue();
+                    }
+
+                    // Set `i` back to the original value
+                    if (existingIVariable != null) {
+                        variableProvider.put("i", existingIVariable);
+                    } else {
+                        variableProvider.remove("i");
+                    }
+
+                    return Token.fromDouble(sum);
+                }));
+
         context = new ExecutionContext(functionProvider, variableProvider);
 
         // Functions
@@ -209,7 +258,15 @@ public class ExpressionTest {
         testStringExpr("rgbStart(0, 255, 0)", "<col=00ff00>");
         testStringExpr("rgbStart(0, 0, 255)", "<col=0000ff>");
         testStringExpr("rgbStart(255, 255, 0) + 'hi' + colorEnd()", "<col=ffff00>hi</col>");
- }
+
+        // eval()
+        testStringExpr("eval({redStart() + greenStart() + blueStart() + yellowStart()})", "<col=ff0000><col=00ff00><col=0000ff><col=ffff00>");
+        // eval with math and stuff
+        testDoubleExpr("eval({(1 + 3) * (4.5 * 2)})", 36);
+
+        // range_sum()
+        testDoubleExpr("range_sum({i % 2 == 0 ? pow(i, 2) : 0}, 0, 10)", 220);
+    }
 
     private void testIntExpr(String expression, int expected) {
         Tokenizer t = new Tokenizer("${" + expression + "}", 0);

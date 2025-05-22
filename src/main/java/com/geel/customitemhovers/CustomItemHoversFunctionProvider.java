@@ -1,13 +1,11 @@
 package com.geel.customitemhovers;
 
+import com.geel.customitemhovers.expressions.EvaluationUtil;
 import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
-import com.geel.customitemhovers.expressions.models.ArgumentType;
-import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.expressions.models.Variable;
+import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import lombok.Getter;
 import net.runelite.api.*;

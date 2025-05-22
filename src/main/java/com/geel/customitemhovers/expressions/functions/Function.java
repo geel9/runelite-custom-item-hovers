@@ -10,7 +10,7 @@ public abstract class Function {
     protected String name;
 
     @Getter
-    protected TokenType returnType;
+    protected TokenType returnType; // TODO: We don't read this anywhere and some functions don't return a single type
 
     @Getter
     protected boolean isConstExpr;

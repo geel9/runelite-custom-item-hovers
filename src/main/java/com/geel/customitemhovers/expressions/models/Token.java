@@ -16,6 +16,16 @@ public class Token {
     @Setter
     private int numFunctionArgs = 0;
 
+
+    // HACKY
+    @Getter
+    @Setter
+    private TokenizedExpression tokenizedSubExpression = null;
+
+    @Getter
+    @Setter
+    private CompiledExpression compiledSubExpression = null;
+
     public Token(TokenType type, String value) {
         this.type = type;
         this.value = value;

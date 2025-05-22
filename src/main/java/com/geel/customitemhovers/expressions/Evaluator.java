@@ -108,6 +108,11 @@ public class Evaluator {
             return value;
         }
 
+        // If it's a sub-expression, evaluate it
+        if (value.getType() == TokenType.SUB_EXPRESSION) {
+            return evaluateSubExpression(value, context);
+        }
+
         // Evaluate variable
         Token variableVal = context.resolveVariable(value.getValue());
         if (variableVal == null) {
@@ -121,6 +126,30 @@ public class Evaluator {
         }
 
         return variableVal;
+    }
+
+    /**
+     * Evaluates a sub-expression in either runtime or static eval mode.
+     */
+    private static Token evaluateSubExpression(
+            Token subExpressionToken,
+            ExecutionContext context
+    ) {
+        // If we're in static eval mode, we need to static-evaluate the sub-expression
+        if (context.isStaticEval()) {
+            CompiledExpression subExpression = subExpressionToken.getCompiledSubExpression();
+            if (subExpression == null) {
+                throw new IllegalArgumentException("Sub-expression is null");
+            }
+
+            // TODO: Handle single-token value return -- can replace with just the Token? Maybe? Maybe not actually.
+            Token[] evaluated = EvaluateExpression(subExpression, context);
+            CompiledExpression evaluatedExpression = new CompiledExpression(evaluated, subExpression.getExpressionText(), false);
+            subExpressionToken.setCompiledSubExpression(evaluatedExpression);
+        }
+
+        // In runtime eval mode, we just return the sub-expression token. We don't execute it here.
+        return subExpressionToken;
     }
 
     /**
@@ -152,11 +181,13 @@ public class Evaluator {
             args[i] = stack.pop();
             numArgsPopped++;
 
+            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval() && args[i].getType() == TokenType.SUB_EXPRESSION);
+
             // If any args are non-const, we should stop immediately -- we won't be able to evaluate the function.
             // (We're either in static eval mode, in which case, any non-const args are always a no go -- or we're in
             //  runtime eval mode, in which case, it's inherently erroneous that we end up with a function call
             //  without evaluated, constant arguments on the stack)
-            if (!args[i].getType().isConstant()) {
+            if (!isConstant) {
                 allConst = false;
                 break;
             }

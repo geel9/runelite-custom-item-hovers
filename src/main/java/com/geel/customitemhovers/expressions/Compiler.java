@@ -29,6 +29,14 @@ public class Compiler {
         for (int i = 0; i < tokenized.length; i++) {
             Token token = tokenized[i];
 
+            // Handle sub-expressions (ez)
+            if(token.getType() == TokenType.SUB_EXPRESSION) {
+                token.setCompiledSubExpression(Compile(token.getTokenizedSubExpression()));
+                token.setTokenizedSubExpression(null);
+                outputQueue.add(token);
+                continue;
+            }
+
             // Handle numbers and variables
             if (token.getType().isValue()) {
                 outputQueue.add(token);

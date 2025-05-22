@@ -37,9 +37,19 @@ public class Tokenizer {
     // The current ternary depth
     private int ternaryDepth = 0;
 
+    // The current sub-expression depth
+    private int subExpressionDepth = 0;
+
     public Tokenizer(String haystack, int position) {
         this.haystack = haystack;
         this.startPos = position;
+    }
+
+    // Sub-expression constructor
+    private Tokenizer(Tokenizer other) {
+        this.haystack = other.haystack;
+        this.startPos = other.startPos + other.numRead;
+        this.subExpressionDepth = other.subExpressionDepth + 1;
     }
 
     /**
@@ -51,7 +61,7 @@ public class Tokenizer {
         // Do actual tokenization if we haven't yet
         if (numRead == 0) {
             boolean isLegacyExpression = false;
-            boolean isFirst = true;
+            boolean isFirst = subExpressionDepth == 0;
             Token t;
             while ((t = readToken()) != null) {
                 TokenType type = t.getType();
@@ -69,6 +79,7 @@ public class Tokenizer {
 
                 // If we reach an expression end, we're done
                 if (type.isExpressionEnd()) {
+                    // End of top-level expression?
                     parsedExpressionBuilder.setLength(parsedExpressionBuilder.length() - t.getValue().length());
                     break;
                 }
@@ -129,6 +140,12 @@ public class Tokenizer {
             return readOperator();
         }
 
+        // Handle *sub-expression* begin.
+        if(c == '{') {
+            assertCanReadIdentifier();
+            return readSubExpression();
+        }
+
         // Handle numbers
         if (isNumber(c)) {
             assertCanReadIdentifier();
@@ -176,6 +193,22 @@ public class Tokenizer {
         }
 
         return null;
+    }
+
+    private Token readSubExpression() {
+        readChar();
+
+        // Create a new sub-Tokenizer
+        Tokenizer tokenizer = new Tokenizer(this);
+
+        // Read the sub-expression
+        TokenizedExpression subExpression = tokenizer.tokenize();
+        Token subExpressionToken = new Token(TokenType.SUB_EXPRESSION, subExpression.getExpressionText());
+        subExpressionToken.setTokenizedSubExpression(subExpression);
+
+        numRead += tokenizer.getNumRead();
+
+        return subExpressionToken;
     }
 
     /**
@@ -383,7 +416,7 @@ public class Tokenizer {
      */
     private void assertCanReadOperator() {
         TokenType token = lastTokenType();
-        if (!(token != null && (token.isValue() || token == TokenType.PAREN_RIGHT))) {
+        if (!(token != null && (token.isValue() || token == TokenType.SUB_EXPRESSION || token == TokenType.PAREN_RIGHT))) {
             throw new IllegalArgumentException("Unexpected operator");
         }
     }
@@ -416,7 +449,7 @@ public class Tokenizer {
         }
 
         // Right parentheses is always allowed to follow another right parentheses or a value
-        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue()) {
+        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue() || lastToken == TokenType.SUB_EXPRESSION) {
             return;
         }
 
