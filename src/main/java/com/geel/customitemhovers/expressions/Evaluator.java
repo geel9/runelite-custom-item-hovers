@@ -220,21 +220,15 @@ class Evaluator {
             return evaluateStringOperator(operatorToken, leftToken, rightToken);
         }
 
-        Number leftVal, rightVal, result;
+        Number result;
         // TODO: Figure out a better way to handle this. Fundamentally, we are trying to figure out:
         // 1. How do we deserialize the input?
         // 2. How do we serialize the output?
         boolean isDoubleInput = isDoubleOperation(operatorToken, leftToken, rightToken);
         boolean isDoubleOutput = isDoubleInput && !operatorToken.getType().isBooleanOperator();
 
-        // I hate this
-        if (isDoubleInput) {
-            leftVal = Double.parseDouble(leftToken.getValue());
-            rightVal = Double.parseDouble(rightToken.getValue());
-        } else {
-            leftVal = Integer.parseInt(leftToken.getValue());
-            rightVal = Integer.parseInt(rightToken.getValue());
-        }
+        Number leftVal = leftToken.getNumericValue();
+        Number rightVal = rightToken.getNumericValue();
 
         // TODO: Surely this can be done more elegantly
         switch (operatorToken.getType()) {
