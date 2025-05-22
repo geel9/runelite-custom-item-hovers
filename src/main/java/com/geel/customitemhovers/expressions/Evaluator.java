@@ -191,49 +191,49 @@ class Evaluator {
     private static Token evaluateOperator(
             Stack<Token> stack,
             Token operatorToken,
-            Token leftValue,
-            Token rightValue,
+            Token leftToken,
+            Token rightToken,
             ExecutionContext executionContext
     ) {
         // In static eval mode, handle non-const operands or ternary operators specially
         boolean isTernary = operatorToken.getType().isTernaryOperator();
         if (executionContext.isStaticEval()) {
-            boolean isNonConst = (!leftValue.getType().isConstant() || !rightValue.getType().isConstant());
+            boolean isNonConst = (!leftToken.getType().isConstant() || !rightToken.getType().isConstant());
 
             if (isNonConst || isTernary) {
                 // Put things back on the stack exactly as they were
-                stack.add(leftValue);
-                stack.add(rightValue);
+                stack.add(leftToken);
+                stack.add(rightToken);
                 return operatorToken;
             }
         }
 
         // In runtime eval mode, handle ternary operators specially from the other operators. Fuck the other operators.
         if (operatorToken.getType() == TokenType.TERNARY_THEN) {
-            return evaluateTernaryThen(operatorToken, leftValue, rightValue);
+            return evaluateTernaryThen(operatorToken, leftToken, rightToken);
         } else if (operatorToken.getType() == TokenType.TERNARY_ELSE) {
-            return evaluateTernaryElse(rightValue, leftValue);
+            return evaluateTernaryElse(rightToken, leftToken);
         }
 
         // If either operator is a string, handle it specially
-        if (leftValue.getType() == TokenType.STRING || rightValue.getType() == TokenType.STRING) {
-            return evaluateStringOperator(operatorToken, leftValue, rightValue);
+        if (leftToken.getType() == TokenType.STRING || rightToken.getType() == TokenType.STRING) {
+            return evaluateStringOperator(operatorToken, leftToken, rightToken);
         }
 
         Number leftVal, rightVal, result;
         // TODO: Figure out a better way to handle this. Fundamentally, we are trying to figure out:
         // 1. How do we deserialize the input?
         // 2. How do we serialize the output?
-        boolean isDoubleInput = isDoubleOperation(operatorToken, leftValue, rightValue);
+        boolean isDoubleInput = isDoubleOperation(operatorToken, leftToken, rightToken);
         boolean isDoubleOutput = isDoubleInput && !operatorToken.getType().isBooleanOperator();
 
         // I hate this
         if (isDoubleInput) {
-            leftVal = Double.parseDouble(leftValue.getValue());
-            rightVal = Double.parseDouble(rightValue.getValue());
+            leftVal = Double.parseDouble(leftToken.getValue());
+            rightVal = Double.parseDouble(rightToken.getValue());
         } else {
-            leftVal = Integer.parseInt(leftValue.getValue());
-            rightVal = Integer.parseInt(rightValue.getValue());
+            leftVal = Integer.parseInt(leftToken.getValue());
+            rightVal = Integer.parseInt(rightToken.getValue());
         }
 
         // TODO: Surely this can be done more elegantly
