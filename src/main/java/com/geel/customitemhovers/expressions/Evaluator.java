@@ -242,6 +242,16 @@ class Evaluator {
 
         // TODO: Surely this can be done more elegantly
         switch (operatorToken.getType()) {
+            case OP_PLUS:
+                result = isDoubleInput
+                        ? (leftVal.doubleValue() + rightVal.doubleValue())
+                        : (leftVal.intValue() + rightVal.intValue());
+                break;
+            case OP_MINUS:
+                result = isDoubleInput
+                        ? (leftVal.doubleValue() - rightVal.doubleValue())
+                        : (leftVal.intValue() - rightVal.intValue());
+                break;
             case OP_TIMES:
                 result = isDoubleInput
                         ? (leftVal.doubleValue() * rightVal.doubleValue())
@@ -262,16 +272,7 @@ class Evaluator {
                 } else {
                     result = leftVal.intValue() % rightVal.intValue();
                 }
-                break;
-            case OP_PLUS:
-                result = isDoubleInput
-                        ? (leftVal.doubleValue() + rightVal.doubleValue())
-                        : (leftVal.intValue() + rightVal.intValue());
-                break;
-            case OP_MINUS:
-                result = isDoubleInput
-                        ? (leftVal.doubleValue() - rightVal.doubleValue())
-                        : (leftVal.intValue() - rightVal.intValue());
+
                 break;
             case CMP_LT:
                 result = leftVal.doubleValue() < rightVal.doubleValue() ? 1 : 0; // EPSILON
