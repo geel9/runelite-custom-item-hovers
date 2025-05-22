@@ -9,9 +9,9 @@ import java.util.Stack;
 
 /**
  * Evaluates compiled expressions, returning a single Token (if runtime evaluation) or multiple Tokens (if static evaluation).
- *
+ * <p>
  * If a single Token with a constant value is returned, it is the output of the expression.
- *
+ * <p>
  * Supports both runtime eval mode (must get an answer now or exception)
  * and static eval mode (evaluate as much as possible now, but leave any statically-unresolvable expressions or
  * functions alone). Static eval mode is useful for reducing expressions to their minimal form, improving runtime performance.
@@ -119,10 +119,10 @@ class Evaluator {
 
     /**
      * Evaluates a function call.
-     *
+     * <p>
      * If in static eval mode, any non-const arguments, or a call to a non-constexpr function, will result in
      * the function call being unchanged on the stack.
-     *
+     * <p>
      * If in runtime eval mode, any non-const arguments will result in an exception being thrown.
      */
     private static Token evaluateFunction(
@@ -184,7 +184,7 @@ class Evaluator {
 
     /**
      * Evaluates an operator on the stack.
-     *
+     * <p>
      * If in static eval mode, operations involving anything non-const (unresolved variable, function call, etc),
      * or involving ternary, will result in the operation being put back on the stack, untouched.
      */
@@ -314,7 +314,7 @@ class Evaluator {
 
         // At least one argument must be a string
         if (leftValue.getType() != TokenType.STRING && rightValue.getType() != TokenType.STRING) {
-            throw new IllegalArgumentException("Both arguments must be string values");
+            throw new IllegalArgumentException("At least one argument must be a string");
         }
 
         switch (operatorToken.getType()) {
@@ -331,24 +331,24 @@ class Evaluator {
 
     /**
      * Evaluates a ternary ? operator.
-     *
+     * <p>
      * The expression `condition ? ifTrue : ifFalse` will result in a token stack of `condition ifTrue ? ifFalse :`.
-     *
+     * <p>
      * The ? operator receives `condition` and `ifTrue` as its arguments.
-     *
+     * <p>
      * If `condition` is truthy, then `ifTrue` is the result of this operator.
      * Otherwise, the TERNARY_WAS_FALSE token (?!) is the result of the operator.
-     *
+     * <p>
      * After evaluating the above ternary, the resulting stack will look like:
      * [if `condition` is true] `ifTrue ifFalse :`
      * [if `condition` is false] `?! ifFalse :`
-     *
+     * <p>
      * This sets up the `:` operator to do its job
      */
     private static Token evaluateTernaryThen(Token operator, Token condition, Token ifTrue) {
         // Ensure that the number is false in integer or double representation
         // (0.1 is not false)
-        if(Math.abs(condition.getNumericValue().doubleValue()) > 0.0000001) {
+        if (Math.abs(condition.getNumericValue().doubleValue()) > 0.0000001) {
             return ifTrue;
         }
 
@@ -357,17 +357,17 @@ class Evaluator {
 
     /**
      * Evaluates a ternary : operator.
-     *
+     * <p>
      * After evaluating the ? operator paired with this :, the resulting stack will look like:
      * [if `condition` is true] `ifTrue ifFalse :`
      * [if `condition` is false] `?! ifFalse :`
-     *
+     * <p>
      * So, to evaluate `:`, we just see if the lefthand argument is a `?!`.
      * If it is, then we return `ifFalse`.
      * Otherwise, we return the lefthand argument.
      */
     private static Token evaluateTernaryElse(Token ifFalse, Token discriminator) {
-        if(discriminator.getType() == TokenType.TERNARY_WAS_FALSE) {
+        if (discriminator.getType() == TokenType.TERNARY_WAS_FALSE) {
             return ifFalse;
         }
 
