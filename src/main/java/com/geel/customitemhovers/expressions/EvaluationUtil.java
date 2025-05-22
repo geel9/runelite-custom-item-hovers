@@ -11,7 +11,8 @@ public class EvaluationUtil {
      * Evaluates a Reverse Polish Notation queue (output from `ExpressionCompiler`), returning the result
      */
     public static Token EvaluateAtRuntime(CompiledExpression expression, ExecutionContext context) {
-        Token[] evaluationResult = Evaluator.EvaluateExpression(expression, new ExecutionContext(context, false));
+        context = new ExecutionContext(context, false);
+        Token[] evaluationResult = Evaluator.EvaluateExpression(expression, context);
 
         // Stack should have one entry: the result
         if (evaluationResult.length != 1) {
@@ -60,7 +61,8 @@ public class EvaluationUtil {
      * That's a mere 5 tokens that we have to execute at runtime, instead of however many were in the original expression.
      */
     public static CompiledExpression EvaluateStatically(CompiledExpression expression, ExecutionContext context) {
-        Token[] evaluationResult = Evaluator.EvaluateExpression(expression, new ExecutionContext(context, true));
+        context = new ExecutionContext(context, true);
+        Token[] evaluationResult = Evaluator.EvaluateExpression(expression, context);
 
         // Stack should not be empty
         if (evaluationResult.length == 0) {
