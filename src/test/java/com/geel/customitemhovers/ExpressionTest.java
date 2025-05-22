@@ -5,6 +5,7 @@ import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.expressions.models.Variable;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import org.junit.Test;
 
@@ -18,7 +19,7 @@ public class ExpressionTest {
     public void TestTokenizer() {
         // Prepare execution context
         TestVariableProvider variableProvider = new TestVariableProvider();
-        variableProvider.put("a", "b");
+        variableProvider.put("a", Variable.fromConstant("b"));
         IFunctionProvider functionProvider = new CustomItemHoversFunctionProvider(null, null);
         context = new ExecutionContext(functionProvider, variableProvider);
 

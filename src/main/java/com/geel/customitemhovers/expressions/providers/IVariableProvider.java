@@ -1,5 +1,7 @@
 package com.geel.customitemhovers.expressions.providers;
 
+import com.geel.customitemhovers.expressions.models.Variable;
+
 public interface IVariableProvider {
-    String resolveVariable(String name);
+    Variable resolveVariable(String name);
 }

@@ -1,8 +1,15 @@
 package com.geel.customitemhovers;
 
-import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.expressions.EvaluationUtil;
+import com.geel.customitemhovers.expressions.ExecutionContext;
+import com.geel.customitemhovers.expressions.models.CompiledExpression;
+import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.models.Variable;
+import com.geel.customitemhovers.expressions.models.VariableType;
+import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.geel.customitemhovers.models.itemtables.ItemTableFile;
+import com.geel.customitemhovers.models.itemtables.RawItemTableEntry;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
@@ -12,9 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Singleton
@@ -68,13 +73,10 @@ public class ItemTableManager {
                 newParsedFiles.put(file.Name, file);
 
                 for (String baseItemName : file.Items.keySet()) {
-                    ItemTable itemTable = file.Items.get(baseItemName);
+                    RawItemTableEntry rawItemTable = file.Items.get(baseItemName);
+                    ParsedItemTableEntry parsedItemTable = this.processItemTableEntry(rawItemTable);
 
-                    // Set properties on TableItem
-                    itemTable.setParentFile(file);
-                    itemTable.setItemName(baseItemName);
-
-                    String[] itemNames = itemTable.getAllNames();
+                    String[] itemNames = rawItemTable.getAllNames(baseItemName);
                     for (String itemName : itemNames) {
                         // Store an (itemName -> collection) reference in newItemMap
                         if (!newItemMap.containsKey(itemName)) {
@@ -83,7 +85,7 @@ public class ItemTableManager {
 
                         // Put TableItem into itemMapEntry
                         ItemTableCollection itemMapEntry = newItemMap.get(itemName);
-                        itemMapEntry.getItemTables().put(file.Name, itemTable);
+                        itemMapEntry.getItemTables().put(file.Name, parsedItemTable);
                     }
                 }
             }
@@ -98,6 +100,58 @@ public class ItemTableManager {
         itemMap.putAll(newItemMap);
     }
 
+    private ParsedItemTableEntry processItemTableEntry(RawItemTableEntry entry) {
+        ParsedItemTableEntry ret = new ParsedItemTableEntry();
+
+        // Parse out each entry into a Variable.
+//        Set<String> expressionKeys = new HashSet<>(); TODO: Enable support for expressions in variables
+        for (String name : entry.keySet()) {
+            String value = entry.get(name);
+
+            // Skip special entries
+            if (name.equals("$also")) continue; //teehee
+
+            // Add parsed variable entry
+            Variable parsed = Variable.fromExpressionOrConstantString(value);
+            ret.put(name, parsed);
+
+            // TODO: Enable support for expressions in variables
+//            if (parsed.getType() == VariableType.EXPRESSION) {
+//                expressionKeys.add(name);
+//            }
+        }
+
+        // If any variables were expressions, they were compiled in the previous step.
+        // Now, we need to statically evaluate the expressions as much as possible.
+        // In the ideal case, a variable will evaluate to a constant value, and we can just use that,
+        // instead of re-evaluating the expression every damn time.
+        // TODO: Enable support for expressions in variables
+        /*
+        for (String name : expressionKeys) {
+            Variable variable = ret.resolveVariable(name);
+
+            // Create a new context with the parsed item table entry itself as the variable provider
+            // That way, expressions can use any variable defined in the same entry.
+            // Genius. Might need to be removed.
+            ExecutionContext context = new ExecutionContext(functionProvider, ret);
+
+            // Try to statically evaluate the expression
+            try {
+                CompiledExpression evaluated = EvaluationUtil.EvaluateStatically(variable.getExpression(), context);
+                variable = new Variable(evaluated);
+            } catch (Exception e) {
+                // Failed to evaluate. Fuck it. Variable doesn't get to exist now.
+                variable = null;
+            }
+
+            // Update the stored variable
+            ret.put(name, variable);
+        }
+        */
+
+        return ret;
+    }
+
     /**
      * Get the ItemCollection associated with the given item name
      */
@@ -110,17 +164,17 @@ public class ItemTableManager {
      * <p>
      * This is a special table, available for every item, which defines certain variables -- eg "id", "qty", etc.
      */
-    public ItemTable getBaseTableForItemAndPlayer(Item item, Client client) {
+    public ParsedItemTableEntry getBaseTableForItemAndPlayer(Item item, Client client) {
         // TODO: It's silly to construct this every time. So many heap allocations :(
         //       Instead, we should just compute these values on the fly when an expression actually needs one.
         ItemComposition itemComposition = itemManager.getItemComposition(item.getId());
 
-        ItemTable baseTable = new ItemTable();
-        baseTable.put("id", String.valueOf(item.getId()));
-        baseTable.put("name", itemComposition.getName());
-        baseTable.put("qty", String.valueOf(item.getQuantity()));
-        baseTable.put("value", String.valueOf(itemComposition.getPrice()));
-        baseTable.put("high_alch", String.valueOf(itemComposition.getHaPrice()));
+        ParsedItemTableEntry baseTable = new ParsedItemTableEntry();
+        baseTable.put("id", Variable.fromConstant(item.getId()));
+        baseTable.put("name", Variable.fromConstant(itemComposition.getName()));
+        baseTable.put("qty", Variable.fromConstant(item.getQuantity()));
+        baseTable.put("value", Variable.fromConstant(itemComposition.getPrice()));
+        baseTable.put("high_alch", Variable.fromConstant(itemComposition.getHaPrice()));
 
         if (client == null || client.getGameState() != GameState.LOGGED_IN) {
             return baseTable;
@@ -133,22 +187,22 @@ public class ItemTableManager {
         // Skill levels/xp
         for (Skill skill : Skill.values()) {
             String skillName = skill.getName().toLowerCase(Locale.ROOT);
-            baseTable.put(skillName + "_level", String.valueOf(client.getBoostedSkillLevel(skill)));
-            baseTable.put(skillName + "_level_real", String.valueOf(client.getRealSkillLevel(skill)));
-            baseTable.put(skillName + "_xp", String.valueOf(client.getSkillExperience(skill)));
+            baseTable.put(skillName + "_level", Variable.fromConstant(client.getBoostedSkillLevel(skill)));
+            baseTable.put(skillName + "_level_real", Variable.fromConstant(client.getRealSkillLevel(skill)));
+            baseTable.put(skillName + "_xp", Variable.fromConstant(client.getSkillExperience(skill)));
         }
 
         // World location
-        baseTable.put("player_x", String.valueOf(player.getWorldLocation().getX()));
-        baseTable.put("player_y", String.valueOf(player.getWorldLocation().getY()));
-        baseTable.put("player_plane", String.valueOf(player.getWorldLocation().getPlane()));
-        baseTable.put("player_region", String.valueOf(player.getWorldLocation().getRegionID()));
-        baseTable.put("player_region_x", String.valueOf(player.getWorldLocation().getRegionX()));
-        baseTable.put("player_region_y", String.valueOf(player.getWorldLocation().getRegionY()));
+        baseTable.put("player_x", Variable.fromConstant(player.getWorldLocation().getX()));
+        baseTable.put("player_y", Variable.fromConstant(player.getWorldLocation().getY()));
+        baseTable.put("player_plane", Variable.fromConstant(player.getWorldLocation().getPlane()));
+        baseTable.put("player_region", Variable.fromConstant(player.getWorldLocation().getRegionID()));
+        baseTable.put("player_region_x", Variable.fromConstant(player.getWorldLocation().getRegionX()));
+        baseTable.put("player_region_y", Variable.fromConstant(player.getWorldLocation().getRegionY()));
 
         // Health/prayer
-        baseTable.put("player_hp", String.valueOf(client.getBoostedSkillLevel(Skill.HITPOINTS)));
-        baseTable.put("player_prayer", String.valueOf(client.getBoostedSkillLevel(Skill.PRAYER)));
+        baseTable.put("player_hp", Variable.fromConstant(client.getBoostedSkillLevel(Skill.HITPOINTS)));
+        baseTable.put("player_prayer", Variable.fromConstant(client.getBoostedSkillLevel(Skill.PRAYER)));
 
         return baseTable;
     }

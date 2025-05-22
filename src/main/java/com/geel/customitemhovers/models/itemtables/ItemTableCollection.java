@@ -1,5 +1,7 @@
 package com.geel.customitemhovers.models.itemtables;
 
+import com.geel.customitemhovers.expressions.models.Variable;
+import com.geel.customitemhovers.expressions.providers.IVariableProvider;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -9,17 +11,18 @@ import java.util.HashMap;
  *
  * An item can have multiple ItemTables if multiple ItemTableFiles contain ItemTables for the item.
  */
-public class ItemTableCollection {
+public class ItemTableCollection implements IVariableProvider {
     @Getter
-    private HashMap<String, ItemTable> itemTables;
+    private HashMap<String, ParsedItemTableEntry> itemTables;
 
     public ItemTableCollection() {
         this.itemTables = new HashMap<>();
     }
 
-    public String resolveVariable(String variableName) {
-        for (ItemTable i : itemTables.values()) {
-            String val = i.getOrDefault(variableName, null);
+    @Override
+    public Variable resolveVariable(String variableName) {
+        for (ParsedItemTableEntry i : itemTables.values()) {
+            Variable val = i.getOrDefault(variableName, null);
 
             if (val == null) {
                 continue;

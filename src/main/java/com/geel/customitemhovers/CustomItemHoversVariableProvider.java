@@ -1,7 +1,8 @@
 package com.geel.customitemhovers;
 
+import com.geel.customitemhovers.expressions.models.Variable;
 import com.geel.customitemhovers.expressions.providers.IVariableProvider;
-import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import lombok.Getter;
 
@@ -18,21 +19,21 @@ public class CustomItemHoversVariableProvider implements IVariableProvider {
     private ItemTableCollection tableCollection;
 
     @Getter
-    private ItemTable baseTable;
+    private ParsedItemTableEntry baseTable;
 
     public CustomItemHoversVariableProvider(
                                       ItemTableCollection tableCollection,
-                                      ItemTable baseTable) {
+                                      ParsedItemTableEntry baseTable) {
         this.tableCollection = tableCollection;
         this.baseTable = baseTable;
     }
 
-    public String resolveVariable(String variableName) {
+    public Variable resolveVariable(String variableName) {
         if(tableCollection != null) {
             variableName = variableName.toLowerCase(Locale.ROOT);
 
             // Try to resolve via explicit tables, then base table
-            String tableCollectionRet = tableCollection.resolveVariable(variableName);
+            Variable tableCollectionRet = tableCollection.resolveVariable(variableName);
             if (tableCollectionRet != null) {
                 return tableCollectionRet;
             }

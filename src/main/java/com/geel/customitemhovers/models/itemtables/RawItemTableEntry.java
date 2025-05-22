@@ -1,29 +1,18 @@
 package com.geel.customitemhovers.models.itemtables;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * A parsed entry in an ItemTableFile.
+ * A raw, JSON-deserialized entry in an ItemTableFile.
  *
  * Contains variables that are "attached" to items
  */
-public class ItemTable extends HashMap<String, String> {
-    @Getter
-    @Setter
-    private String itemName;
-
-    @Getter
-    @Setter
-    private ItemTableFile parentFile;
-
-    public String[] getAllNames() {
+public class RawItemTableEntry extends HashMap<String, String> {
+    public String[] getAllNames(String itemName) {
         ArrayList<String> ret = new ArrayList<>();
-        ret.add(this.itemName);
+        ret.add(itemName);
 
         // Handle $also
         String also = this.getOrDefault("$also", null);

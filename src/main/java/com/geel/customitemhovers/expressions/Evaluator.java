@@ -61,6 +61,37 @@ public class Evaluator {
         return stack.toArray(new Token[0]);
     }
 
+    public static Token evaluateStringToToken(String value) {
+        // TODO: Refactor this out of this method so the class doesn't have to be public
+        //      (`Variable.fromExpressionOrConstantString()` calls this)
+
+        // TODO: this still seems stupid
+        int intVal = 0;
+        double doubleVal = 0;
+        boolean isInt = false;
+        boolean isDouble = false;
+
+        try {
+            intVal = Integer.parseInt(value);
+            isInt = true;
+        } catch (NumberFormatException e) {
+        }
+
+        try {
+            doubleVal = Double.parseDouble(value);
+            isDouble = true;
+        } catch (NumberFormatException e) {
+        }
+
+        if (isInt) {
+            return Token.fromInt(intVal);
+        } else if (isDouble) {
+            return Token.fromDouble(doubleVal);
+        } else {
+            return Token.fromString(value);
+        }
+    }
+
     /**
      * Evaluates a Token to a constant numeric value.
      * <p>
@@ -78,7 +109,7 @@ public class Evaluator {
         }
 
         // Evaluate variable
-        String variableVal = context.resolveVariable(value.getValue());
+        Token variableVal = context.resolveVariable(value.getValue());
         if (variableVal == null) {
             // If we can't evaluate the variable, and we're in static eval mode, just return the variable token
             if (context.isStaticEval()) {
@@ -89,32 +120,7 @@ public class Evaluator {
             throw new IllegalArgumentException("Cannot resolve variable " + value.getValue());
         }
 
-        // Determine if variable is integer or double
-        // TODO: Holy _wow_ this is fucking stupid
-        int intVal = 0;
-        double doubleVal = 0;
-        boolean isInt = false;
-        boolean isDouble = false;
-
-        try {
-            intVal = Integer.parseInt(variableVal);
-            isInt = true;
-        } catch (NumberFormatException e) {
-        }
-
-        try {
-            doubleVal = Double.parseDouble(variableVal);
-            isDouble = true;
-        } catch (NumberFormatException e) {
-        }
-
-        if (isInt) {
-            return Token.fromInt(intVal);
-        } else if (isDouble) {
-            return Token.fromDouble(doubleVal);
-        } else {
-            return Token.fromString(variableVal);
-        }
+        return variableVal;
     }
 
     /**

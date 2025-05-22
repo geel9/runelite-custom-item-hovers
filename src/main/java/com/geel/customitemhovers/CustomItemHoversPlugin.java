@@ -8,7 +8,7 @@ import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
-import com.geel.customitemhovers.models.itemtables.ItemTable;
+import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
@@ -196,7 +196,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
         // Prepare expression execution context
         ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
-        ItemTable baseTable = itemTableManager.getBaseTableForItemAndPlayer(item, client);
+        ParsedItemTableEntry baseTable = itemTableManager.getBaseTableForItemAndPlayer(item, client);
         CustomItemHoversVariableProvider variableProvider = new CustomItemHoversVariableProvider(tableCollection, baseTable);
         ExecutionContext context = new ExecutionContext(functionProvider, variableProvider);
 

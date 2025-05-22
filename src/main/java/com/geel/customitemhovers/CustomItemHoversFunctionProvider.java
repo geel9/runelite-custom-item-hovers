@@ -7,6 +7,7 @@ import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
+import com.geel.customitemhovers.expressions.models.Variable;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import lombok.Getter;
 import net.runelite.api.*;
@@ -279,24 +280,24 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         // THE FOLLOWING FUNCTIONS ARE ONLY PRESENT FOR BACKWARDS COMPATIBILITY WITH THE OLD SHITTY SYSTEM
         // qtymult(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            String numInStackStr = context.resolveVariable("qty");
-            if(numInStackStr == null) return Token.fromInt(0);
+            Token numInStack = context.resolveVariable("qty");
+            if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt(Integer.parseInt(numInStackStr) * args[0].getNumericValue().intValue());
+            return Token.fromInt(numInStack.getNumericValue().intValue() * args[0].getNumericValue().intValue());
         }));
         // qtydivide(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            String numInStackStr = context.resolveVariable("qty");
-            if(numInStackStr == null) return Token.fromInt(0);
+            Token numInStack = context.resolveVariable("qty");
+            if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt(Integer.parseInt(numInStackStr) / args[0].getNumericValue().intValue());
+            return Token.fromInt(numInStack.getNumericValue().intValue() / args[0].getNumericValue().intValue());
         }));
         // qtydivideceil(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            String numInStackStr = context.resolveVariable("qty");
-            if(numInStackStr == null) return Token.fromInt(0);
+            Token numInStack = context.resolveVariable("qty");
+            if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt((int) Math.ceil((double) Integer.parseInt(numInStackStr) / (double) args[0].getNumericValue().intValue()));
+            return Token.fromInt((int) Math.ceil(numInStack.getNumericValue().doubleValue() / (double) args[0].getNumericValue().intValue()));
         }));
     }
 

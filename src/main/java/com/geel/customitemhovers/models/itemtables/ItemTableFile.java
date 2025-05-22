@@ -12,5 +12,5 @@ public class ItemTableFile {
     public String Name;
 
     @SerializedName("items")
-    public Map<String, ItemTable> Items;
+    public Map<String, RawItemTableEntry> Items;
 }
