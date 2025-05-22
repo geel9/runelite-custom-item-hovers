@@ -17,9 +17,7 @@ import java.util.Stack;
  * functions alone). Static eval mode is useful for reducing expressions to their minimal form, improving runtime performance.
  */
 class Evaluator {
-    public static Token[] EvaluateExpression(CompiledExpression expression,
-                                             ExecutionContext context,
-                                             boolean staticEval) {
+    public static Token[] EvaluateExpression(CompiledExpression expression, ExecutionContext context) {
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
@@ -33,7 +31,7 @@ class Evaluator {
                     throw new IllegalArgumentException("Dangling value");
                 }
 
-                stack.add(evaluateValue(token, context, staticEval));
+                stack.add(evaluateValue(token, context));
                 continue;
             }
 
@@ -43,7 +41,7 @@ class Evaluator {
                     throw new IllegalArgumentException("Function called with empty stack");
                 }
 
-                stack.add(evaluateFunction(stack, token, context, staticEval));
+                stack.add(evaluateFunction(stack, token, context));
                 continue;
             }
 
@@ -55,7 +53,7 @@ class Evaluator {
 
                 Token rightHand = stack.pop();
                 Token leftHand = stack.pop();
-                stack.add(evaluateOperator(stack, token, leftHand, rightHand, staticEval));
+                stack.add(evaluateOperator(stack, token, leftHand, rightHand, context));
                 continue;
             }
         }
@@ -72,8 +70,7 @@ class Evaluator {
      */
     private static Token evaluateValue(
             Token value,
-            ExecutionContext context,
-            boolean staticEval
+            ExecutionContext context
     ) {
         // If it's a constant type, just return that
         if (value.getType().isConstant()) {
@@ -84,7 +81,7 @@ class Evaluator {
         String variableVal = context.resolveVariable(value.getValue());
         if (variableVal == null) {
             // If we can't evaluate the variable, and we're in static eval mode, just return the variable token
-            if (staticEval) {
+            if (context.isStaticEval()) {
                 return value;
             }
 
@@ -131,8 +128,7 @@ class Evaluator {
     private static Token evaluateFunction(
             Stack<Token> stack,
             Token functionToken,
-            ExecutionContext context,
-            boolean staticEval) {
+            ExecutionContext context) {
         String name = functionToken.getValue();
         int numArgs = functionToken.getNumFunctionArgs();
 
@@ -163,14 +159,14 @@ class Evaluator {
         // If all the arguments are const, then try to find a function that fits
         if (allConst) {
             Function func = context.resolveFunction(name, args);
-            if (func != null && (!staticEval || func.isConstExpr())) {
+            if (func != null && (!context.isStaticEval() || func.isConstExpr())) {
                 // We found a function, and either we're not in static eval mode, or we are and it's a constexpr func
                 return func.execute(args, context);
             }
         }
 
         // If nothing fits, and we're not in static eval mode, then we should just fail
-        if (!staticEval) {
+        if (!context.isStaticEval()) {
             throw new IllegalArgumentException("Invalid function call");
         }
 
@@ -197,14 +193,14 @@ class Evaluator {
             Token operatorToken,
             Token leftValue,
             Token rightValue,
-            boolean staticEvalMode
+            ExecutionContext executionContext
     ) {
         // In static eval mode, handle non-const operands or ternary operators specially
         boolean isTernary = operatorToken.getType().isTernaryOperator();
-        if (staticEvalMode) {
+        if (executionContext.isStaticEval()) {
             boolean isNonConst = (!leftValue.getType().isConstant() || !rightValue.getType().isConstant());
 
-            if(isNonConst || isTernary) {
+            if (isNonConst || isTernary) {
                 // Put things back on the stack exactly as they were
                 stack.add(leftValue);
                 stack.add(rightValue);
