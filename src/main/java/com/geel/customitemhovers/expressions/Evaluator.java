@@ -86,7 +86,7 @@ class Evaluator {
             }
 
             // Can't evaluate the variable and we're in runtime eval mode -- scream
-            throw new IllegalArgumentException("Cannot resolve variable");
+            throw new IllegalArgumentException("Cannot resolve variable " + value.getValue());
         }
 
         // Determine if variable is integer or double
