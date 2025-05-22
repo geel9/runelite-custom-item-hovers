@@ -4,6 +4,7 @@ import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.*;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Context for expression execution -- packages together providers of functions and variables
@@ -11,6 +12,10 @@ import lombok.Getter;
 public class ExecutionContext implements INamespace {
     @Getter
     private final INamespace rootNamespace;
+
+    @Getter
+    @Setter
+    private INamespace currentNamespace = null;
 
     @Getter
     private final boolean staticEval;
@@ -43,11 +48,11 @@ public class ExecutionContext implements INamespace {
         SimpleVariableProvider newScopeProvider = new SimpleVariableProvider();
 
         // Set up the scoped variables
-        for(int lambdaArgIndex = 0; lambdaArgIndex < lambdaToken.getLambdaArgs().length; lambdaArgIndex++) {
+        for (int lambdaArgIndex = 0; lambdaArgIndex < lambdaToken.getLambdaArgs().length; lambdaArgIndex++) {
             String argName = lambdaToken.getLambdaArgs()[lambdaArgIndex];
 
             // If an argument the lambda is expecting is being passed in arguments(), pass it -- otherwise, set it to 0 (gross)
-            if(lambdaArgIndex < arguments.length) {
+            if (lambdaArgIndex < arguments.length) {
                 Token arg = arguments[lambdaArgIndex];
                 newScopeProvider.put(argName, new Variable(arg));
             } else {
@@ -67,11 +72,25 @@ public class ExecutionContext implements INamespace {
 
     @Override
     public Variable resolveVariable(String variableName) {
+        if (currentNamespace != null) {
+            Variable variable = currentNamespace.resolveVariable(variableName);
+            currentNamespace = null;
+
+            return variable;
+        }
+
         return rootNamespace.resolveVariable(variableName);
     }
 
     @Override
     public Function findFunction(String functionName, Token[] arguments) {
+        if (currentNamespace != null) {
+            Function function = currentNamespace.findFunction(functionName, arguments);
+            currentNamespace = null;
+
+            return function;
+        }
+
         return rootNamespace.findFunction(functionName, arguments);
     }
 }

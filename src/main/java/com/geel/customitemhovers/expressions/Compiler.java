@@ -43,6 +43,12 @@ public class Compiler {
                 continue;
             }
 
+            // Handle accessors
+            if (token.getType() == TokenType.NAMESPACE_ACCESSOR) {
+                outputQueue.add(token);
+                continue;
+            }
+
             // Handle function calls
             if (token.getType() == TokenType.FUNCTION) {
                 operatorStack.add(token);

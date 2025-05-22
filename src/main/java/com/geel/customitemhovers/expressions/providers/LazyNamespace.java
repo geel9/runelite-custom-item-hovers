@@ -1,5 +1,6 @@
 package com.geel.customitemhovers.expressions.providers;
 
+import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.Variable;
@@ -21,5 +22,13 @@ public class LazyNamespace implements INamespace {
     @Override
     public Function findFunction(String name, Token[] args) {
         return functionProvider.findFunction(name, args);
+    }
+
+    public void addFunction(Function function) {
+        functionProvider.add(function);
+    }
+
+    public void addVariable(String name, java.util.function.Function<ExecutionContext, Variable> callback) {
+        variableProvider.add(name, callback);
     }
 }

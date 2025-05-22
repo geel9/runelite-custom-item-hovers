@@ -26,6 +26,8 @@ public enum TokenType {
     DOUBLE(3, null),
     VARIABLE(3, null),
     LAMBDA(3, null), // Produced by the Compiler
+    NAMESPACE(3, null), // Produced by the Compiler; an "object"
+    NAMESPACE_ACCESSOR(3, ".", true), // Produced by the Compiler; an "object" member access
     BITSHIFT_LEFT(4, "<<"),
     BITSHIFT_RIGHT(4, ">>"),
     CMP_LT(5, "<"),
@@ -73,6 +75,7 @@ public enum TokenType {
     private static TokenType[] operatorTokens = new TokenType[] {
             EXPRESSION_BEGIN, EXPRESSION_BEGIN_LEGACY, EXPRESSION_END, EXPRESSION_END_LEGACY,
             OP_TIMES, OP_DIVIDE, OP_MODULO, OP_MINUS, OP_PLUS,
+            NAMESPACE_ACCESSOR,
             CMP_LT, CMP_LTE, CMP_GT, CMP_GTE, CMP_EQUALS, CMP_NEQUALS,
             LOG_AND, LOG_OR,
             TERNARY_THEN, TERNARY_ELSE,
@@ -140,6 +143,10 @@ public enum TokenType {
         return isLogicalOperator() || isComparatorOperator();
     }
 
+    public boolean isNamespaceAccessor() {
+        return this == NAMESPACE_ACCESSOR;
+    }
+
     public boolean isOperator() {
         return isArithmetic()
                 || isMultDiv()
@@ -147,6 +154,7 @@ public enum TokenType {
                 || isComparatorOperator()
                 || isTernaryOperator()
                 || isBitwiseOperator()
+                || isNamespaceAccessor()
                 || this == COMMA;
     }
 
@@ -155,7 +163,7 @@ public enum TokenType {
     }
 
     public boolean isValue() {
-        return isVariable() || isConstant() || this == LAMBDA;
+        return isVariable() || isConstant() || this == LAMBDA || this == NAMESPACE;
     }
 
     public boolean isFunction() {
@@ -167,7 +175,7 @@ public enum TokenType {
     }
 
     public boolean isConstant() {
-        return this == INTEGER || this == DOUBLE || this == STRING;
+        return this == INTEGER || this == DOUBLE || this == STRING || this == NAMESPACE;
     }
 
     public boolean isIdentifier() {

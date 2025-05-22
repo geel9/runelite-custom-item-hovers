@@ -6,6 +6,8 @@ import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.BaseFunctionProvider;
+import com.geel.customitemhovers.expressions.providers.INamespace;
+import com.geel.customitemhovers.expressions.providers.LazyNamespace;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.ColorUtil;
@@ -52,7 +54,7 @@ public class RootFunctionProvider extends BaseFunctionProvider {
 
     /**
      * Prepares inventory-related functions.
-     *
+     * <p>
      * EG, inv_contains(), bank_contains(), inv_qty(), etc
      */
     private void prepareInventoryFunctions() {
@@ -65,27 +67,36 @@ public class RootFunctionProvider extends BaseFunctionProvider {
      * Creates varbit-related functions
      */
     private void prepareVarBitFunctions() {
+        add(new LambdaFixedArgsFunction("namespaceFunc", TokenType.NAMESPACE, new ArgumentType[]{ArgumentType.ANY}, (args, context) -> {
+            LazyNamespace newNamespace = new LazyNamespace();
+            newNamespace.addVariable("blah", (ctx) -> {
+                return new Variable(args[0]);
+            });
+
+            return Token.fromNamespace(newNamespace);
+        }));
+
         // The varbit(varbitId) function returns the integer value of a varbit
         add(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            if(client == null) return Token.fromFalse();
+            if (client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarbitValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varplayer(varPlayerId) function returns the integer value of a varplayer
         add(new LambdaFixedArgsFunction("varplayer", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            if(client == null) return Token.fromFalse();
+            if (client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarpValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varcint(varCIntId) function returns the integer value of a varcint
         add(new LambdaFixedArgsFunction("varcint", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            if(client == null) return Token.fromFalse();
+            if (client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarcIntValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varcstr(varCStrId) function returns the string value of a varcstr
         add(new LambdaFixedArgsFunction("varcstr", TokenType.STRING, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            if(client == null) return Token.fromFalse();
+            if (client == null) return Token.fromFalse();
             return Token.fromString(client.getVarcStrValue(args[0].getNumericValue().intValue()));
         }));
     }
@@ -163,12 +174,12 @@ public class RootFunctionProvider extends BaseFunctionProvider {
         }));
 
         // floor(x) takes a double and returns an integer
-        add(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             return Token.fromInt((int) Math.floor(args[0].getNumericValue().doubleValue()));
         }));
 
         // ceil(x) takes a double and returns an integer
-        add(new LambdaFixedArgsFunction("ceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("ceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             return Token.fromInt((int) Math.ceil(args[0].getNumericValue().doubleValue()));
         }));
 
@@ -181,9 +192,9 @@ public class RootFunctionProvider extends BaseFunctionProvider {
         add(new LambdaVariadicFunction("max", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             double max = Double.MIN_VALUE;
 
-            for(Token t : args) {
+            for (Token t : args) {
                 double value = t.getNumericValue().doubleValue();
-                if(value > max) {
+                if (value > max) {
                     max = value;
                 }
             }
@@ -195,9 +206,9 @@ public class RootFunctionProvider extends BaseFunctionProvider {
         add(new LambdaVariadicFunction("min", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             double min = Double.MAX_VALUE;
 
-            for(Token t : args) {
+            for (Token t : args) {
                 double value = t.getNumericValue().doubleValue();
-                if(value < min) {
+                if (value < min) {
                     min = value;
                 }
             }
@@ -214,21 +225,21 @@ public class RootFunctionProvider extends BaseFunctionProvider {
         // qtymult(x) takes an integer and returns an integer
         add(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
-            if(numInStack == null) return Token.fromInt(0);
+            if (numInStack == null) return Token.fromInt(0);
 
             return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() * args[0].getNumericValue().intValue());
         }));
         // qtydivide(x) takes an integer and returns an integer
         add(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
-            if(numInStack == null) return Token.fromInt(0);
+            if (numInStack == null) return Token.fromInt(0);
 
             return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() / args[0].getNumericValue().intValue());
         }));
         // qtydivideceil(x) takes an integer and returns an integer
         add(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
-            if(numInStack == null) return Token.fromInt(0);
+            if (numInStack == null) return Token.fromInt(0);
 
             return Token.fromInt((int) Math.ceil(numInStack.getConstantToken().getNumericValue().doubleValue() / (double) args[0].getNumericValue().intValue()));
         }));
@@ -248,9 +259,9 @@ public class RootFunctionProvider extends BaseFunctionProvider {
 
         // Loop through the arguments, constructing a list of item IDs
         Set<Integer> itemIDs = new HashSet<>(args.length);
-        for(Token arg : args) {
+        for (Token arg : args) {
             if (arg.getType() == TokenType.STRING) {
-                for(int itemId : ItemNameMap.GetItemIDs(arg.getValue())) {
+                for (int itemId : ItemNameMap.GetItemIDs(arg.getValue())) {
                     itemIDs.add(itemId);
                 }
             } else {
@@ -273,7 +284,7 @@ public class RootFunctionProvider extends BaseFunctionProvider {
                 count += item.getQuantity();
 
                 // If we should short-circuit when we find the first match, then... do that.
-                if(shortCircuitOnFind) {
+                if (shortCircuitOnFind) {
                     break;
                 }
             }

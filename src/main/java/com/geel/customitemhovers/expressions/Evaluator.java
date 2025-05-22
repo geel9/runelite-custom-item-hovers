@@ -5,6 +5,7 @@ import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
 import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.Variable;
+import com.geel.customitemhovers.expressions.providers.INamespace;
 
 import java.util.Stack;
 
@@ -19,6 +20,10 @@ import java.util.Stack;
  */
 public class Evaluator {
     public static Token[] EvaluateExpression(CompiledExpression expression, ExecutionContext context) {
+        // TODO: Pretty sure that in static eval mode, there's a bug where:
+        //       1. We have a statically-available var, `x`
+        //       2. Someone writes `namspace.x`
+        //       3. At static eval time, we don't realize that `x` is supposed to be namespaced.
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
         for (int i = 0; i < rpn.length; i++) {
@@ -29,7 +34,14 @@ public class Evaluator {
             // Handle values
             if (token.getType().isValue()) {
                 if (isLast && !isFirst) {
-                    throw new IllegalArgumentException("Dangling value");
+                    // TODO: explain myself
+                    boolean isDanglingStatic = context.isStaticEval() && stack.peek().getType() != TokenType.NAMESPACE_ACCESSOR;
+                    boolean isDanglingRuntime = !context.isStaticEval() && context.getCurrentNamespace() == null;
+
+                    if(isDanglingStatic || isDanglingRuntime) {
+                        throw new IllegalArgumentException("Dangling value");
+                    }
+
                 }
 
                 stack.add(evaluateValue(token, context));
@@ -43,6 +55,12 @@ public class Evaluator {
                 }
 
                 stack.add(evaluateFunction(stack, token, context));
+                continue;
+            }
+
+            // Handle namespace accessor
+            if (token.getType().isNamespaceAccessor()) {
+                evaluateNamespaceAccessor(stack, token, context);
                 continue;
             }
 
@@ -376,6 +394,35 @@ public class Evaluator {
             default:
                 throw new IllegalArgumentException("Unknown string operator " + operatorToken.getValue());
         }
+    }
+
+    private static void evaluateNamespaceAccessor(
+            Stack<Token> stack,
+            Token operatorToken,
+            ExecutionContext context
+    ) {
+        // If in static eval mode, just put the token onto the stack
+        if (context.isStaticEval()) {
+            stack.add(operatorToken);
+            return;
+        }
+
+        // In runtime eval mode, pop the left value off the stack
+        if (stack.isEmpty()) {
+            throw new IllegalArgumentException("Stack is empty");
+        }
+
+        Token leftValue = stack.pop();
+        if (leftValue.getType() != TokenType.NAMESPACE) {
+            throw new IllegalArgumentException("Left value must be a namespace");
+        }
+
+        if(context.getCurrentNamespace() != null) {
+            throw new IllegalArgumentException("Current namespace must be null");
+        }
+
+        INamespace newNamespace = leftValue.getNamespaceValue();
+        context.setCurrentNamespace(newNamespace);
     }
 
     /**

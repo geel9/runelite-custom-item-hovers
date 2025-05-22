@@ -4,6 +4,7 @@ import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.models.*;
+import com.geel.customitemhovers.expressions.providers.LazyNamespace;
 import com.geel.customitemhovers.providers.RootFunctionProvider;
 import org.junit.Test;
 
@@ -20,6 +21,13 @@ public class ExpressionTest {
         variableProvider.put("a", Variable.fromConstant("b"));
         variableProvider.put("b", Variable.fromConstant(2));
         variableProvider.put("c", Variable.fromConstant(4));
+
+        LazyNamespace namespace = new LazyNamespace();
+        namespace.addVariable("blah", (context) -> {
+            return Variable.fromConstant("5");
+        });
+        variableProvider.put("namespaceVar", Variable.fromNamespace(namespace));
+
         RootFunctionProvider functionProvider = new RootFunctionProvider(null, null);
 
         // Add methods for testing lambdas
@@ -55,6 +63,10 @@ public class ExpressionTest {
                 }));
 
         context = new ExecutionContext(functionProvider, variableProvider);
+
+        // namespace()
+        testStringExpr("namespaceFunc('5').blah", "5");
+        testStringExpr("namespaceVar.blah", "5");
 
         // eval()
         testStringExpr("eval({-> redStart()})", "<col=ff0000>");

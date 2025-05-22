@@ -1,5 +1,6 @@
 package com.geel.customitemhovers.expressions.models;
 
+import com.geel.customitemhovers.expressions.providers.INamespace;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,9 @@ public class Token {
     private String value; // TODO: Make more efficient than Strings. Are slices a thing in Java?
 
     private Number numericValue;
+
+    @Getter
+    private INamespace namespaceValue;
 
     @Getter
     @Setter
@@ -82,5 +86,11 @@ public class Token {
 
     public static Token fromFalse() {
         return fromBool(false);
+    }
+
+    public static Token fromNamespace(INamespace namespace) {
+        Token token = new Token(TokenType.NAMESPACE, null);
+        token.namespaceValue = namespace;
+        return token;
     }
 }
