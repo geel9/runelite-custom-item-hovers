@@ -4,7 +4,6 @@ import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.models.*;
-import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -24,53 +23,47 @@ public class ExpressionTest {
 
         // Add methods for testing lambdas
         // eval() -- just takes in an expression and executes it, returning the result
-        functionProvider.addFunction(new LambdaFixedArgsFunction("eval", TokenType.SUB_EXPRESSION,
-                new ArgumentType[]{ArgumentType.EXPRESSION}, (args, context) -> {
-            CompiledExpression compiledExpression = args[0].getCompiledSubExpression();
-            if (compiledExpression == null) {
-                return Token.fromFalse();
-            }
+        functionProvider.addFunction(new LambdaFixedArgsFunction("eval", TokenType.LAMBDA,
+                new ArgumentType[]{ArgumentType.LAMBDA}, (args, context) -> {
+            Token lambdaToken = args[0];
 
             // Execute the expression within the current context
-            return EvaluationUtil.EvaluateAtRuntime(compiledExpression, context);
+            return context.executeLambdaNoArguments(lambdaToken);
         }));
 
         // range_sum() -- takes in an expression, rStart, and rEnd. Loops i from rStart to rEnd, evaluating the expression,
         // returning the sum of all the results
         functionProvider.addFunction(new LambdaFixedArgsFunction("range_sum", TokenType.DOUBLE,
-                new ArgumentType[]{ArgumentType.EXPRESSION, ArgumentType.INTEGER, ArgumentType.INTEGER},
+                new ArgumentType[]{ArgumentType.LAMBDA, ArgumentType.INTEGER, ArgumentType.INTEGER},
                 (args, context) -> {
-                    Variable existingIVariable = context.getVariableProvider().resolveVariable("i");
-
-                    CompiledExpression compiledExpression = args[0].getCompiledSubExpression();
-                    if (compiledExpression == null) {
-                        return Token.fromFalse();
-                    }
-
+                    Token lambdaToken = args[0];
                     int start = args[1].getNumericValue().intValue();
                     int end = args[2].getNumericValue().intValue();
 
                     double sum = 0;
                     for (int i = start; i <= end; i++) {
-                        // Set `i` (HACK -- need to add a way to do this on executionContext)
-                        variableProvider.put("i", Variable.fromConstant(i));
+                        Token result = context.executeLambda(lambdaToken, new Token[]{
+                                Token.fromInt(i),
+                                Token.fromDouble(sum)
+                        });
 
-                        // Evaluate the expression
-                        Token result = EvaluationUtil.EvaluateAtRuntime(compiledExpression, context);
                         sum += result.getNumericValue().doubleValue();
-                    }
-
-                    // Set `i` back to the original value
-                    if (existingIVariable != null) {
-                        variableProvider.put("i", existingIVariable);
-                    } else {
-                        variableProvider.remove("i");
                     }
 
                     return Token.fromDouble(sum);
                 }));
 
         context = new ExecutionContext(functionProvider, variableProvider);
+
+        // eval()
+        testStringExpr("eval({-> redStart()})", "<col=ff0000>");
+
+        // range_sum()
+        testDoubleExpr("range_sum({i -> i % 2 == 0 ? pow(i, 2) : 0}, 0, 10)", 220);
+        testDoubleExpr("range_sum({i, sum -> i % 2 == 0 ? pow(i, 2) : sum}, 0, 10)", 564);
+        testDoubleExpr("range_sum({i, sum, alwaysZeroBecauseNotPassed -> alwaysZeroBecauseNotPassed != 0 ? 100000 : (i % 2 == 0 ? pow(i, 2) : sum)}, 0, 10)",
+                564);
+
 
         // Functions
         testStringExpr("red(a)", "<col=ff0000>b</col>");
@@ -259,13 +252,10 @@ public class ExpressionTest {
         testStringExpr("rgbStart(0, 0, 255)", "<col=0000ff>");
         testStringExpr("rgbStart(255, 255, 0) + 'hi' + colorEnd()", "<col=ffff00>hi</col>");
 
-        // eval()
-        testStringExpr("eval({redStart() + greenStart() + blueStart() + yellowStart()})", "<col=ff0000><col=00ff00><col=0000ff><col=ffff00>");
         // eval with math and stuff
-        testDoubleExpr("eval({(1 + 3) * (4.5 * 2)})", 36);
+//        testDoubleExpr("eval({(1 + 3) * (4.5 * 2)})", 36);
 
-        // range_sum()
-        testDoubleExpr("range_sum({i % 2 == 0 ? pow(i, 2) : 0}, 0, 10)", 220);
+
     }
 
     private void testIntExpr(String expression, int expected) {

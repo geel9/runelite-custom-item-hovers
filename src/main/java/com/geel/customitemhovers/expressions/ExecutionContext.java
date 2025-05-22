@@ -1,12 +1,11 @@
 package com.geel.customitemhovers.expressions;
 
 import com.geel.customitemhovers.expressions.functions.Function;
-import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.expressions.models.Token;
-import com.geel.customitemhovers.expressions.models.Variable;
-import com.geel.customitemhovers.expressions.models.VariableType;
+import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.expressions.providers.IVariableProvider;
+import com.geel.customitemhovers.expressions.providers.MultiVariableProvider;
+import com.geel.customitemhovers.expressions.providers.SimpleVariableProvider;
 import lombok.Getter;
 
 /**
@@ -33,6 +32,42 @@ public class ExecutionContext {
         this.functionProvider = other.getFunctionProvider();
         this.variableProvider = other.getVariableProvider();
         this.staticEval = staticEval;
+    }
+
+    public Token executeLambdaNoArguments(Token lambdaToken) {
+        return executeLambda(lambdaToken, new Token[0]);
+    }
+
+    public Token executeLambda(Token lambdaToken, Token[] arguments) {
+        if (lambdaToken.getType() != TokenType.LAMBDA) {
+            throw new IllegalArgumentException("Token is not a lambda");
+        }
+
+        // Create a variable provider for the lambda
+        SimpleVariableProvider newScopeProvider = new SimpleVariableProvider();
+
+        // Set up the scoped variables
+        for(int lambdaArgIndex = 0; lambdaArgIndex < lambdaToken.getLambdaArgs().length; lambdaArgIndex++) {
+            String argName = lambdaToken.getLambdaArgs()[lambdaArgIndex];
+
+            // If an argument the lambda is expecting is being passed in arguments(), pass it -- otherwise, set it to 0 (gross)
+            if(lambdaArgIndex < arguments.length) {
+                Token arg = arguments[lambdaArgIndex];
+                newScopeProvider.put(argName, new Variable(arg));
+            } else {
+                newScopeProvider.put(argName, Variable.fromConstant(0)); // TODO: Null? Shoot me.
+            }
+        }
+
+
+        // Create a new provider which packages the scoped variables and the original variable provider
+        IVariableProvider newProvider = new MultiVariableProvider(newScopeProvider, variableProvider);
+        ExecutionContext newContext = new ExecutionContext(functionProvider, newProvider);
+
+        // Execute the lambda
+        return EvaluationUtil.EvaluateAtRuntime(lambdaToken.getCompiledLambda(), newContext);
+
+        // TODO: Do we assert that the result must have a certain type?
     }
 
     public Token resolveVariable(String variableName) {

@@ -5,13 +5,13 @@ public enum ArgumentType {
     INTEGER,
     DOUBLE,
     STRING,
-    EXPRESSION;
+    LAMBDA;
 
     public boolean fitsTokenType(TokenType type) {
         if (this == ANY) return type.isConstant();
         if (this == INTEGER || this == DOUBLE) return type == TokenType.INTEGER || type == TokenType.DOUBLE;
         if (this == STRING) return type == TokenType.STRING;
-        if (this == EXPRESSION) return type == TokenType.SUB_EXPRESSION;
+        if (this == LAMBDA) return type == TokenType.LAMBDA;
 
         return false; //Should never get here
     }
@@ -21,7 +21,7 @@ public enum ArgumentType {
             throw new IllegalArgumentException("Cannot coerce token of invalid type");
         }
 
-        if (this == ANY || this == EXPRESSION) return token;
+        if (this == ANY || this == LAMBDA) return token;
         if (this == INTEGER)
             return token.getType() == TokenType.INTEGER ? token : Token.fromInt(token.getNumericValue().intValue());
         if (this == DOUBLE)

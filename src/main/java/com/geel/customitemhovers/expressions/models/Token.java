@@ -16,15 +16,18 @@ public class Token {
     @Setter
     private int numFunctionArgs = 0;
 
+    @Getter
+    @Setter
+    private String[] lambdaArgs = null;
 
     // HACKY
     @Getter
     @Setter
-    private TokenizedExpression tokenizedSubExpression = null;
+    private TokenizedExpression tokenizedLambda = null;
 
     @Getter
     @Setter
-    private CompiledExpression compiledSubExpression = null;
+    private CompiledExpression compiledLambda = null;
 
     public Token(TokenType type, String value) {
         this.type = type;

@@ -109,7 +109,7 @@ public class Evaluator {
         }
 
         // If it's a sub-expression, evaluate it
-        if (value.getType() == TokenType.SUB_EXPRESSION) {
+        if (value.getType() == TokenType.LAMBDA) {
             return evaluateSubExpression(value, context);
         }
 
@@ -137,7 +137,7 @@ public class Evaluator {
     ) {
         // If we're in static eval mode, we need to static-evaluate the sub-expression
         if (context.isStaticEval()) {
-            CompiledExpression subExpression = subExpressionToken.getCompiledSubExpression();
+            CompiledExpression subExpression = subExpressionToken.getCompiledLambda();
             if (subExpression == null) {
                 throw new IllegalArgumentException("Sub-expression is null");
             }
@@ -145,10 +145,10 @@ public class Evaluator {
             // TODO: Handle single-token value return -- can replace with just the Token? Maybe? Maybe not actually.
             Token[] evaluated = EvaluateExpression(subExpression, context);
             CompiledExpression evaluatedExpression = new CompiledExpression(evaluated, subExpression.getExpressionText(), false);
-            subExpressionToken.setCompiledSubExpression(evaluatedExpression);
+            subExpressionToken.setCompiledLambda(evaluatedExpression);
         }
 
-        // In runtime eval mode, we just return the sub-expression token. We don't execute it here.
+        // In runtime eval mode, we just return the lambda token. We don't execute it here.
         return subExpressionToken;
     }
 
@@ -181,7 +181,7 @@ public class Evaluator {
             args[i] = stack.pop();
             numArgsPopped++;
 
-            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval() && args[i].getType() == TokenType.SUB_EXPRESSION);
+            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval() && args[i].getType() == TokenType.LAMBDA);
 
             // If any args are non-const, we should stop immediately -- we won't be able to evaluate the function.
             // (We're either in static eval mode, in which case, any non-const args are always a no go -- or we're in

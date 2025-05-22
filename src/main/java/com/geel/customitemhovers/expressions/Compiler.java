@@ -30,9 +30,9 @@ public class Compiler {
             Token token = tokenized[i];
 
             // Handle sub-expressions (ez)
-            if(token.getType() == TokenType.SUB_EXPRESSION) {
-                token.setCompiledSubExpression(Compile(token.getTokenizedSubExpression()));
-                token.setTokenizedSubExpression(null);
+            if(token.getType() == TokenType.LAMBDA) {
+                token.setCompiledLambda(Compile(token.getTokenizedLambda()));
+                token.setTokenizedLambda(null);
                 outputQueue.add(token);
                 continue;
             }

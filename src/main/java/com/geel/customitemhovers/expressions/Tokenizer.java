@@ -140,10 +140,10 @@ public class Tokenizer {
             return readOperator();
         }
 
-        // Handle *sub-expression* begin.
-        if(c == '{') {
+        // Handle *lambda* begin.
+        if (c == '{') {
             assertCanReadIdentifier();
-            return readSubExpression();
+            return readLambda();
         }
 
         // Handle numbers
@@ -195,20 +195,97 @@ public class Tokenizer {
         return null;
     }
 
-    private Token readSubExpression() {
-        readChar();
+    private Token readLambda() {
+        readChar(); // read the '{'
 
+        // Read lambda initializer, getting the arguments
+        String[] lambdaArgs = readLambdaDeclaration();
+
+        // We're now after the -> of the lambda; begin parsing a sub-expression
         // Create a new sub-Tokenizer
         Tokenizer tokenizer = new Tokenizer(this);
 
         // Read the sub-expression
         TokenizedExpression subExpression = tokenizer.tokenize();
-        Token subExpressionToken = new Token(TokenType.SUB_EXPRESSION, subExpression.getExpressionText());
-        subExpressionToken.setTokenizedSubExpression(subExpression);
+        // TODO: sub-expression text omits the lambda header
+        Token subExpressionToken = new Token(TokenType.LAMBDA, subExpression.getExpressionText());
+        subExpressionToken.setTokenizedLambda(subExpression);
 
         numRead += tokenizer.getNumRead();
 
+        // Set the arguments
+        subExpressionToken.setLambdaArgs(lambdaArgs);
+
         return subExpressionToken;
+
+    }
+
+    private String[] readLambdaDeclaration() {
+        ArrayList<String> lambdaArgs = new ArrayList<>();
+
+        /*
+         * Valid lambda initializers:
+         * {x -> ...}
+         * {-> ...}
+         * {x, y, z -> ...}
+         */
+
+        String arg;
+        while ((arg = readLambdaDeclarationArg(lambdaArgs.isEmpty())) != null) {
+            lambdaArgs.add(arg);
+        }
+
+        return lambdaArgs.toArray(new String[0]);
+    }
+
+    private String readLambdaDeclarationArg(boolean isFirstArgument) {
+        // Find first non-whitespace character
+        while (isWhitespaceChar(peekChar())) {
+            readChar();
+        }
+
+        char c = peekChar();
+
+        // If we hit a comma, this is fine, as long as it's not the first argument
+        boolean mustReadIdentifier = false;
+        if (c == ',') {
+            readChar(); // discard the ,
+
+            if (isFirstArgument) {
+                throw new IllegalArgumentException("Invalid lambda declaration; first argument cannot be a comma");
+            }
+
+            // Find first non-whitespace character
+            while (isWhitespaceChar(peekChar())) {
+                readChar();
+            }
+
+            c = peekChar(); // Peek the next char so we can jump right to parsing an identifier!
+            mustReadIdentifier = true; // We definitely have to read an identifier since we just read a comma
+        }
+
+        // If we hit a -, it best be followed by a >
+        if (c == '-' && !mustReadIdentifier) {
+            readChar(); // discard the -
+            if (readChar() != '>') {
+                throw new IllegalArgumentException("Invalid lambda declaration; expected > following -");
+            }
+
+            return null;
+        }
+
+        // If we hit a letter, we're reading an argument name
+        if (isNameChar(c)) {
+            Token t = readIdentifier();
+            return t.getValue();
+        }
+
+        // We hit... something else
+        if(mustReadIdentifier) {
+            throw new IllegalArgumentException("Invalid lambda declaration; expected identifier after ,");
+        } else {
+            throw new IllegalArgumentException("Invalid lambda declaration; expected identifier or -");
+        }
     }
 
     /**
@@ -416,7 +493,7 @@ public class Tokenizer {
      */
     private void assertCanReadOperator() {
         TokenType token = lastTokenType();
-        if (!(token != null && (token.isValue() || token == TokenType.SUB_EXPRESSION || token == TokenType.PAREN_RIGHT))) {
+        if (!(token != null && (token.isValue() || token == TokenType.LAMBDA || token == TokenType.PAREN_RIGHT))) {
             throw new IllegalArgumentException("Unexpected operator");
         }
     }
@@ -449,7 +526,7 @@ public class Tokenizer {
         }
 
         // Right parentheses is always allowed to follow another right parentheses or a value
-        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue() || lastToken == TokenType.SUB_EXPRESSION) {
+        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue() || lastToken == TokenType.LAMBDA) {
             return;
         }
 
