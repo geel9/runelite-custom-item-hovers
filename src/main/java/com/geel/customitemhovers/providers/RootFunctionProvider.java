@@ -1,13 +1,11 @@
-package com.geel.customitemhovers;
+package com.geel.customitemhovers.providers;
 
-import com.geel.customitemhovers.expressions.EvaluationUtil;
+import com.geel.customitemhovers.ItemNameMap;
 import com.geel.customitemhovers.expressions.ExecutionContext;
-import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.*;
-import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
-import lombok.Getter;
+import com.geel.customitemhovers.expressions.providers.BaseFunctionProvider;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.ColorUtil;
@@ -21,81 +19,18 @@ import java.util.*;
  * Provides functions to the expression engine.
  */
 @Singleton
-public class CustomItemHoversFunctionProvider implements IFunctionProvider {
-    // A map(functionName -> map(numArguments -> listOfFunctions))
-    @Getter
-    private HashMap<String, HashMap<Integer, ArrayList<Function>>> functions;
-
+public class RootFunctionProvider extends BaseFunctionProvider {
     public Client client;
 
     public ItemManager itemManager;
 
     @Inject
-    public CustomItemHoversFunctionProvider(Client client, ItemManager itemManager) {
+    public RootFunctionProvider(Client client, ItemManager itemManager) {
+        super();
+
         this.client = client;
         this.itemManager = itemManager;
-
-        functions = new HashMap<>();
         prepareFunctions();
-    }
-
-    public Function findFunction(String name, Token[] arguments) {
-        int numArgs = arguments.length;
-
-        // Find the function by name. The result will be a map(numArgs -> list_of_functions)
-        HashMap<Integer, ArrayList<Function>> numArgsMap = functions.getOrDefault(name, null);
-
-        // If no functions found, obviously return null
-        if (numArgsMap == null) {
-            return null;
-        }
-
-        // Look for it in the fixed functions, then try variadic functions
-        ArrayList<Function> fixedFunctions = numArgsMap.getOrDefault(numArgs, null);
-        ArrayList<Function> variadicFunctions = numArgsMap.getOrDefault(-1, null);
-
-        Function fixedFunction = searchFuncs(fixedFunctions, arguments);
-        if (fixedFunction != null)
-            return fixedFunction;
-
-        return searchFuncs(variadicFunctions, arguments);
-    }
-
-    private Function searchFuncs(ArrayList<Function> functions, Token[] arguments) {
-        if (functions == null)
-            return null;
-
-        for (Function func : functions) {
-            if (func.argumentsMatch(arguments)) {
-                return func;
-            }
-        }
-
-        return null;
-    }
-
-    public void addFunction(Function f) {
-        String name = f.getName();
-
-        // Ensure that the overarching map has an entry for the function name
-        if (!functions.containsKey(name)) {
-            functions.put(name, new HashMap<>());
-        }
-
-        // Get the entry for the function name, and ensure the sub-map has an entry for the number of arguments
-        HashMap<Integer, ArrayList<Function>> argumentsMap = functions.get(name);
-        int argsHashCode = f.getArgumentsHashCode();
-        if (!argumentsMap.containsKey(argsHashCode)) {
-            argumentsMap.put(argsHashCode, new ArrayList<>(1));
-        }
-
-        // Get the entry for the number of arguments from the sub-map, and insert the function into the list
-        ArrayList<Function> funcList = argumentsMap.get(argsHashCode);
-        if (funcList.contains(f)) {
-            throw new IllegalArgumentException("Function already exists");
-        }
-
-        funcList.add(f);
     }
 
     private void prepareFunctions() {
@@ -131,25 +66,25 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
      */
     private void prepareVarBitFunctions() {
         // The varbit(varbitId) function returns the integer value of a varbit
-        addFunction(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarbitValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varplayer(varPlayerId) function returns the integer value of a varplayer
-        addFunction(new LambdaFixedArgsFunction("varplayer", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("varplayer", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarpValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varcint(varCIntId) function returns the integer value of a varcint
-        addFunction(new LambdaFixedArgsFunction("varcint", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("varcint", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromInt(client.getVarcIntValue(args[0].getNumericValue().intValue()));
         }));
 
         // The varcstr(varCStrId) function returns the string value of a varcstr
-        addFunction(new LambdaFixedArgsFunction("varcstr", TokenType.STRING, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("varcstr", TokenType.STRING, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             if(client == null) return Token.fromFalse();
             return Token.fromString(client.getVarcStrValue(args[0].getNumericValue().intValue()));
         }));
@@ -159,11 +94,11 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
      * Creates string- and color-related functions
      */
     private void prepareStringFunctions() {
-        addFunction(new LambdaFixedArgsFunction("len", TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("len", TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING}, true, (args, context) -> {
             return Token.fromInt(args[0].getValue().length());
         }));
 
-        addFunction(new LambdaFixedArgsFunction("contains", TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING, ArgumentType.STRING}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("contains", TokenType.INTEGER, new ArgumentType[]{ArgumentType.STRING, ArgumentType.STRING}, true, (args, context) -> {
             return Token.fromInt(args[0].getValue().contains(args[1].getValue()) ? 1 : 0);
         }));
 
@@ -181,7 +116,7 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         simpleColorStringStartFunc("yellow", Color.YELLOW);
 
         // colorEnd()
-        addFunction(new LambdaFixedArgsFunction("colorEnd", TokenType.STRING,
+        add(new LambdaFixedArgsFunction("colorEnd", TokenType.STRING,
                 new ArgumentType[]{},
                 true,
                 (args, context) -> {
@@ -189,7 +124,7 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
                 }));
 
         // rgb()
-        addFunction(new LambdaFixedArgsFunction("rgb", TokenType.STRING,
+        add(new LambdaFixedArgsFunction("rgb", TokenType.STRING,
                 new ArgumentType[]{ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.STRING},
                 true,
                 (args, context) -> {
@@ -202,7 +137,7 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
                 }));
 
         // rgbStart()
-        addFunction(new LambdaFixedArgsFunction("rgbStart", TokenType.STRING,
+        add(new LambdaFixedArgsFunction("rgbStart", TokenType.STRING,
                 new ArgumentType[]{ArgumentType.INTEGER, ArgumentType.INTEGER, ArgumentType.INTEGER},
                 true,
                 (args, context) -> {
@@ -220,30 +155,30 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
      */
     private void prepareMathFunctions() {
         // abs(x) takes a number and returns the absolute value
-        addFunction(new LambdaFixedArgsFunction("abs", TokenType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("abs", TokenType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             return Token.fromDouble(Math.abs(args[0].getNumericValue().doubleValue()));
         }));
-        addFunction(new LambdaFixedArgsFunction("abs", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("abs", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, true, (args, context) -> {
             return Token.fromInt(Math.abs(args[0].getNumericValue().intValue()));
         }));
 
         // floor(x) takes a double and returns an integer
-        addFunction(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("floor", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
             return Token.fromInt((int) Math.floor(args[0].getNumericValue().doubleValue()));
         }));
 
         // ceil(x) takes a double and returns an integer
-        addFunction(new LambdaFixedArgsFunction("ceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("ceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.DOUBLE},true, (args, context) -> {
             return Token.fromInt((int) Math.ceil(args[0].getNumericValue().doubleValue()));
         }));
 
         // pow(x) takes two numbers and returns the first to the power of the second as a double
-        addFunction(new LambdaFixedArgsFunction("pow", TokenType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE, ArgumentType.DOUBLE}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction("pow", TokenType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE, ArgumentType.DOUBLE}, true, (args, context) -> {
             return Token.fromDouble(Math.pow(args[0].getNumericValue().doubleValue(), args[1].getNumericValue().doubleValue()));
         }));
 
         // max(...) takes in any amount of numbers and returns the largest one
-        addFunction(new LambdaVariadicFunction("max", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
+        add(new LambdaVariadicFunction("max", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             double max = Double.MIN_VALUE;
 
             for(Token t : args) {
@@ -257,7 +192,7 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         }));
 
         // min(...) takes in any amount of numbers and returns the smallest one
-        addFunction(new LambdaVariadicFunction("min", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
+        add(new LambdaVariadicFunction("min", TokenType.DOUBLE, ArgumentType.DOUBLE, new ArgumentType[]{ArgumentType.DOUBLE}, true, (args, context) -> {
             double min = Double.MAX_VALUE;
 
             for(Token t : args) {
@@ -277,21 +212,21 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
     private void prepareBackwardsCompatFunctions() {
         // THE FOLLOWING FUNCTIONS ARE ONLY PRESENT FOR BACKWARDS COMPATIBILITY WITH THE OLD SHITTY SYSTEM
         // qtymult(x) takes an integer and returns an integer
-        addFunction(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
             return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() * args[0].getNumericValue().intValue());
         }));
         // qtydivide(x) takes an integer and returns an integer
-        addFunction(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
             return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() / args[0].getNumericValue().intValue());
         }));
         // qtydivideceil(x) takes an integer and returns an integer
-        addFunction(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
+        add(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
             Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
@@ -363,24 +298,24 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         String qtyFuncName = prefix + "_qty";
 
         // {prefix}_contains(idOrName, ...) takes variable item IDs/names and returns 1 if any of said items are in the specified inventory
-        addFunction(new LambdaVariadicFunction(containsFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
+        add(new LambdaVariadicFunction(containsFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
             return containerContainsAnyItem(args, context, inventoryID);
         }));
 
         // {prefix}_qty(idOrName, ...) takes variable item IDs/names and returns the number of items with any of said IDs in the given inventory
-        addFunction(new LambdaVariadicFunction(qtyFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
+        add(new LambdaVariadicFunction(qtyFuncName, TokenType.INTEGER, ArgumentType.ANY, null, (args, context) -> {
             return containerQty(args, context, inventoryID, false);
         }));
     }
 
     private void simpleColorStringFunc(String colorName, Color color) {
-        addFunction(new LambdaFixedArgsFunction(colorName, TokenType.STRING, new ArgumentType[]{ArgumentType.ANY}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction(colorName, TokenType.STRING, new ArgumentType[]{ArgumentType.ANY}, true, (args, context) -> {
             return Token.fromString(ColorUtil.wrapWithColorTag(args[0].getValue(), color));
         }));
     }
 
     private void simpleColorStringStartFunc(String colorName, Color color) {
-        addFunction(new LambdaFixedArgsFunction(colorName + "Start", TokenType.STRING, new ArgumentType[]{}, true, (args, context) -> {
+        add(new LambdaFixedArgsFunction(colorName + "Start", TokenType.STRING, new ArgumentType[]{}, true, (args, context) -> {
             return Token.fromString(ColorUtil.colorTag(color));
         }));
     }

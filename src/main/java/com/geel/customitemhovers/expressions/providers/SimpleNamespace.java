@@ -3,9 +3,7 @@ package com.geel.customitemhovers.expressions.providers;
 import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.Variable;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 public class SimpleNamespace implements INamespace {
 

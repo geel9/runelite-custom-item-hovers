@@ -4,6 +4,7 @@ import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.models.*;
+import com.geel.customitemhovers.providers.RootFunctionProvider;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,11 +20,11 @@ public class ExpressionTest {
         variableProvider.put("a", Variable.fromConstant("b"));
         variableProvider.put("b", Variable.fromConstant(2));
         variableProvider.put("c", Variable.fromConstant(4));
-        CustomItemHoversFunctionProvider functionProvider = new CustomItemHoversFunctionProvider(null, null);
+        RootFunctionProvider functionProvider = new RootFunctionProvider(null, null);
 
         // Add methods for testing lambdas
         // eval() -- just takes in an expression and executes it, returning the result
-        functionProvider.addFunction(new LambdaFixedArgsFunction("eval", TokenType.LAMBDA,
+        functionProvider.add(new LambdaFixedArgsFunction("eval", TokenType.LAMBDA,
                 new ArgumentType[]{ArgumentType.LAMBDA}, (args, context) -> {
             Token lambdaToken = args[0];
 
@@ -33,7 +34,7 @@ public class ExpressionTest {
 
         // range_sum() -- takes in an expression, rStart, and rEnd. Loops i from rStart to rEnd, evaluating the expression,
         // returning the sum of all the results
-        functionProvider.addFunction(new LambdaFixedArgsFunction("range_sum", TokenType.DOUBLE,
+        functionProvider.add(new LambdaFixedArgsFunction("range_sum", TokenType.DOUBLE,
                 new ArgumentType[]{ArgumentType.LAMBDA, ArgumentType.INTEGER, ArgumentType.INTEGER},
                 (args, context) -> {
                     Token lambdaToken = args[0];

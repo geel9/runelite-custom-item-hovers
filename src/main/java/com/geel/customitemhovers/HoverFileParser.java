@@ -3,10 +3,10 @@ package com.geel.customitemhovers;
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
+import com.geel.customitemhovers.providers.RootFunctionProvider;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +24,7 @@ public class HoverFileParser {
     private Gson gson;
 
     @Inject
-    private CustomItemHoversFunctionProvider functionProvider;
+    private RootFunctionProvider functionProvider;
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();

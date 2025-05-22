@@ -4,7 +4,7 @@ import com.geel.customitemhovers.expressions.models.Variable;
 
 import java.util.ArrayList;
 
-public class MultiVariableProvider implements IVariableProvider{
+public class MultiVariableProvider implements IVariableProvider {
     private final ArrayList<IVariableProvider> providers = new ArrayList<>();
 
     public MultiVariableProvider() {
@@ -16,15 +16,17 @@ public class MultiVariableProvider implements IVariableProvider{
     }
 
     public MultiVariableProvider Add(IVariableProvider provider) {
-        this.providers.add(provider);
+        if (provider != null) {
+            this.providers.add(provider);
+        }
         return this;
     }
 
     @Override
     public Variable resolveVariable(String variableName) {
-        for(IVariableProvider provider : providers) {
+        for (IVariableProvider provider : providers) {
             Variable resolved = provider.resolveVariable(variableName);
-            if(resolved != null) {
+            if (resolved != null) {
                 return resolved;
             }
         }

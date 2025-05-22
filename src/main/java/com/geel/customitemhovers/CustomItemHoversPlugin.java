@@ -5,11 +5,17 @@ import javax.inject.Inject;
 import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.EvaluationUtil;
 import com.geel.customitemhovers.expressions.models.Token;
+import com.geel.customitemhovers.expressions.providers.INamespace;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
+import com.geel.customitemhovers.namespaces.RootNamespace;
+import com.geel.customitemhovers.providers.ItemStackVariableProvider;
+import com.geel.customitemhovers.providers.PlayerVariableProvider;
+import com.geel.customitemhovers.providers.RootFunctionProvider;
+import com.geel.customitemhovers.providers.RootVariableProvider;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +83,10 @@ public class CustomItemHoversPlugin extends Plugin {
     private ItemTableManager itemTableManager;
 
     @Inject
-    private CustomItemHoversFunctionProvider functionProvider;
+    private RootFunctionProvider functionProvider;
+
+    @Inject
+    private PlayerVariableProvider playerVariableProvider;
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
@@ -195,10 +204,11 @@ public class CustomItemHoversPlugin extends Plugin {
             return new String[0];
 
         // Prepare expression execution context
+        // TODO: cache ItemStackVariableProvider
         ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
-        ParsedItemTableEntry baseTable = itemTableManager.getBaseTableForItemAndPlayer(item, client);
-        CustomItemHoversVariableProvider variableProvider = new CustomItemHoversVariableProvider(tableCollection, baseTable);
-        ExecutionContext context = new ExecutionContext(functionProvider, variableProvider);
+        RootVariableProvider variableProvider = new RootVariableProvider(tableCollection, playerVariableProvider, new ItemStackVariableProvider(item, comp));
+        INamespace namespace = new RootNamespace(functionProvider, variableProvider);
+        ExecutionContext context = new ExecutionContext(namespace);
 
         //For each hover associated with this item, add its transformed text to the resultant array
         boolean obsoleteExpressionDetected = false;

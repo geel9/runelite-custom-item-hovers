@@ -160,54 +160,6 @@ public class ItemTableManager {
     }
 
     /**
-     * Get the base ItemTable for the given item/player combo.
-     * <p>
-     * This is a special table, available for every item, which defines certain variables -- eg "id", "qty", etc.
-     */
-    public ParsedItemTableEntry getBaseTableForItemAndPlayer(Item item, Client client) {
-        // TODO: It's silly to construct this every time. So many heap allocations :(
-        //       Instead, we should just compute these values on the fly when an expression actually needs one.
-        ItemComposition itemComposition = itemManager.getItemComposition(item.getId());
-
-        ParsedItemTableEntry baseTable = new ParsedItemTableEntry();
-        baseTable.put("id", Variable.fromConstant(item.getId()));
-        baseTable.put("name", Variable.fromConstant(itemComposition.getName()));
-        baseTable.put("qty", Variable.fromConstant(item.getQuantity()));
-        baseTable.put("value", Variable.fromConstant(itemComposition.getPrice()));
-        baseTable.put("high_alch", Variable.fromConstant(itemComposition.getHaPrice()));
-
-        if (client == null || client.getGameState() != GameState.LOGGED_IN) {
-            return baseTable;
-        }
-
-        // Prepare player variables
-        // TODO: move this somewhere else
-        Player player = client.getLocalPlayer();
-
-        // Skill levels/xp
-        for (Skill skill : Skill.values()) {
-            String skillName = skill.getName().toLowerCase(Locale.ROOT);
-            baseTable.put(skillName + "_level", Variable.fromConstant(client.getBoostedSkillLevel(skill)));
-            baseTable.put(skillName + "_level_real", Variable.fromConstant(client.getRealSkillLevel(skill)));
-            baseTable.put(skillName + "_xp", Variable.fromConstant(client.getSkillExperience(skill)));
-        }
-
-        // World location
-        baseTable.put("player_x", Variable.fromConstant(player.getWorldLocation().getX()));
-        baseTable.put("player_y", Variable.fromConstant(player.getWorldLocation().getY()));
-        baseTable.put("player_plane", Variable.fromConstant(player.getWorldLocation().getPlane()));
-        baseTable.put("player_region", Variable.fromConstant(player.getWorldLocation().getRegionID()));
-        baseTable.put("player_region_x", Variable.fromConstant(player.getWorldLocation().getRegionX()));
-        baseTable.put("player_region_y", Variable.fromConstant(player.getWorldLocation().getRegionY()));
-
-        // Health/prayer
-        baseTable.put("player_hp", Variable.fromConstant(client.getBoostedSkillLevel(Skill.HITPOINTS)));
-        baseTable.put("player_prayer", Variable.fromConstant(client.getBoostedSkillLevel(Skill.PRAYER)));
-
-        return baseTable;
-    }
-
-    /**
      * Parse a file from JSON
      *
      * @param tableFile
