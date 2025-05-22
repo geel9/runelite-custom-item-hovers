@@ -4,6 +4,7 @@ import com.geel.customitemhovers.expressions.models.CompiledExpression;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
 import com.geel.customitemhovers.expressions.functions.Function;
+import com.geel.customitemhovers.expressions.models.Variable;
 
 import java.util.Stack;
 
@@ -114,7 +115,8 @@ public class Evaluator {
         }
 
         // Evaluate variable
-        Token variableVal = context.resolveVariable(value.getValue());
+        // TODO: Won't support expressions-as-variables
+        Variable variableVal = context.resolveVariable(value.getValue());
         if (variableVal == null) {
             // If we can't evaluate the variable, and we're in static eval mode, just return the variable token
             if (context.isStaticEval()) {
@@ -125,7 +127,7 @@ public class Evaluator {
             throw new IllegalArgumentException("Cannot resolve variable " + value.getValue());
         }
 
-        return variableVal;
+        return variableVal.getConstantToken();
     }
 
     /**
@@ -195,7 +197,7 @@ public class Evaluator {
 
         // If all the arguments are const, then try to find a function that fits
         if (allConst) {
-            Function func = context.resolveFunction(name, args);
+            Function func = context.findFunction(name, args);
             if (func != null && (!context.isStaticEval() || func.isConstExpr())) {
                 // We found a function, and either we're not in static eval mode, or we are and it's a constexpr func
                 return func.execute(args, context);

@@ -2,35 +2,31 @@ package com.geel.customitemhovers.expressions;
 
 import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.*;
-import com.geel.customitemhovers.expressions.providers.IFunctionProvider;
-import com.geel.customitemhovers.expressions.providers.IVariableProvider;
-import com.geel.customitemhovers.expressions.providers.MultiVariableProvider;
-import com.geel.customitemhovers.expressions.providers.SimpleVariableProvider;
+import com.geel.customitemhovers.expressions.providers.*;
 import lombok.Getter;
 
 /**
  * Context for expression execution -- packages together providers of functions and variables
  */
-public class ExecutionContext {
+public class ExecutionContext implements INamespace {
     @Getter
-    private final IFunctionProvider functionProvider;
-
-    @Getter
-    private final IVariableProvider variableProvider;
+    private final INamespace rootNamespace;
 
     @Getter
     private final boolean staticEval;
 
-    public ExecutionContext(IFunctionProvider functionProvider,
-                            IVariableProvider variableProvider) {
-        this.functionProvider = functionProvider;
-        this.variableProvider = variableProvider;
+    public ExecutionContext(INamespace rootNamespace) {
+        this.rootNamespace = rootNamespace;
+        this.staticEval = false;
+    }
+
+    public ExecutionContext(IFunctionProvider functionProvider, IVariableProvider variableProvider) {
+        this.rootNamespace = new SimpleNamespace(functionProvider, variableProvider);
         this.staticEval = false;
     }
 
     public ExecutionContext(ExecutionContext other, boolean staticEval) {
-        this.functionProvider = other.getFunctionProvider();
-        this.variableProvider = other.getVariableProvider();
+        this.rootNamespace = other.rootNamespace;
         this.staticEval = staticEval;
     }
 
@@ -59,10 +55,9 @@ public class ExecutionContext {
             }
         }
 
-
-        // Create a new provider which packages the scoped variables and the original variable provider
-        IVariableProvider newProvider = new MultiVariableProvider(newScopeProvider, variableProvider);
-        ExecutionContext newContext = new ExecutionContext(functionProvider, newProvider);
+        // Create a new namespace for the execution
+        INamespace newNamespace = new SimpleNamespace(null, newScopeProvider, rootNamespace);
+        ExecutionContext newContext = new ExecutionContext(newNamespace);
 
         // Execute the lambda
         return EvaluationUtil.EvaluateAtRuntime(lambdaToken.getCompiledLambda(), newContext);
@@ -70,56 +65,13 @@ public class ExecutionContext {
         // TODO: Do we assert that the result must have a certain type?
     }
 
-    public Token resolveVariable(String variableName) {
-        if (variableProvider == null) {
-            return null;
-        }
-
-        // Resolve variable
-        Variable resolved = variableProvider.resolveVariable(variableName);
-        if (resolved == null) {
-            return null;
-        }
-
-        // If it's not a constant, panic (not possible atm)
-        if (resolved.getType() != VariableType.CONSTANT) {
-            return null;
-        }
-
-        return resolved.getConstantToken();
-
-        // TODO: Support expressions in variables
-        /*
-        // If it's an expression, evaluate the expression
-
-        // If runtime, just try to evaluate at runtime -- fail if something goes wrong
-        if (!this.isStaticEval()) {
-            return EvaluationUtil.EvaluateAtRuntime(resolved.getExpression(), this);
-        }
-
-        // Otherwise, for static evaluation, try to statically evaluate -- but return null if it doesn't work
-        try {
-            CompiledExpression staticEvaluated = EvaluationUtil.EvaluateStatically(resolved.getExpression(), this);
-
-            // If it statically evaluates to a single, static token, then we just return that as the result.
-            // Otherwise, return null.
-            if (staticEvaluated.getTokens().length == 1) {
-                Token ret = staticEvaluated.getTokens()[0];
-                if (ret.getType().isConstant()) {
-                    return ret;
-                }
-            }
-        } catch (Exception e) {
-        }
-
-        return null;*/
+    @Override
+    public Variable resolveVariable(String variableName) {
+        return rootNamespace.resolveVariable(variableName);
     }
 
-    public Function resolveFunction(String functionName, Token[] arguments) {
-        if (functionProvider == null) {
-            return null;
-        }
-
-        return functionProvider.findFunction(functionName, arguments);
+    @Override
+    public Function findFunction(String functionName, Token[] arguments) {
+        return rootNamespace.findFunction(functionName, arguments);
     }
 }

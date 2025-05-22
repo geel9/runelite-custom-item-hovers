@@ -64,6 +64,11 @@ public class ExpressionTest {
         testDoubleExpr("range_sum({i, sum, alwaysZeroBecauseNotPassed -> alwaysZeroBecauseNotPassed != 0 ? 100000 : (i % 2 == 0 ? pow(i, 2) : sum)}, 0, 10)",
                 564);
 
+        //range_sum() with nested range_sum, testing that `i` and `sum` are properly scoped
+        testDoubleExpr("range_sum({i, sum -> range_sum({i, sum -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 11); // Because both lambdas declare i and sum, they are scoped to the lambda
+        testDoubleExpr("range_sum({i, sum -> range_sum({i -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 600011.0); // Because the inner lambda doesn't declare sum, it inherits the outer sum.
+        testDoubleExpr("range_sum({i, sum -> range_sum({j, k, sum -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 11.0); // Because the inner lambda does declare sum, and it's not passed by the caller, it is always 0
+
 
         // Functions
         testStringExpr("red(a)", "<col=ff0000>b</col>");

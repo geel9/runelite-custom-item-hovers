@@ -278,24 +278,24 @@ public class CustomItemHoversFunctionProvider implements IFunctionProvider {
         // THE FOLLOWING FUNCTIONS ARE ONLY PRESENT FOR BACKWARDS COMPATIBILITY WITH THE OLD SHITTY SYSTEM
         // qtymult(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtymult", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            Token numInStack = context.resolveVariable("qty");
+            Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt(numInStack.getNumericValue().intValue() * args[0].getNumericValue().intValue());
+            return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() * args[0].getNumericValue().intValue());
         }));
         // qtydivide(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivide", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            Token numInStack = context.resolveVariable("qty");
+            Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt(numInStack.getNumericValue().intValue() / args[0].getNumericValue().intValue());
+            return Token.fromInt(numInStack.getConstantToken().getNumericValue().intValue() / args[0].getNumericValue().intValue());
         }));
         // qtydivideceil(x) takes an integer and returns an integer
         addFunction(new LambdaFixedArgsFunction("qtydivideceil", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {
-            Token numInStack = context.resolveVariable("qty");
+            Variable numInStack = context.resolveVariable("qty");
             if(numInStack == null) return Token.fromInt(0);
 
-            return Token.fromInt((int) Math.ceil(numInStack.getNumericValue().doubleValue() / (double) args[0].getNumericValue().intValue()));
+            return Token.fromInt((int) Math.ceil(numInStack.getConstantToken().getNumericValue().doubleValue() / (double) args[0].getNumericValue().intValue()));
         }));
     }
 
