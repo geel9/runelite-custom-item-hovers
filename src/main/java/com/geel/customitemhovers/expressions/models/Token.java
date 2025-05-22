@@ -1,6 +1,5 @@
 package com.geel.customitemhovers.expressions.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +10,8 @@ public class Token {
     @Getter
     private String value; // TODO: Make more efficient than Strings. Are slices a thing in Java?
 
+    private Number numericValue;
+
     @Getter
     @Setter
     private int numFunctionArgs = 0;
@@ -20,11 +21,27 @@ public class Token {
         this.value = value;
     }
 
+    private Token(int value) {
+        this(TokenType.INTEGER, String.valueOf(value));
+
+        this.numericValue = value;
+    }
+
+    private Token(double value) {
+        this(TokenType.DOUBLE, String.valueOf(value));
+
+        this.numericValue = value;
+    }
+
     public Number getNumericValue() {
-        if(type == TokenType.INTEGER) {
-            return Integer.parseInt(value);
-        } else if(type == TokenType.DOUBLE) {
-            return Double.parseDouble(value);
+        if (numericValue != null) {
+            return numericValue;
+        }
+
+        if (type == TokenType.INTEGER) {
+            return numericValue = Integer.parseInt(value);
+        } else if (type == TokenType.DOUBLE) {
+            return numericValue = Double.parseDouble(value);
         } else {
             throw new IllegalArgumentException("Not a number type");
         }
@@ -35,7 +52,7 @@ public class Token {
     }
 
     public static Token fromInt(int value) {
-        return new Token(TokenType.INTEGER, String.valueOf(value));
+        return new Token(value);
     }
 
     public static Token fromString(String value) {
@@ -43,7 +60,7 @@ public class Token {
     }
 
     public static Token fromBool(boolean value) {
-        return new Token(TokenType.INTEGER, value ? "1" : "0");
+        return new Token(value ? 1 : 0);
     }
 
     public static Token fromTrue() {
