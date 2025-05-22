@@ -180,7 +180,7 @@ public class Evaluator {
         // We need to put the stack back to where it was.
         //
         // Put all the args back on the stack
-        for (int i = args.length - 1; i >= (args.length - numArgsPopped); i--) {
+        for (int i = args.length - numArgsPopped; i < args.length; i++) {
             stack.add(args[i]);
         }
 
