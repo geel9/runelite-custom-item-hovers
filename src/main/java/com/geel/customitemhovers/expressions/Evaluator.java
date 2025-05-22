@@ -16,7 +16,7 @@ import java.util.Stack;
  * and static eval mode (evaluate as much as possible now, but leave any statically-unresolvable expressions or
  * functions alone). Static eval mode is useful for reducing expressions to their minimal form, improving runtime performance.
  */
-class Evaluator {
+public class Evaluator {
     public static Token[] EvaluateExpression(CompiledExpression expression, ExecutionContext context) {
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
@@ -289,11 +289,21 @@ class Evaluator {
                 result = (leftVal.intValue() != 0 || rightVal.intValue() != 0) ? 1 : 0;
                 break;
             case BIT_AND:
+                result = leftVal.intValue() & rightVal.intValue();
+                break;
             case BIT_OR:
+                result = leftVal.intValue() | rightVal.intValue();
+                break;
             case BIT_XOR:
+                result = leftVal.intValue() ^ rightVal.intValue();
+                break;
             case BITSHIFT_LEFT:
+                result = leftVal.intValue() << rightVal.intValue();
+                break;
             case BITSHIFT_RIGHT:
-                throw new IllegalStateException("Bitwise operations are not presently supported");
+                // TODO: Figure out how this works with Java's insane lack of unsigned integers
+                result = leftVal.intValue() >> rightVal.intValue();
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + operatorToken.getType());
         }
@@ -380,6 +390,11 @@ class Evaluator {
      * This is true if either operand is a decimal itself, or if the operation is a division.
      */
     private static boolean isDoubleOperation(Token operatorToken, Token leftValue, Token rightValue) {
+        // If the operator is a bitwise operator, we aren't using doubles.
+        if (operatorToken.getType().isBitwiseOperator()) {
+            return false;
+        }
+
         // If a double is involved on either side, we get a double.
         if (leftValue.getType() == TokenType.DOUBLE || rightValue.getType() == TokenType.DOUBLE) {
             return true;
