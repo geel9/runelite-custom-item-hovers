@@ -5,13 +5,17 @@ public enum ArgumentType {
     INTEGER,
     DOUBLE,
     STRING,
-    LAMBDA;
+    LAMBDA,
+    GENERATOR,
+    NAMESPACE;
 
     public boolean fitsTokenType(TokenType type) {
         if (this == ANY) return type.isConstant();
         if (this == INTEGER || this == DOUBLE) return type == TokenType.INTEGER || type == TokenType.DOUBLE;
         if (this == STRING) return type == TokenType.STRING;
         if (this == LAMBDA) return type == TokenType.LAMBDA;
+        if (this == GENERATOR) return type == TokenType.GENERATOR;
+        if (this == NAMESPACE) return type == TokenType.NAMESPACE || type == TokenType.GENERATOR;
 
         return false; //Should never get here
     }
@@ -21,7 +25,7 @@ public enum ArgumentType {
             throw new IllegalArgumentException("Cannot coerce token of invalid type");
         }
 
-        if (this == ANY || this == LAMBDA) return token;
+        if (this == ANY || this == LAMBDA || this == GENERATOR || this == NAMESPACE) return token;
         if (this == INTEGER)
             return token.getType() == TokenType.INTEGER ? token : Token.fromInt(token.getNumericValue().intValue());
         if (this == DOUBLE)

@@ -227,7 +227,8 @@ public class Evaluator {
             args[i] = stack.pop();
             numArgsPopped++;
 
-            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval() && args[i].getType() == TokenType.LAMBDA);
+            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval()
+                    && (args[i].getType() == TokenType.LAMBDA || args[i].getType() == TokenType.GENERATOR));
 
             // If any args are non-const, we should stop immediately -- we won't be able to evaluate the function.
             // (We're either in static eval mode, in which case, any non-const args are always a no go -- or we're in
