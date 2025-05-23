@@ -139,7 +139,7 @@ public class InventoryNamespace extends Generator {
         }
 
         Item item = items[index++];
-        if (item == null) {
+        if (item == null || item.getId() == -1) {
             return moveNext(executionContext);
         }
 
