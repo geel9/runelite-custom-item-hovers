@@ -246,10 +246,11 @@ public abstract class Generator extends LazyObjectNamespace {
                     Token selector = args.length > 0 ? args[0] : null;
 
                     int count = 0;
-                    while ((moveNext(executionContext)) != null) {
+                    Token curToken;
+                    while ((curToken = moveNext(executionContext)) != null) {
                         // If selector is passed, evaluate it as sugar so people don't have to call .filter() first
                         if (selector != null) {
-                            Token result = executionContext.executeLambda(selector, new Token[]{moveNext(executionContext)});
+                            Token result = executionContext.executeLambda(selector, new Token[]{curToken});
                             if (!result.getBooleanValue()) {
                                 continue;
                             }
