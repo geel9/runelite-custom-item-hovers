@@ -2,9 +2,7 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
-import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.models.*;
-import com.geel.customitemhovers.expressions.providers.LazyNamespace;
 import com.geel.customitemhovers.providers.RootFunctionProvider;
 import org.junit.Test;
 
@@ -21,67 +19,16 @@ public class ExpressionTest {
         variableProvider.put("a", Variable.fromConstant("b"));
         variableProvider.put("b", Variable.fromConstant(2));
         variableProvider.put("c", Variable.fromConstant(4));
-
-        LazyNamespace namespace = new LazyNamespace();
-        namespace.addVariable("blah", (context) -> {
-            return Variable.fromConstant("5");
-        });
-        variableProvider.put("namespaceVar", Variable.fromNamespace(namespace));
-
         RootFunctionProvider functionProvider = new RootFunctionProvider(null, null);
-
-        // Add methods for testing lambdas
-        // eval() -- just takes in an expression and executes it, returning the result
-        functionProvider.add(new LambdaFixedArgsFunction("eval", TokenType.LAMBDA,
-                new ArgumentType[]{ArgumentType.LAMBDA}, (args, context) -> {
-            Token lambdaToken = args[0];
-
-            // Execute the expression within the current context
-            return context.executeLambdaNoArguments(lambdaToken);
-        }));
-
-        // range_sum() -- takes in an expression, rStart, and rEnd. Loops i from rStart to rEnd, evaluating the expression,
-        // returning the sum of all the results
-        functionProvider.add(new LambdaFixedArgsFunction("range_sum", TokenType.DOUBLE,
-                new ArgumentType[]{ArgumentType.LAMBDA, ArgumentType.INTEGER, ArgumentType.INTEGER},
-                (args, context) -> {
-                    Token lambdaToken = args[0];
-                    int start = args[1].getNumericValue().intValue();
-                    int end = args[2].getNumericValue().intValue();
-
-                    double sum = 0;
-                    for (int i = start; i <= end; i++) {
-                        Token result = context.executeLambda(lambdaToken, new Token[]{
-                                Token.fromInt(i),
-                                Token.fromDouble(sum)
-                        });
-
-                        sum += result.getNumericValue().doubleValue();
-                    }
-
-                    return Token.fromDouble(sum);
-                }));
-
         context = new ExecutionContext(functionProvider, variableProvider);
 
-        // namespace()
-        testStringExpr("namespaceFunc('5').blah", "5");
-        testStringExpr("namespaceVar.blah", "5");
-
-        // eval()
-        testStringExpr("eval({-> redStart()})", "<col=ff0000>");
-
-        // range_sum()
-        testDoubleExpr("range_sum({i -> i % 2 == 0 ? pow(i, 2) : 0}, 0, 10)", 220);
-        testDoubleExpr("range_sum({i, sum -> i % 2 == 0 ? pow(i, 2) : sum}, 0, 10)", 564);
-        testDoubleExpr("range_sum({i, sum, alwaysZeroBecauseNotPassed -> alwaysZeroBecauseNotPassed != 0 ? 100000 : (i % 2 == 0 ? pow(i, 2) : sum)}, 0, 10)",
-                564);
-
-        //range_sum() with nested range_sum, testing that `i` and `sum` are properly scoped
-        testDoubleExpr("range_sum({i, sum -> range_sum({i, sum -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 11); // Because both lambdas declare i and sum, they are scoped to the lambda
-        testDoubleExpr("range_sum({i, sum -> range_sum({i -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 600011.0); // Because the inner lambda doesn't declare sum, it inherits the outer sum.
-        testDoubleExpr("range_sum({i, sum -> range_sum({j, k, sum -> sum != 0 ? 10000 : 0}, 0, 5) + 1}, 0, 10)", 11.0); // Because the inner lambda does declare sum, and it's not passed by the caller, it is always 0
-
+        // range()
+        testDoubleExpr("range(1, 10).sum()", 55);
+        testDoubleExpr("range(0, 10).filter({i -> i % 2 == 0}).select({i -> i - 6}).sum()", -6);
+        testDoubleExpr("range(0, 10).any({i -> i >= 11})", 0);
+        testDoubleExpr("range(0, 10).any({i -> i >= 1})", 1);
+        testDoubleExpr("range(0, 10).filter({i -> i >= 1}).count()", 10);
+        testDoubleExpr("range(0, 10).filter({i -> i % 2 == 0}).select({i -> pow(i, 2)}).sum()", 220);
 
         // Functions
         testStringExpr("red(a)", "<col=ff0000>b</col>");

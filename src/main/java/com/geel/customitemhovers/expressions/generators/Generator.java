@@ -2,6 +2,7 @@ package com.geel.customitemhovers.expressions.generators;
 
 import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
+import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
@@ -38,7 +39,7 @@ public abstract class Generator extends LazyObjectNamespace {
                         do {
                             Token filterResult = generationContext.getExecutionContext().executeLambda(filter, new Token[]{curToken});
 
-                            if(filterResult.getBooleanValue()) {
+                            if (filterResult.getBooleanValue()) {
                                 return curToken;
                             }
                         } while ((curToken = generationContext.moveNext()) != null);
@@ -55,7 +56,7 @@ public abstract class Generator extends LazyObjectNamespace {
                     Token selector = args[0];
                     Token curToken;
 
-                    while((curToken = moveNext(executionContext)) != null) {
+                    while ((curToken = moveNext(executionContext)) != null) {
                         Token result = executionContext.executeLambda(selector, new Token[]{curToken});
 
                         if (result.getBooleanValue()) {
@@ -72,7 +73,7 @@ public abstract class Generator extends LazyObjectNamespace {
                     Token selector = args[0];
                     Token curToken;
 
-                    while((curToken = moveNext(executionContext)) != null) {
+                    while ((curToken = moveNext(executionContext)) != null) {
                         Token result = executionContext.executeLambda(selector, new Token[]{curToken});
 
                         if (result.getBooleanValue()) {
@@ -81,6 +82,66 @@ public abstract class Generator extends LazyObjectNamespace {
                     }
 
                     return Token.fromBool(false);
+                }
+        ));
+
+        addFunction(new LambdaVariadicFunction("max", TokenType.DOUBLE, ArgumentType.LAMBDA, new ArgumentType[0],
+                (args, executionContext) -> {
+                    Token selector = args.length > 0 ? args[0] : null;
+                    if (selector != null && selector.getType() != TokenType.LAMBDA) {
+                        throw new IllegalArgumentException("Selector must be a lambda");
+                    }
+
+                    double maxVal = Double.MIN_VALUE;
+                    Token selectedToken = null;
+
+                    Token curToken;
+                    while ((curToken = moveNext(executionContext)) != null) {
+                        Token compareToken = curToken;
+
+                        // If we have to transform it first, do so
+                        if (selector != null) {
+                            compareToken = executionContext.executeLambda(selector, new Token[]{curToken});
+                        }
+
+                        double curVal = compareToken.getNumericValue().doubleValue();
+                        if (curVal > maxVal) {
+                            maxVal = curVal;
+                            selectedToken = curToken;
+                        }
+                    }
+
+                    return selectedToken;
+                }
+        ));
+
+        addFunction(new LambdaVariadicFunction("min", TokenType.DOUBLE, ArgumentType.LAMBDA, new ArgumentType[0],
+                (args, executionContext) -> {
+                    Token selector = args.length > 0 ? args[0] : null;
+                    if (selector != null && selector.getType() != TokenType.LAMBDA) {
+                        throw new IllegalArgumentException("Selector must be a lambda");
+                    }
+
+                    double minVal = Double.MAX_VALUE;
+                    Token selectedToken = null;
+
+                    Token curToken;
+                    while ((curToken = moveNext(executionContext)) != null) {
+                        Token compareToken = curToken;
+
+                        // If we have to transform it first, do so
+                        if (selector != null) {
+                            compareToken = executionContext.executeLambda(selector, new Token[]{curToken});
+                        }
+
+                        double curVal = compareToken.getNumericValue().doubleValue();
+                        if (curVal < minVal) {
+                            minVal = curVal;
+                            selectedToken = curToken;
+                        }
+                    }
+
+                    return selectedToken;
                 }
         ));
 
