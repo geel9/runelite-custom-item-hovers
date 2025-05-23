@@ -23,8 +23,8 @@ public class InventoryVariableProvider extends LazyVariableProvider {
         this.client = client;
         this.itemManager = itemManager;
 
-        add("inv", context -> Variable.fromNamespace(new InventoryNamespace(InventoryID.INV, client, itemManager)));
-        add("bank", context -> Variable.fromNamespace(new InventoryNamespace(InventoryID.BANK, client, itemManager)));
-        add("equipment", context -> Variable.fromNamespace(new InventoryNamespace(InventoryID.WORN, client, itemManager)));
+        add("inv", context -> Variable.fromGenerator(new InventoryNamespace(InventoryID.INV, client, itemManager)));
+        add("bank", context -> Variable.fromGenerator(new InventoryNamespace(InventoryID.BANK, client, itemManager)));
+        add("equipment", context -> Variable.fromGenerator(new InventoryNamespace(InventoryID.WORN, client, itemManager)));
     }
 }

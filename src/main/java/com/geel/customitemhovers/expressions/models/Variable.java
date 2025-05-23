@@ -2,6 +2,7 @@ package com.geel.customitemhovers.expressions.models;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.generators.Generator;
 import com.geel.customitemhovers.expressions.providers.INamespace;
 import lombok.Getter;
 
@@ -44,6 +45,10 @@ public class Variable {
 
     public static Variable fromNamespace(INamespace namespace) {
         return new Variable(Token.fromNamespace(namespace));
+    }
+
+    public static Variable fromGenerator(Generator generator) {
+        return new Variable(Token.fromGenerator(generator));
     }
 
     public static Variable fromConstant(String value) {
