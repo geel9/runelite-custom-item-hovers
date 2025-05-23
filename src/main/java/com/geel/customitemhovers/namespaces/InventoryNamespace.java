@@ -3,7 +3,8 @@ package com.geel.customitemhovers.namespaces;
 import com.geel.customitemhovers.expressions.ExecutionContext;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.generators.Generator;
-import com.geel.customitemhovers.expressions.providers.SimpleNamespace;
+import com.geel.customitemhovers.expressions.providers.SimpleNonObjectNamespace;
+import com.geel.customitemhovers.expressions.providers.SimpleObjectNamespace;
 import com.geel.customitemhovers.providers.ItemStackVariableProvider;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
@@ -44,6 +45,6 @@ public class InventoryNamespace extends Generator {
         }
 
         ItemComposition itemComposition = itemManager.getItemComposition(item.getId());
-        return Token.fromNamespace(new SimpleNamespace(new ItemStackVariableProvider(item, itemComposition)));
+        return Token.fromNamespace(new SimpleObjectNamespace(new ItemStackVariableProvider(item, itemComposition)));
     }
 }

@@ -5,11 +5,11 @@ import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.Variable;
 
-public class LazyNamespace implements INamespace {
+public class LazyObjectNamespace extends BaseObjectNamespace {
     private final LazyVariableProvider variableProvider;
     private final BaseFunctionProvider functionProvider;
 
-    public LazyNamespace() {
+    public LazyObjectNamespace() {
         this.variableProvider = new LazyVariableProvider();
         this.functionProvider = new BaseFunctionProvider();
     }
@@ -20,7 +20,7 @@ public class LazyNamespace implements INamespace {
     }
 
     @Override
-    public Function findFunction(String name, Token[] args) {
+    protected Function innerFindFunction(String name, Token[] args) {
         return functionProvider.findFunction(name, args);
     }
 

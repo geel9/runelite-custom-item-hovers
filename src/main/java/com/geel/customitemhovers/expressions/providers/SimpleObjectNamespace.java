@@ -5,7 +5,7 @@ import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.Variable;
 import lombok.Getter;
 
-public class SimpleNamespace implements INamespace {
+public class SimpleObjectNamespace extends BaseObjectNamespace {
 
     @Getter
     private final IFunctionProvider functionProvider;
@@ -16,33 +16,33 @@ public class SimpleNamespace implements INamespace {
     @Getter
     private final INamespace parentNamespace;
 
-    public SimpleNamespace(IFunctionProvider functionProvider,
-                           IVariableProvider variableProvider,
-                           INamespace parentNamespace) {
+    public SimpleObjectNamespace(IFunctionProvider functionProvider,
+                                 IVariableProvider variableProvider,
+                                 INamespace parentNamespace) {
         this.functionProvider = functionProvider;
         this.variableProvider = variableProvider;
         this.parentNamespace = parentNamespace;
     }
 
-    public SimpleNamespace(IFunctionProvider functionProvider,
-                           IVariableProvider variableProvider) {
+    public SimpleObjectNamespace(IFunctionProvider functionProvider,
+                                 IVariableProvider variableProvider) {
         this(functionProvider, variableProvider, null);
     }
 
-    public SimpleNamespace(IFunctionProvider functionProvider) {
+    public SimpleObjectNamespace(IFunctionProvider functionProvider) {
         this(functionProvider, null);
     }
 
-    public SimpleNamespace(IVariableProvider variableProvider) {
+    public SimpleObjectNamespace(IVariableProvider variableProvider) {
         this(null, variableProvider);
     }
 
-    public SimpleNamespace(INamespace parentNamespace) {
+    public SimpleObjectNamespace(INamespace parentNamespace) {
         this(null, null, parentNamespace);
     }
 
     @Override
-    public Function findFunction(String name, Token[] arguments) {
+    public Function innerFindFunction(String name, Token[] arguments) {
         Function function = functionProvider == null ? null : functionProvider.findFunction(name, arguments);
 
         if (function == null && parentNamespace != null) {

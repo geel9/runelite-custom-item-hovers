@@ -4,12 +4,11 @@ import com.geel.customitemhovers.expressions.functions.Function;
 import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.*;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Context for expression execution -- packages together providers of functions and variables
  */
-public class ExecutionContext implements INamespace {
+public class ExecutionContext extends BaseNonObjectNamespace {
     @Getter
     private final INamespace rootNamespace;
 
@@ -22,7 +21,7 @@ public class ExecutionContext implements INamespace {
     }
 
     public ExecutionContext(IFunctionProvider functionProvider, IVariableProvider variableProvider) {
-        this.rootNamespace = new SimpleNamespace(functionProvider, variableProvider);
+        this.rootNamespace = new SimpleNonObjectNamespace(functionProvider, variableProvider);
         this.staticEval = false;
     }
 
@@ -57,7 +56,7 @@ public class ExecutionContext implements INamespace {
         }
 
         // Create a new namespace for the execution
-        INamespace newNamespace = new SimpleNamespace(null, newScopeProvider, rootNamespace);
+        INamespace newNamespace = new SimpleNonObjectNamespace(null, newScopeProvider, rootNamespace);
         ExecutionContext newContext = new ExecutionContext(newNamespace);
 
         // Execute the lambda

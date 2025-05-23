@@ -5,9 +5,10 @@ import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.Token;
 import com.geel.customitemhovers.expressions.models.TokenType;
-import com.geel.customitemhovers.expressions.providers.LazyNamespace;
+import com.geel.customitemhovers.expressions.providers.LazyNonObjectNamespace;
+import com.geel.customitemhovers.expressions.providers.LazyObjectNamespace;
 
-public abstract class Generator extends LazyNamespace {
+public abstract class Generator extends LazyObjectNamespace {
     public Generator() {
         super();
 
