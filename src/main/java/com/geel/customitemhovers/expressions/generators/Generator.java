@@ -15,6 +15,10 @@ public abstract class Generator extends LazyObjectNamespace {
 
         // Add generator functions
         // TODO: don't do any of this in the constructor, implement INamespace directly and switch() for perf reasons
+
+        // select(lambda)
+        // Consumes a generator and feeds each token into `lambda`, emitting the output
+        // This allows users to transform streams of objects in a functional way.
         addFunction(new LambdaFixedArgsFunction("select", TokenType.GENERATOR,
                 new ArgumentType[]{ArgumentType.LAMBDA},
                 (args, executionContext) -> {
@@ -28,6 +32,9 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
+        // filter(lambda)
+        // Consumes a generator and feeds each token into `lambda`, emitting the token if the lambda returns a truthy value
+        // This allows users to filter streams of objects
         addFunction(new LambdaFixedArgsFunction("filter", TokenType.GENERATOR,
                 new ArgumentType[]{ArgumentType.LAMBDA},
                 (args, executionContext) -> {
@@ -51,14 +58,21 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
-        addFunction(new LambdaFixedArgsFunction("first", TokenType.NAMESPACE, new ArgumentType[]{ArgumentType.LAMBDA},
+        // first(lambda?)
+        // Consumes a generator and feeds each token into `lambda`, returning the first token that returns a truthy value
+        // If no lambda is passed, just returns the first token
+        addFunction(new LambdaVariadicFunction("first", TokenType.NAMESPACE, ArgumentType.LAMBDA, new ArgumentType[0],
                 (args, executionContext) -> {
-                    Token selector = args[0];
+                    Token selector = args.length > 0 ? args[0] : null;
                     Token curToken;
 
                     while ((curToken = moveNext(executionContext)) != null) {
-                        Token result = executionContext.executeLambda(selector, new Token[]{curToken});
+                        // If no selector, we just return the first one (literally)
+                        if (selector == null) {
+                            return curToken;
+                        }
 
+                        Token result = executionContext.executeLambda(selector, new Token[]{curToken});
                         if (result.getBooleanValue()) {
                             return curToken;
                         }
@@ -68,12 +82,51 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
+        // last(lambda?)
+        // Consumes a generator and feeds each token into `lambda`, returning the last token that returns a truthy value
+        // If no lambda is passed, just returns the last token
+        addFunction(new LambdaVariadicFunction("last", TokenType.NAMESPACE, ArgumentType.LAMBDA, new ArgumentType[0],
+                (args, executionContext) -> {
+                    Token selector = args.length > 0 ? args[0] : null;
+                    Token lastToken = null;
+
+                    while (true) {
+                        // Generate next token
+                        Token nextToken = moveNext(executionContext);
+                        if (nextToken == null) {
+                            break;
+                        }
+
+                        // If selector exists, evaluate it
+                        if (selector != null) {
+                            Token result = executionContext.executeLambda(selector, new Token[]{nextToken});
+
+                            if (!result.getBooleanValue()) {
+                                continue;
+                            }
+                        }
+
+                        lastToken = nextToken;
+                    }
+
+                    return lastToken;
+                }
+        ));
+
+        // any(lambda?)
+        // Consumes a generator and feeds each token into `lambda`, returning true if any token returns a truthy value
+        // If no lambda is passed, just returns true if the generator has any tokens
         addFunction(new LambdaFixedArgsFunction("any", TokenType.INTEGER, new ArgumentType[]{ArgumentType.LAMBDA},
                 (args, executionContext) -> {
-                    Token selector = args[0];
+                    Token selector = args.length > 0 ? args[0] : null;
                     Token curToken;
 
                     while ((curToken = moveNext(executionContext)) != null) {
+                        // If no selector, we just return the first one (literally)
+                        if (selector == null) {
+                            return Token.fromBool(true);
+                        }
+
                         Token result = executionContext.executeLambda(selector, new Token[]{curToken});
 
                         if (result.getBooleanValue()) {
@@ -85,6 +138,28 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
+        // all(lambda)
+        // Consumes a generator and feeds each token into `lambda`, returning true if all tokens return a truthy value
+        addFunction(new LambdaFixedArgsFunction("all", TokenType.INTEGER, new ArgumentType[]{ArgumentType.LAMBDA},
+                (args, executionContext) -> {
+                    Token selector = args[0];
+
+                    Token curToken;
+                    while ((curToken = moveNext(executionContext)) != null) {
+                        Token result = executionContext.executeLambda(selector, new Token[]{curToken});
+
+                        if (!result.getBooleanValue()) {
+                            return Token.fromBool(false);
+                        }
+                    }
+
+                    return Token.fromBool(true);
+                }
+        ));
+
+        // max(lambda?)
+        // Consumes a generator and returns the largest token.
+        // If a lambda is passed, it will be evaluated for each token, and the output will be used as the comparator instead of the token itself
         addFunction(new LambdaVariadicFunction("max", TokenType.DOUBLE, ArgumentType.LAMBDA, new ArgumentType[0],
                 (args, executionContext) -> {
                     Token selector = args.length > 0 ? args[0] : null;
@@ -115,6 +190,9 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
+        // min(lambda?)
+        // Consumes a generator and returns the smallest token.
+        // If a lambda is passed, it will be evaluated for each token, and the output will be used as the comparator instead of the token itself
         addFunction(new LambdaVariadicFunction("min", TokenType.DOUBLE, ArgumentType.LAMBDA, new ArgumentType[0],
                 (args, executionContext) -> {
                     Token selector = args.length > 0 ? args[0] : null;
@@ -145,6 +223,8 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
+        // sum()
+        // Consumes a generator and returns the sum of all tokens.
         addFunction(new LambdaFixedArgsFunction("sum", TokenType.DOUBLE, new ArgumentType[0],
                 (args, executionContext) -> {
                     double sum = 0;
@@ -158,10 +238,23 @@ public abstract class Generator extends LazyObjectNamespace {
                 }
         ));
 
-        addFunction(new LambdaFixedArgsFunction("count", TokenType.DOUBLE, new ArgumentType[0],
+        // count(lambda?)
+        // Consumes a generator and returns the number of tokens which pass the lambda
+        // If no lambda is passed, just returns the number of tokens
+        addFunction(new LambdaVariadicFunction("count", TokenType.DOUBLE, ArgumentType.LAMBDA, new ArgumentType[0],
                 (args, executionContext) -> {
+                    Token selector = args.length > 0 ? args[0] : null;
+
                     int count = 0;
                     while ((moveNext(executionContext)) != null) {
+                        // If selector is passed, evaluate it as sugar so people don't have to call .filter() first
+                        if (selector != null) {
+                            Token result = executionContext.executeLambda(selector, new Token[]{moveNext(executionContext)});
+                            if (!result.getBooleanValue()) {
+                                continue;
+                            }
+                        }
+
                         count++;
                     }
 
