@@ -16,6 +16,37 @@ public abstract class Generator extends LazyObjectNamespace {
         // Add generator functions
         // TODO: don't do any of this in the constructor, implement INamespace directly and switch() for perf reasons
 
+        // concat(generator)
+        // Consumes a generator and returns a new generator that emits all tokens from the original generator
+        // This allows users to chain generators together
+        addFunction(new LambdaFixedArgsFunction("concat", TokenType.GENERATOR,
+                new ArgumentType[]{ArgumentType.GENERATOR},
+                (args, executionContext) -> {
+                    final Generator firstGenerator = this;
+                    final Generator secondGenerator = (Generator)args[0].getNamespaceValue();
+
+                    final boolean[] emptyGenerator = new boolean[]{false};
+
+                    Generator newGenerator = new LambdaGenerator(generationContext -> {
+                        boolean firstIsEmpty = emptyGenerator[0];
+
+                        if(!firstIsEmpty) {
+                            Token next = firstGenerator.moveNext(generationContext);
+                            if (next != null) {
+                                return next;
+                            }
+
+                            // If the first generator is empty, we can skip to the second one
+                            emptyGenerator[0] = true;
+                        }
+
+                        return secondGenerator.moveNext(generationContext);
+                    });
+
+                    return Token.fromNamespace(newGenerator);
+                }
+        ));
+
         // select(lambda)
         // Consumes a generator and feeds each token into `lambda`, emitting the output
         // This allows users to transform streams of objects in a functional way.
