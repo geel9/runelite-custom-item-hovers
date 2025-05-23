@@ -108,6 +108,7 @@ public class Compiler {
             // Handle left paren
             if (token.getType() == TokenType.PAREN_LEFT) {
                 operatorStack.add(token);
+                continue;
             }
 
             // Handle right paren

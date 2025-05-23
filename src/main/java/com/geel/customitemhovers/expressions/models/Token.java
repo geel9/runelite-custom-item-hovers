@@ -1,5 +1,6 @@
 package com.geel.customitemhovers.expressions.models;
 
+import com.geel.customitemhovers.expressions.generators.Generator;
 import com.geel.customitemhovers.expressions.providers.INamespace;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,6 +65,16 @@ public class Token {
         }
     }
 
+    public boolean getBooleanValue() {
+        if (type == TokenType.INTEGER) {
+            return getNumericValue().intValue() != 0;
+        } else if (type == TokenType.DOUBLE) {
+            return Math.abs(getNumericValue().doubleValue()) > 0.0001;
+        } else {
+            throw new IllegalArgumentException("Not a boolean type");
+        }
+    }
+
     public static Token fromDouble(double value) {
         return new Token(TokenType.DOUBLE, String.valueOf(value));
     }
@@ -91,6 +102,12 @@ public class Token {
     public static Token fromNamespace(INamespace namespace) {
         Token token = new Token(TokenType.NAMESPACE, null);
         token.namespaceValue = namespace;
+        return token;
+    }
+
+    public static Token fromGenerator(Generator generator) {
+        Token token = new Token(TokenType.GENERATOR, null);
+        token.namespaceValue = generator;
         return token;
     }
 }

@@ -6,8 +6,7 @@ import com.geel.customitemhovers.expressions.functions.LambdaFixedArgsFunction;
 import com.geel.customitemhovers.expressions.functions.LambdaVariadicFunction;
 import com.geel.customitemhovers.expressions.models.*;
 import com.geel.customitemhovers.expressions.providers.BaseFunctionProvider;
-import com.geel.customitemhovers.expressions.providers.INamespace;
-import com.geel.customitemhovers.expressions.providers.LazyNamespace;
+import com.geel.customitemhovers.expressions.generators.LambdaGenerator;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.ColorUtil;
@@ -67,14 +66,21 @@ public class RootFunctionProvider extends BaseFunctionProvider {
      * Creates varbit-related functions
      */
     private void prepareVarBitFunctions() {
-        add(new LambdaFixedArgsFunction("namespaceFunc", TokenType.NAMESPACE, new ArgumentType[]{ArgumentType.ANY}, (args, context) -> {
-            LazyNamespace newNamespace = new LazyNamespace();
-            newNamespace.addVariable("blah", (ctx) -> {
-                return new Variable(args[0]);
-            });
+        add(new LambdaFixedArgsFunction("range", TokenType.GENERATOR, new ArgumentType[]{ArgumentType.INTEGER, ArgumentType.INTEGER},
+                (args, context) -> {
+                    // TODO this is a fuckin' hack
+                    final int[] start = {args[0].getNumericValue().intValue()};
+                    int end = args[1].getNumericValue().intValue();
 
-            return Token.fromNamespace(newNamespace);
-        }));
+                    return Token.fromGenerator(new LambdaGenerator(ctx -> {
+                        if(start[0] > end) {
+                            return null;
+                        }
+
+                        int value = start[0]++;
+                        return Token.fromInt(value);
+                    }));
+                }));
 
         // The varbit(varbitId) function returns the integer value of a varbit
         add(new LambdaFixedArgsFunction("varbit", TokenType.INTEGER, new ArgumentType[]{ArgumentType.INTEGER}, (args, context) -> {

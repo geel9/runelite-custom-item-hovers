@@ -22,7 +22,7 @@ public class Evaluator {
     public static Token[] EvaluateExpression(CompiledExpression expression, ExecutionContext context) {
         // TODO: Pretty sure that in static eval mode, there's a bug where:
         //       1. We have a statically-available var, `x`
-        //       2. Someone writes `namspace.x`
+        //       2. Someone writes `namespace.x`
         //       3. At static eval time, we don't realize that `x` is supposed to be namespaced.
         Token[] rpn = expression.getTokens();
         Stack<Token> stack = new Stack<>();
@@ -413,7 +413,8 @@ public class Evaluator {
         }
 
         Token leftValue = stack.pop();
-        if (leftValue.getType() != TokenType.NAMESPACE) {
+        INamespace newNamespace = leftValue.getNamespaceValue(); // If a token has a Namespace value, treat it as a namespace regardless of Type
+        if (newNamespace == null) {
             throw new IllegalArgumentException("Left value must be a namespace");
         }
 
@@ -421,7 +422,6 @@ public class Evaluator {
             throw new IllegalArgumentException("Current namespace must be null");
         }
 
-        INamespace newNamespace = leftValue.getNamespaceValue();
         context.setCurrentNamespace(newNamespace);
     }
 

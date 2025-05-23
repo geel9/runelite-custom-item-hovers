@@ -28,6 +28,7 @@ public enum TokenType {
     LAMBDA(3, null), // Produced by the Compiler
     NAMESPACE(3, null), // Produced by the Compiler; an "object"
     NAMESPACE_ACCESSOR(3, ".", true), // Produced by the Compiler; an "object" member access
+    GENERATOR(3, null), // Produced by the Compiler; a "generator"
     BITSHIFT_LEFT(4, "<<"),
     BITSHIFT_RIGHT(4, ">>"),
     CMP_LT(5, "<"),
@@ -163,7 +164,7 @@ public enum TokenType {
     }
 
     public boolean isValue() {
-        return isVariable() || isConstant() || this == LAMBDA || this == NAMESPACE;
+        return isVariable() || isConstant() || this == LAMBDA || this == NAMESPACE || this == GENERATOR;
     }
 
     public boolean isFunction() {

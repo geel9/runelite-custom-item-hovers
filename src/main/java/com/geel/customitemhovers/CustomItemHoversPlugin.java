@@ -12,10 +12,7 @@ import com.geel.customitemhovers.models.hovers.ParsedHover;
 import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.geel.customitemhovers.namespaces.RootNamespace;
-import com.geel.customitemhovers.providers.ItemStackVariableProvider;
-import com.geel.customitemhovers.providers.PlayerVariableProvider;
-import com.geel.customitemhovers.providers.RootFunctionProvider;
-import com.geel.customitemhovers.providers.RootVariableProvider;
+import com.geel.customitemhovers.providers.*;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +84,9 @@ public class CustomItemHoversPlugin extends Plugin {
 
     @Inject
     private PlayerVariableProvider playerVariableProvider;
+
+    @Inject
+    private InventoryVariableProvider inventoryVariableProvider;
 
     @Provides
     CustomItemHoversConfig getConfig(ConfigManager configManager) {
@@ -162,7 +162,7 @@ public class CustomItemHoversPlugin extends Plugin {
 
     /**
      * Resets the cache of the item hover.
-     *
+     * <p>
      * This system seems badly coupled. I should refactor this. Blech.
      */
     public void resetHoveredItemCache() {
@@ -171,10 +171,9 @@ public class CustomItemHoversPlugin extends Plugin {
     }
 
     /**
-     *
      * For the given Item in a supported container, returns a String array, each representing
      * HTML that should be rendered in a hover box.
-     *
+     * <p>
      * Fully processes all expressions contained within hover texts.
      */
     public String[] getItemHovers(Item item) {
@@ -206,7 +205,13 @@ public class CustomItemHoversPlugin extends Plugin {
         // Prepare expression execution context
         // TODO: cache ItemStackVariableProvider
         ItemTableCollection tableCollection = itemTableManager.getCollectionForItem(comp.getName());
-        RootVariableProvider variableProvider = new RootVariableProvider(tableCollection, playerVariableProvider, new ItemStackVariableProvider(item, comp));
+        RootVariableProvider variableProvider = new RootVariableProvider(
+                tableCollection,
+                playerVariableProvider,
+                new ItemStackVariableProvider(item, comp),
+                inventoryVariableProvider
+        );
+
         INamespace namespace = new RootNamespace(functionProvider, variableProvider);
         ExecutionContext context = new ExecutionContext(namespace);
 
@@ -215,16 +220,16 @@ public class CustomItemHoversPlugin extends Plugin {
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef hoverDef : hovers.get(itemID)) {
             // If the hoverdef has a condition, evaluate it first
-            if(hoverDef.Condition != null) {
+            if (hoverDef.Condition != null) {
                 Token conditionResult = EvaluationUtil.EvaluateAtRuntime(hoverDef.Condition, context);
-                if(conditionResult.getNumericValue().intValue() == 0) {
+                if (conditionResult.getNumericValue().intValue() == 0) {
                     continue;
                 }
             }
 
             for (ParsedHover parsedHover : hoverDef.ParsedHoverTexts) {
                 String transformed = HoverEvaluator.Evaluate(parsedHover, context);
-                if(transformed == null) {
+                if (transformed == null) {
                     continue;
                 }
 
@@ -241,7 +246,7 @@ public class CustomItemHoversPlugin extends Plugin {
         }
 
         // Warn about obsolete expressions if we find any
-        if(obsoleteExpressionDetected) {
+        if (obsoleteExpressionDetected) {
             warnObsoleteExpression();
         }
 

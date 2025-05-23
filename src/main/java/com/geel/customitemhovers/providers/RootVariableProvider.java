@@ -25,9 +25,15 @@ public class RootVariableProvider extends MultiVariableProvider {
     @Getter
     private ItemStackVariableProvider itemStackVariableProvider;
 
-    public RootVariableProvider(ItemTableCollection tableCollection, PlayerVariableProvider playerVariableProvider,
-                                ItemStackVariableProvider itemStackVariableProvider) {
+    @Getter
+    private InventoryVariableProvider inventoryVariableProvider;
+
+    public RootVariableProvider(ItemTableCollection tableCollection,
+                                PlayerVariableProvider playerVariableProvider,
+                                ItemStackVariableProvider itemStackVariableProvider,
+                                InventoryVariableProvider inventoryVariableProvider) {
         super(tableCollection, playerVariableProvider);
         this.Add(itemStackVariableProvider);
+        this.Add(inventoryVariableProvider);
     }
 }
