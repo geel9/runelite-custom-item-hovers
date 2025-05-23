@@ -1,4 +1,5 @@
 package com.geel.customitemhovers.expressions;
+
 import com.geel.customitemhovers.expressions.models.*;
 
 import java.util.ArrayList;
@@ -6,7 +7,7 @@ import java.util.Stack;
 
 /**
  * Performs the Shunting Yard Algorithm to convert an infix mathematical expression to Reverse Polish Notation (postfix).
- *
+ * <p>
  * This is here so that we can enable rich mathematical expressions, including variables and functions, in
  * item hover text.
  */
@@ -30,14 +31,23 @@ public class Compiler {
             Token token = tokenized[i];
 
             // Handle sub-expressions (ez)
-            if(token.getType() == TokenType.LAMBDA) {
+            if (token.getType() == TokenType.LAMBDA) {
                 token.setCompiledLambda(Compile(token.getTokenizedLambda()));
                 token.setTokenizedLambda(null);
                 outputQueue.add(token);
                 continue;
             }
 
-            // Handle numbers and variables
+            // If the top of the stack is a namespace accessor, we need to "consume" it to mark the variable/function we just read as namespace-accessing
+            if (token.getType().isVariable() || token.getType().isFunction()) {
+                Token topOfStack = operatorStack.isEmpty() ? null : operatorStack.peek();
+
+                if (topOfStack != null && topOfStack.getType() == TokenType.NAMESPACE_ACCESSOR) {
+                    token.setNamespacedAccess(true);
+                    operatorStack.pop();
+                }
+            }
+
             if (token.getType().isValue()) {
                 outputQueue.add(token);
                 continue;
@@ -45,7 +55,7 @@ public class Compiler {
 
             // Handle accessors
             if (token.getType() == TokenType.NAMESPACE_ACCESSOR) {
-                outputQueue.add(token);
+                operatorStack.add(token);
                 continue;
             }
 
@@ -61,7 +71,7 @@ public class Compiler {
                 //       We do this because we track the number of function arguments by incrementing whenever we encounter
                 //       an argument separator (comma), so to handle single-argument (no-comma) scenarios we start with 1,
                 //       but this breaks in a no-argument scenario.
-                if(i + 2 < tokenized.length
+                if (i + 2 < tokenized.length
                         && tokenized[i + 2].getType() == TokenType.PAREN_RIGHT) {
                     numArgsToInitiateWith = 0;
                 }
@@ -71,7 +81,7 @@ public class Compiler {
             }
 
             // Handle comma
-            if(token.getType() == TokenType.COMMA) {
+            if (token.getType() == TokenType.COMMA) {
                 // While the top of the stack isn't a left paren, pop from operator stack to output queue
                 while (true) {
                     // If the stack is empty before we hit a left paren, there's a mismatch
@@ -132,7 +142,7 @@ public class Compiler {
 
                 // If the top of the operator stack is a function, then the function should also be moved now
                 if (!operatorStack.isEmpty() && operatorStack.peek().getType() == TokenType.FUNCTION) {
-                    if(functionArgs.size() == 0) {
+                    if (functionArgs.size() == 0) {
                         throw new IllegalArgumentException("Function argument stack corrupted");
                     }
 
@@ -160,7 +170,7 @@ public class Compiler {
 
     /**
      * Called when processing an operator token.
-     *
+     * <p>
      * Determines if the top of the stack should be popped to the output queue before the new operator
      * is added to the stack.
      */

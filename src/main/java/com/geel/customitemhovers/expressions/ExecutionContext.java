@@ -14,10 +14,6 @@ public class ExecutionContext implements INamespace {
     private final INamespace rootNamespace;
 
     @Getter
-    @Setter
-    private INamespace currentNamespace = null;
-
-    @Getter
     private final boolean staticEval;
 
     public ExecutionContext(INamespace rootNamespace) {
@@ -72,25 +68,11 @@ public class ExecutionContext implements INamespace {
 
     @Override
     public Variable resolveVariable(String variableName) {
-        if (currentNamespace != null) {
-            Variable variable = currentNamespace.resolveVariable(variableName);
-            currentNamespace = null;
-
-            return variable;
-        }
-
         return rootNamespace.resolveVariable(variableName);
     }
 
     @Override
     public Function findFunction(String functionName, Token[] arguments) {
-        if (currentNamespace != null) {
-            Function function = currentNamespace.findFunction(functionName, arguments);
-            currentNamespace = null;
-
-            return function;
-        }
-
         return rootNamespace.findFunction(functionName, arguments);
     }
 }

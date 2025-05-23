@@ -36,32 +36,27 @@ public class Evaluator {
                 if (isLast && !isFirst) {
                     // TODO: explain myself
                     boolean isDanglingStatic = context.isStaticEval() && stack.peek().getType() != TokenType.NAMESPACE_ACCESSOR;
-                    boolean isDanglingRuntime = !context.isStaticEval() && context.getCurrentNamespace() == null;
+//                    boolean isDanglingRuntime = !context.isStaticEval() && context.getCurrentNamespace() == null;
+                    boolean isDanglingRuntime = false;
 
-                    if(isDanglingStatic || isDanglingRuntime) {
+                    if (isDanglingStatic || isDanglingRuntime) {
                         throw new IllegalArgumentException("Dangling value");
                     }
-
                 }
 
-                stack.add(evaluateValue(token, context));
+                stack.add(evaluateValue(stack, token, context));
                 continue;
             }
 
             // Handle functions
             if (token.getType().isFunction()) {
-                if (stack.isEmpty() && token.getNumFunctionArgs() != 0) {
-                    throw new IllegalArgumentException("Function called with empty stack");
-                }
-
                 stack.add(evaluateFunction(stack, token, context));
                 continue;
             }
 
             // Handle namespace accessor
             if (token.getType().isNamespaceAccessor()) {
-                evaluateNamespaceAccessor(stack, token, context);
-                continue;
+                throw new IllegalArgumentException("Namespace accessors should not be on the stack");
             }
 
             // Handle operators
@@ -119,6 +114,7 @@ public class Evaluator {
      * Otherwise, the Token is a variable; evaluate the variable.
      */
     private static Token evaluateValue(
+            Stack<Token> stack,
             Token value,
             ExecutionContext context
     ) {
@@ -133,8 +129,31 @@ public class Evaluator {
         }
 
         // Evaluate variable
-        // TODO: Won't support expressions-as-variables
-        Variable variableVal = context.resolveVariable(value.getValue());
+
+        // If we're in static eval mode, and the variable is namespaced, don't attempt to resolve it
+        // TODO: Theoretically we can maybe allow this?
+        if (context.isStaticEval() && value.isNamespacedAccess()) {
+            return value;
+        }
+
+        INamespace searchNamespace = context;
+
+        // If the variable is namespaced, the namespace will be on top of the stack -- pop it
+        if (value.isNamespacedAccess()) {
+            if (stack.isEmpty()) {
+                throw new IllegalArgumentException("Stack is empty -- expected namespace for variable resolution");
+            }
+
+            Token namespaceToken = stack.pop();
+            INamespace namespace = namespaceToken.getNamespaceValue();
+            if (namespace == null) {
+                throw new IllegalArgumentException("Left value must be a namespace");
+            }
+
+            searchNamespace = namespace;
+        }
+
+        Variable variableVal = searchNamespace.resolveVariable(value.getValue());
         if (variableVal == null) {
             // If we can't evaluate the variable, and we're in static eval mode, just return the variable token
             if (context.isStaticEval()) {
@@ -186,10 +205,17 @@ public class Evaluator {
             ExecutionContext context) {
         String name = functionToken.getValue();
         int numArgs = functionToken.getNumFunctionArgs();
+        int totalStackSize = functionToken.getTotalArgumentStackSize();
 
         // Ensure stack has the right amount of arguments
-        if (stack.size() < numArgs) {
+        if (stack.size() < totalStackSize) {
             throw new IllegalArgumentException("Function called with too few arguments on stack");
+        }
+
+        // We can't do namespaced functions in static eval mode
+        // TODO: Maybe support that?
+        if (context.isStaticEval() && functionToken.isNamespacedAccess()) {
+            return functionToken;
         }
 
         // Parse out the args.
@@ -213,9 +239,21 @@ public class Evaluator {
             }
         }
 
+        INamespace searchNamespace = context;
+        if(functionToken.isNamespacedAccess()) {
+            Token namespaceToken = stack.pop();
+            INamespace namespace = namespaceToken.getNamespaceValue();
+
+            if (namespace == null) {
+                throw new IllegalArgumentException("Left value must be a namespace");
+            }
+
+            searchNamespace = namespace;
+        }
+
         // If all the arguments are const, then try to find a function that fits
         if (allConst) {
-            Function func = context.findFunction(name, args);
+            Function func = searchNamespace.findFunction(name, args);
             if (func != null && (!context.isStaticEval() || func.isConstExpr())) {
                 // We found a function, and either we're not in static eval mode, or we are and it's a constexpr func
                 return func.execute(args, context);
@@ -394,35 +432,6 @@ public class Evaluator {
             default:
                 throw new IllegalArgumentException("Unknown string operator " + operatorToken.getValue());
         }
-    }
-
-    private static void evaluateNamespaceAccessor(
-            Stack<Token> stack,
-            Token operatorToken,
-            ExecutionContext context
-    ) {
-        // If in static eval mode, just put the token onto the stack
-        if (context.isStaticEval()) {
-            stack.add(operatorToken);
-            return;
-        }
-
-        // In runtime eval mode, pop the left value off the stack
-        if (stack.isEmpty()) {
-            throw new IllegalArgumentException("Stack is empty");
-        }
-
-        Token leftValue = stack.pop();
-        INamespace newNamespace = leftValue.getNamespaceValue(); // If a token has a Namespace value, treat it as a namespace regardless of Type
-        if (newNamespace == null) {
-            throw new IllegalArgumentException("Left value must be a namespace");
-        }
-
-        if(context.getCurrentNamespace() != null) {
-            throw new IllegalArgumentException("Current namespace must be null");
-        }
-
-        context.setCurrentNamespace(newNamespace);
     }
 
     /**

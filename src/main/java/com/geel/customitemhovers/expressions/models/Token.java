@@ -19,6 +19,10 @@ public class Token {
 
     @Getter
     @Setter
+    private boolean isNamespacedAccess;
+
+    @Getter
+    @Setter
     private int numFunctionArgs = 0;
 
     @Getter
@@ -73,6 +77,10 @@ public class Token {
         } else {
             throw new IllegalArgumentException("Not a boolean type");
         }
+    }
+
+    public int getTotalArgumentStackSize() {
+        return numFunctionArgs + (isNamespacedAccess ? 1 : 0);
     }
 
     public static Token fromDouble(double value) {
