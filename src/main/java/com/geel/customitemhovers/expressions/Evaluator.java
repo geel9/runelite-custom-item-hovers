@@ -33,15 +33,12 @@ public class Evaluator {
 
             // Handle values
             if (token.getType().isValue() || token.getType().isVariable()) {
-                if (isLast && !isFirst) {
-                    // TODO: explain myself
-                    boolean isDanglingStatic = context.isStaticEval() && stack.peek().getType() != TokenType.NAMESPACE_ACCESSOR;
-//                    boolean isDanglingRuntime = !context.isStaticEval() && context.getCurrentNamespace() == null;
-                    boolean isDanglingRuntime = false;
-
-                    if (isDanglingStatic || isDanglingRuntime) {
-                        throw new IllegalArgumentException("Dangling value");
-                    }
+                if (isLast && !isFirst && !token.isNamespacedAccess()) {
+                    // A value/variable can only be the last token in the expression IF it's the ONLY token in the expression
+                    // (ie, the expression is just a single value/variable)
+                    // However, for namespaced accessors (eg `inv.qty`), we'll have a value at the end of a 2-token expression,
+                    // which is valid ONLY BECAUSE it's a namespaced access.
+                    throw new IllegalArgumentException("Dangling value at end of expression");
                 }
 
                 stack.add(evaluateValue(stack, token, context));
