@@ -43,7 +43,7 @@ public abstract class Generator extends LazyObjectNamespace {
                         return secondGenerator.moveNext(generationContext);
                     });
 
-                    return Token.fromNamespace(newGenerator);
+                    return Token.fromGenerator(newGenerator);
                 }
         ));
 
