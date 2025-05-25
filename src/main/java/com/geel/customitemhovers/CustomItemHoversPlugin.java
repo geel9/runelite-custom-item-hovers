@@ -9,7 +9,6 @@ import com.geel.customitemhovers.expressions.providers.INamespace;
 import com.geel.customitemhovers.models.hovers.HoverFile;
 import com.geel.customitemhovers.models.hovers.HoverDef;
 import com.geel.customitemhovers.models.hovers.ParsedHover;
-import com.geel.customitemhovers.models.itemtables.ParsedItemTableEntry;
 import com.geel.customitemhovers.models.itemtables.ItemTableCollection;
 import com.geel.customitemhovers.namespaces.RootNamespace;
 import com.geel.customitemhovers.providers.*;
@@ -80,7 +79,7 @@ public class CustomItemHoversPlugin extends Plugin {
     private ItemTableManager itemTableManager;
 
     @Inject
-    private RootFunctionProvider functionProvider;
+    private GlobalFunctionProvider globalFunctionProvider;
 
     @Inject
     private PlayerVariableProvider playerVariableProvider;
@@ -211,14 +210,19 @@ public class CustomItemHoversPlugin extends Plugin {
                 new ItemStackVariableProvider(item, comp),
                 inventoryVariableProvider
         );
+        RootFunctionProvider rootFunctionProvider = new RootFunctionProvider(globalFunctionProvider, null);
 
-        INamespace namespace = new RootNamespace(functionProvider, variableProvider);
+        INamespace namespace = new RootNamespace(rootFunctionProvider, variableProvider);
         ExecutionContext context = new ExecutionContext(namespace);
 
         //For each hover associated with this item, add its transformed text to the resultant array
         boolean obsoleteExpressionDetected = false;
         ArrayList<String> ret = new ArrayList<>();
         for (HoverDef hoverDef : hovers.get(itemID)) {
+            // This hover def needs to have access to the functions which are defined in its owning hover file
+            // So we set the function provider for the context accordingly
+            rootFunctionProvider.setHoverFileFunctionProvider(hoverDef.OwningFile.FunctionProvider);
+
             // If the hoverdef has a condition, evaluate it first
             if (hoverDef.Condition != null) {
                 Token conditionResult = EvaluationUtil.EvaluateAtRuntime(hoverDef.Condition, context);

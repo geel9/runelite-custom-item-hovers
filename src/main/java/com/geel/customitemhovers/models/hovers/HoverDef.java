@@ -23,6 +23,12 @@ public class HoverDef {
     public String[][] HoverTexts;
 
     /**
+     * The hover file that this entry belongs to.
+     * This is used to make user-defined functions available to the hover.
+     */
+    public HoverFile OwningFile;
+
+    /**
      * A condition expression, which controls whether or not this hover will display.
      */
     public CompiledExpression Condition;

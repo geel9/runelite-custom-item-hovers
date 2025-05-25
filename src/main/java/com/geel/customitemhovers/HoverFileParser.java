@@ -2,11 +2,11 @@ package com.geel.customitemhovers;
 
 import com.geel.customitemhovers.expressions.*;
 import com.geel.customitemhovers.expressions.Compiler;
+import com.geel.customitemhovers.expressions.models.ArgumentType;
 import com.geel.customitemhovers.expressions.models.CompiledExpression;
-import com.geel.customitemhovers.models.hovers.HoverDef;
-import com.geel.customitemhovers.models.hovers.HoverFile;
-import com.geel.customitemhovers.models.hovers.ParsedHover;
-import com.geel.customitemhovers.providers.RootFunctionProvider;
+import com.geel.customitemhovers.models.hovers.*;
+import com.geel.customitemhovers.providers.GlobalFunctionProvider;
+import com.geel.customitemhovers.providers.HoverFileFunctionProvider;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +24,7 @@ public class HoverFileParser {
     private Gson gson;
 
     @Inject
-    private RootFunctionProvider functionProvider;
+    private GlobalFunctionProvider functionProvider;
 
     public ArrayList<HoverFile> readHoverFiles(Path dirPath) {
         ArrayList<HoverFile> ret = new ArrayList<>();
@@ -80,9 +80,74 @@ public class HoverFileParser {
 
     private void postProcessHoverFile(HoverFile f) {
         for (HoverDef d : f.Hovers) {
+            d.OwningFile = f;
+
+            parseUserDefinedFunctions(f);
             parseHoverDefHovers(d);
             parseHoverDefCondition(d);
         }
+    }
+
+    private void parseUserDefinedFunctions(HoverFile f) {
+        // No functions, no problem
+        if (f.RawUserDefinedFunctions == null || f.RawUserDefinedFunctions.length == 0) {
+            f.ParsedUserDefinedFunctions = new ParsedHoverFunction[0];
+            return;
+        }
+
+        ArrayList<ParsedHoverFunction> parsedFunctions = new ArrayList<>(f.RawUserDefinedFunctions.length);
+
+        // Parse each function
+        for (int i = 0; i < f.RawUserDefinedFunctions.length; i++) {
+            RawHoverFunction rawFunc = f.RawUserDefinedFunctions[i];
+
+            // Ensure functions start with ${ and end with }
+            // TODO: Not good
+            if (!rawFunc.expression.startsWith("${")) {
+                rawFunc.expression = "${" + rawFunc.expression + "}";
+            }
+
+            Tokenizer tokenizer = new Tokenizer(rawFunc.expression, 0);
+            CompiledExpression compiledExpression = null;
+            try {
+                compiledExpression = Compiler.Compile(tokenizer.tokenize());
+
+                // During static evaluation of a UDF, we don't make other UDFs available
+                compiledExpression = EvaluationUtil.EvaluateStatically(compiledExpression, new ExecutionContext(functionProvider, null));
+            } catch (IllegalArgumentException e) {
+                log.error("Failed to parse function: " + rawFunc.expression);
+                compiledExpression = null;
+            }
+
+            // If parsing failed, just skip this function
+            if (compiledExpression == null) {
+                continue;
+            }
+
+            // If parsing succeeded, add the function to the list
+
+            // HACK: We don't currently support argument types in UDFs, so just set them all to ANY
+            ArgumentType[] argTypes = new ArgumentType[rawFunc.arguments.length];
+            for (int j = 0; j < rawFunc.arguments.length; j++) {
+                argTypes[j] = ArgumentType.ANY; // UGH
+            }
+
+            ParsedHoverFunction parsedFunc = new ParsedHoverFunction(
+                    rawFunc.name,
+                    rawFunc.arguments,
+                    argTypes,
+                    compiledExpression
+            );
+
+            // Add the function to the list
+            parsedFunctions.add(parsedFunc);
+        }
+
+        // Convert the list to an array
+        f.ParsedUserDefinedFunctions = parsedFunctions.toArray(ParsedHoverFunction[]::new);
+
+        // Create a function provider for the file, and then... store it on the file... which is... really well designed, my main man.
+        f.FunctionProvider = new HoverFileFunctionProvider(f);
     }
 
     private final StringBuilder _hoverBuilder = new StringBuilder();
