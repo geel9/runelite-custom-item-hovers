@@ -101,6 +101,10 @@ public class HoverFileParser {
         for (int i = 0; i < f.RawUserDefinedFunctions.length; i++) {
             RawHoverFunction rawFunc = f.RawUserDefinedFunctions[i];
 
+            if(rawFunc.arguments == null) {
+                rawFunc.arguments = new String[0];
+            }
+
             // Ensure functions start with ${ and end with }
             // TODO: Not good
             if (!rawFunc.expression.startsWith("${")) {
