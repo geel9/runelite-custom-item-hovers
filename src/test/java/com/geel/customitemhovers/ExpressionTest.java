@@ -23,6 +23,7 @@ public class ExpressionTest {
         context = new ExecutionContext(functionProvider, variableProvider);
 
         // range()
+        testDoubleExpr("range(0,5).concat(range(6,10)).sum()", 55);
         testDoubleExpr("range(1, 10).sum()", 55);
         testDoubleExpr("range(0, 10).filter({i -> i % 2 == 0}).select({i -> i - 6}).sum()", -6);
         testDoubleExpr("range(0, 10).any({i -> i >= 11})", 0);
