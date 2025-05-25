@@ -1,21 +1,40 @@
 package com.geel.customitemhovers.expressions.models;
 
 public enum ArgumentType {
-    ANY, // TODO: doesn't include expressions and shouldn't, but confusing name
-    INTEGER,
-    DOUBLE,
-    STRING,
-    LAMBDA,
-    GENERATOR,
-    NAMESPACE;
+    ANY, // Literally any *valid argument type*
+    PRIMITIVE, // Integer, double, string
+    NUMERIC, // Integer, double
+    INTEGER, // Only Integer
+    DOUBLE, // Only Double
+    STRING, // Only String
+    LAMBDA, // Only Lambda
+    GENERATOR, // Only Generator
+    NAMESPACE; // Generator, Namespace (because all generators are namespaces)
 
+    /**
+     * Returns whether a given Token either:
+     * - Fits this argument type OR
+     * - Can be coerced to this argument type
+     */
     public boolean fitsTokenType(TokenType type) {
-        if (this == ANY) return type.isConstant();
-        if (this == INTEGER || this == DOUBLE) return type == TokenType.INTEGER || type == TokenType.DOUBLE;
-        if (this == STRING) return type == TokenType.STRING;
-        if (this == LAMBDA) return type == TokenType.LAMBDA;
-        if (this == GENERATOR) return type == TokenType.GENERATOR;
-        if (this == NAMESPACE) return type == TokenType.NAMESPACE || type == TokenType.GENERATOR;
+        switch (this) {
+            case ANY:
+                return type.isValue();
+            case PRIMITIVE:
+                return type.isPrimitive();
+            case NUMERIC:
+            case INTEGER:
+            case DOUBLE:
+                return type == TokenType.INTEGER || type == TokenType.DOUBLE;
+            case STRING:
+                return type.isPrimitive();
+            case LAMBDA:
+                return type == TokenType.LAMBDA;
+            case GENERATOR:
+                return type == TokenType.GENERATOR;
+            case NAMESPACE:
+                return type == TokenType.NAMESPACE || type == TokenType.GENERATOR;
+        }
 
         return false; //Should never get here
     }
@@ -25,16 +44,25 @@ public enum ArgumentType {
             throw new IllegalArgumentException("Cannot coerce token of invalid type");
         }
 
-        if (this == ANY || this == LAMBDA || this == GENERATOR || this == NAMESPACE) return token;
-        if (this == INTEGER)
-            return token.getType() == TokenType.INTEGER ? token : Token.fromInt(token.getNumericValue().intValue());
-        if (this == DOUBLE)
-            return token.getType() == TokenType.DOUBLE ? token : Token.fromDouble(token.getNumericValue().doubleValue());
+        TokenType type = token.getType();
+
+        // Convert double to integer if needed
+        if (this == INTEGER && type == TokenType.DOUBLE) {
+            return Token.fromInt(token.getNumericValue().intValue());
+        }
+
+        // Convert integer to double if needed
+        if (this == DOUBLE && type == TokenType.INTEGER) {
+            return Token.fromDouble(token.getNumericValue().doubleValue());
+        }
+
+        // Convert integer or double to string if needed
         if (this == STRING) {
             if (token.getType() == TokenType.STRING) return token;
             return Token.fromString(token.getValue());
         }
 
-        return token; // Should not get here
+        // No coercion needed for all other cases
+        return token;
     }
 }

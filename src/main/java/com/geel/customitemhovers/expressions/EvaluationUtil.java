@@ -19,9 +19,9 @@ public class EvaluationUtil {
             throw new IllegalArgumentException("Stack should only have a single entry at the end");
         }
 
-        // Single entry should be a constant integer, double, or string value
+        // Single entry should be a value type; otherwise, evaluation failed :(
         Token result = evaluationResult[0];
-        if (!result.getType().isConstant()) {
+        if (!result.getType().isValue()) {
             throw new IllegalArgumentException("Invalid token type after RPN evaluation");
         }
 

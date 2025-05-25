@@ -67,13 +67,13 @@ public enum TokenType {
         this.rightAssociative = false;
     }
 
-    private TokenType(int precedence, String constantValue,  boolean rightAssociative) {
+    private TokenType(int precedence, String constantValue, boolean rightAssociative) {
         this.precedence = precedence;
         this.constantValue = constantValue;
         this.rightAssociative = rightAssociative;
     }
 
-    private static TokenType[] operatorTokens = new TokenType[] {
+    private static TokenType[] operatorTokens = new TokenType[]{
             EXPRESSION_BEGIN, EXPRESSION_BEGIN_LEGACY, EXPRESSION_END, EXPRESSION_END_LEGACY,
             OP_TIMES, OP_DIVIDE, OP_MODULO, OP_MINUS, OP_PLUS,
             NAMESPACE_ACCESSOR,
@@ -164,7 +164,27 @@ public enum TokenType {
     }
 
     public boolean isValue() {
-        return isVariable() || isConstant() || this == LAMBDA || this == NAMESPACE || this == GENERATOR;
+        return isPrimitive() || isLambda() || isNamespace(); // Includes generators
+    }
+
+    public boolean isReference() {
+        return isVariable() || isFunction();
+    }
+
+    public boolean isPrimitive() {
+        return this == INTEGER || this == DOUBLE || this == STRING;
+    }
+
+    public boolean isNamespace() {
+        return this == NAMESPACE || this.isGenerator(); // Generators are "subclasses" of namespaces
+    }
+
+    public boolean isLambda() {
+        return this == LAMBDA;
+    }
+
+    public boolean isGenerator() {
+        return this == GENERATOR;
     }
 
     public boolean isFunction() {
@@ -176,10 +196,10 @@ public enum TokenType {
     }
 
     public boolean isConstant() {
-        return this == INTEGER || this == DOUBLE || this == STRING || this == NAMESPACE;
+        return isPrimitive();
     }
 
     public boolean isIdentifier() {
-        return isValue() || isFunction();
+        return isVariable() || isFunction();
     }
 }

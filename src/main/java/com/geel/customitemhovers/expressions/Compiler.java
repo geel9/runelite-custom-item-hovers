@@ -38,8 +38,10 @@ public class Compiler {
                 continue;
             }
 
-            // If the top of the stack is a namespace accessor, we need to "consume" it to mark the variable/function we just read as namespace-accessing
-            if (token.getType().isVariable() || token.getType().isFunction()) {
+            // If we just read a reference (var/func), and the top of the stack is a namespace accessor,
+            // then we need to "consume" it to mark the reference we just read as using a namespace, which will be
+            // on the stack just below the reference itself (and below the args for functions)
+            if (token.getType().isReference()) {
                 Token topOfStack = operatorStack.isEmpty() ? null : operatorStack.peek();
 
                 if (topOfStack != null && topOfStack.getType() == TokenType.NAMESPACE_ACCESSOR) {
@@ -48,7 +50,8 @@ public class Compiler {
                 }
             }
 
-            if (token.getType().isValue()) {
+            // Values and variables are always just added to the output queue
+            if (token.getType().isValue() || token.getType().isVariable()) {
                 outputQueue.add(token);
                 continue;
             }

@@ -32,7 +32,7 @@ public class Evaluator {
             boolean isLast = i == rpn.length - 1;
 
             // Handle values
-            if (token.getType().isValue()) {
+            if (token.getType().isValue() || token.getType().isVariable()) {
                 if (isLast && !isFirst) {
                     // TODO: explain myself
                     boolean isDanglingStatic = context.isStaticEval() && stack.peek().getType() != TokenType.NAMESPACE_ACCESSOR;
@@ -52,11 +52,6 @@ public class Evaluator {
             if (token.getType().isFunction()) {
                 stack.add(evaluateFunction(stack, token, context));
                 continue;
-            }
-
-            // Handle namespace accessor
-            if (token.getType().isNamespaceAccessor()) {
-                throw new IllegalArgumentException("Namespace accessors should not be on the stack");
             }
 
             // Handle operators
@@ -118,14 +113,14 @@ public class Evaluator {
             Token value,
             ExecutionContext context
     ) {
-        // If it's a constant type, just return that
-        if (value.getType().isConstant()) {
-            return value;
+        // In static eval mode, if the value is a lambda, we need to statically evaluate it
+        if (context.isStaticEval() && value.getType().isLambda()) {
+            staticallyEvaluateLambda(value, context);
         }
 
-        // If it's a sub-expression, evaluate it
-        if (value.getType() == TokenType.LAMBDA) {
-            return evaluateSubExpression(value, context);
+        // If it's a value type, just return it
+        if (value.getType().isValue()) {
+            return value;
         }
 
         // Evaluate variable
@@ -168,27 +163,21 @@ public class Evaluator {
     }
 
     /**
-     * Evaluates a sub-expression in either runtime or static eval mode.
+     * Evaluates a sub-expression in static eval mode.
      */
-    private static Token evaluateSubExpression(
+    private static void staticallyEvaluateLambda(
             Token subExpressionToken,
             ExecutionContext context
     ) {
-        // If we're in static eval mode, we need to static-evaluate the sub-expression
-        if (context.isStaticEval()) {
-            CompiledExpression subExpression = subExpressionToken.getCompiledLambda();
-            if (subExpression == null) {
-                throw new IllegalArgumentException("Sub-expression is null");
-            }
-
-            // TODO: Handle single-token value return -- can replace with just the Token? Maybe? Maybe not actually.
-            Token[] evaluated = EvaluateExpression(subExpression, context);
-            CompiledExpression evaluatedExpression = new CompiledExpression(evaluated, subExpression.getExpressionText(), false);
-            subExpressionToken.setCompiledLambda(evaluatedExpression);
+        CompiledExpression subExpression = subExpressionToken.getCompiledLambda();
+        if (subExpression == null) {
+            throw new IllegalArgumentException("Sub-expression is null");
         }
 
-        // In runtime eval mode, we just return the lambda token. We don't execute it here.
-        return subExpressionToken;
+        // TODO: Handle single-token value return -- can replace with just the Token? Maybe? Maybe not actually.
+        Token[] evaluated = EvaluateExpression(subExpression, context);
+        CompiledExpression evaluatedExpression = new CompiledExpression(evaluated, subExpression.getExpressionText(), false);
+        subExpressionToken.setCompiledLambda(evaluatedExpression);
     }
 
     /**
@@ -221,27 +210,31 @@ public class Evaluator {
         // Parse out the args.
         // They'll be on the stack in reverse order.
         Token[] args = new Token[numArgs];
-        boolean allConst = true;
+        boolean allEvaluatable = true;
         int numArgsPopped = 0;
         for (int i = args.length - 1; i >= 0; i--) {
             args[i] = stack.pop();
             numArgsPopped++;
 
-            boolean isConstant = args[i].getType().isConstant() || (!context.isStaticEval()
-                    && (args[i].getType() == TokenType.LAMBDA || args[i].getType() == TokenType.GENERATOR));
+            // runtime: primitive, namespace, lambda, generator
+            // static: primitive, namespace
+            TokenType type = args[i].getType();
+            boolean isValueType = type.isConstant() || type.isNamespace() || type.isLambda();
+            boolean isStaticallyEvaluatableValueType = isValueType && !type.isGenerator() && !type.isLambda();
+            boolean isEvaluatable = context.isStaticEval() ? isStaticallyEvaluatableValueType : isValueType;
 
-            // If any args are non-const, we should stop immediately -- we won't be able to evaluate the function.
+            // If any args are non-evaluatable, we should stop immediately -- we won't be able to evaluate the function.
             // (We're either in static eval mode, in which case, any non-const args are always a no go -- or we're in
             //  runtime eval mode, in which case, it's inherently erroneous that we end up with a function call
             //  without evaluated, constant arguments on the stack)
-            if (!isConstant) {
-                allConst = false;
+            if (!isEvaluatable) {
+                allEvaluatable = false;
                 break;
             }
         }
 
         INamespace searchNamespace = context;
-        if(functionToken.isNamespacedAccess()) {
+        if (functionToken.isNamespacedAccess()) {
             Token namespaceToken = stack.pop();
             INamespace namespace = namespaceToken.getNamespaceValue();
 
@@ -253,7 +246,7 @@ public class Evaluator {
         }
 
         // If all the arguments are const, then try to find a function that fits
-        if (allConst) {
+        if (allEvaluatable) {
             Function func = searchNamespace.findFunction(name, args);
             if (func != null && (!context.isStaticEval() || func.isConstExpr())) {
                 // We found a function, and either we're not in static eval mode, or we are and it's a constexpr func
@@ -292,11 +285,14 @@ public class Evaluator {
             ExecutionContext executionContext
     ) {
         // In static eval mode, handle non-const operands or ternary operators specially
-        boolean isTernary = operatorToken.getType().isTernaryOperator();
         if (executionContext.isStaticEval()) {
-            boolean isNonConst = (!leftToken.getType().isConstant() || !rightToken.getType().isConstant());
+            boolean isTernary = operatorToken.getType().isTernaryOperator();
+            // TODO: I think lambdas and generators should be fine too -- though I'm not sure what operators would be executing against them...
+            boolean leftIsStaticallyEvaluatable = leftToken.getType().isConstant() || leftToken.getType() == TokenType.NAMESPACE;
+            boolean rightIsStaticallyEvaluatable = rightToken.getType().isConstant() || rightToken.getType() == TokenType.NAMESPACE;
+            boolean isStaticallyEvaluatable = leftIsStaticallyEvaluatable && rightIsStaticallyEvaluatable;
 
-            if (isNonConst || isTernary) {
+            if (!isStaticallyEvaluatable || isTernary) {
                 // Put things back on the stack exactly as they were
                 stack.add(leftToken);
                 stack.add(rightToken);

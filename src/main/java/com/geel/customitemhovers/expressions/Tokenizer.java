@@ -493,7 +493,7 @@ public class Tokenizer {
      */
     private void assertCanReadOperator() {
         TokenType token = lastTokenType();
-        if (!(token != null && (token.isValue() || token == TokenType.LAMBDA || token == TokenType.PAREN_RIGHT))) {
+        if (!(token != null && (token.isValue() || token.isVariable() || token == TokenType.PAREN_RIGHT))) {
             throw new IllegalArgumentException("Unexpected operator");
         }
     }
@@ -525,8 +525,8 @@ public class Tokenizer {
             throw new IllegalArgumentException("Unexpected ) at start of expression");
         }
 
-        // Right parentheses is always allowed to follow another right parentheses or a value
-        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue() || lastToken == TokenType.LAMBDA) {
+        // Right parentheses is always allowed to follow another right parentheses, a value, or a variable
+        if (lastToken == TokenType.PAREN_RIGHT || lastToken.isValue() || lastToken.isVariable()) {
             return;
         }
 
@@ -558,7 +558,7 @@ public class Tokenizer {
      */
     private boolean isValidFinalToken() {
         TokenType token = lastTokenType();
-        return token != null && token.isValue() || token == TokenType.PAREN_RIGHT;
+        return token != null && (token.isValue() || token.isVariable() || token == TokenType.PAREN_RIGHT);
     }
 
     private static boolean isExpressionBeginFirstChar(char c) {
